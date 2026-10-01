@@ -890,6 +890,8 @@
   @media (max-width: 760px) { .ing-row { flex-wrap: wrap; } .ing-side { flex-direction: row; width: 100%; justify-content: flex-end; } }
 
   .ing-actions { display: flex; align-items: center; gap: 6px; }
+  .ing-paid-on { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; font-weight: 600; color: var(--ok); margin-top: 3px; }
+  .ing-paid-on input[type="date"] { width: auto; padding: 3px 8px !important; font-size: 12.5px !important; }
   .ing-del { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px 6px; border-radius: 8px; opacity: 0.55; }
   .ing-del:hover { opacity: 1; background: var(--urgent-soft); }
 
@@ -4766,7 +4768,7 @@
   function fnSourceTotals(d, m) {
     var t = {}; FN_SOURCES.forEach(function (s) { t[s[0]] = { inc: 0, sosp: 0 }; });
     d.pays.forEach(function (p) { if (p.aParte) return; var k = p.kind === 'Consulenza' ? 'cons' : 'pt'; t[k].inc += spCashIn(p, m); if (spInMonth(p.date, m)) t[k].sosp += p.residuo; });
-    ingItems().forEach(function (x) { if (!spInMonth(x.date, m)) return; if (x.paid) t.ing.inc += x.amount; else t.ing.sosp += x.amount; });
+    ingItems().forEach(function (x) { if (x.paid) { if (spInMonth(ingPayDay(x), m)) t.ing.inc += x.amount; } else if (spInMonth(x.date, m)) t.ing.sosp += x.amount; });
     d.coach.forEach(function (r) { if (!spInMonth(r.date, m)) return; var k = r.source === 'Visite' ? 'vis' : 'coach'; if (r.paid) t[k].inc += r.amount; else t[k].sosp += r.amount; });
     return t;
   }
@@ -4807,7 +4809,7 @@
     var d = fnCompute();
     d.pays.forEach(function (p) { (p.cash || []).forEach(function (x) { if (spInMonth(x.date, m) && x.amount) rows.push([x.date, p.name, p.kind === 'Consulenza' ? 'Consulenze' : 'Sedute PT', p.kind + ' (' + x.kind + ')', x.amount, p.aParte ? 'sì' : '']); }); });
     d.coach.forEach(function (r) { if (r.paid && spInMonth(r.date, m)) rows.push([r.date, r.name, r.source === 'Visite' ? 'Solo visite' : 'Coaching', r.kind, r.amount, '']); });
-    ingItems().forEach(function (x) { if (x.paid && x.amount && spInMonth(x.date, m)) rows.push([x.date, x.name, 'Ingressi', 'Ingresso', x.amount, '']); });
+    ingItems().forEach(function (x) { if (x.paid && x.amount && spInMonth(ingPayDay(x), m)) rows.push([ingPayDay(x), x.name, 'Ingressi', 'Ingresso del ' + x.date.getDate() + ' ' + MESI[x.date.getMonth()].slice(0, 3), x.amount, '']); });
     rows.sort(function (a, b) { return a[0] - b[0]; });
     var num = function (v) { return String(Math.round(v * 100) / 100).replace('.', ','); };
     var q = function (s) { s = String(s == null ? '' : s); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
@@ -4834,7 +4836,7 @@
       { n: spEuro(sosp), l: 'In sospeso / da incassare' },
       { n: spEuro(inc + sosp), l: 'Proiezione totale mese' },
       { n: spEuro(est), l: 'Rinnovi stimati (non ancora in calendario)' },
-      (function () { var il = ingItems().filter(function (x) { return spInMonth(x.date, m); }); var ii = 0, is = 0; il.forEach(function (x) { if (x.paid) ii += x.amount; else is += x.amount; }); return { n: spEuro(ii + is), l: 'Ingressi del mese · ' + il.length + ' entrate (incassato ' + spEuro(ii) + ')' }; })(),
+      (function () { var il = ingItems().filter(function (x) { return spInMonth(x.date, m); }); var ii = 0, is = 0; il.forEach(function (x) { if (!x.paid) is += x.amount; }); ingItems().forEach(function (x) { if (x.paid && spInMonth(ingPayDay(x), m)) ii += x.amount; }); return { n: spEuro(ii + is), l: 'Ingressi del mese · ' + il.length + ' entrate (incassato ' + spEuro(ii) + ')' }; })(),
       { n: '💶 ' + spEuro(parte), l: 'Incasso a parte (escluso dai totali)' },
       (function () { var pv = m <= spMonthStart(todayMidnight()) ? fnProjectedAt(m) : null; return { n: pv == null ? '—' : spEuro(pv), l: pv == null ? 'Previsto a inizio mese (non disponibile)' : 'Previsto a inizio mese · ' + fnDelta(inc + sosp, pv) }; })()
     ];
@@ -4882,8 +4884,8 @@
     // dettaglio del mese scelto
     var rows = [];
     var ingPer = {};
-    ingItems().forEach(function (x) { if (!spInMonth(x.date, fnView.month)) return; var k = x.name.toLowerCase(); var g = ingPer[k] || (ingPer[k] = { name: x.name, n: 0, tot: 0, paid: 0, last: x.date }); g.n++; g.tot += x.amount; if (x.paid) g.paid += x.amount; if (x.date > g.last) g.last = x.date; });
-    Object.keys(ingPer).forEach(function (k) { var g = ingPer[k]; rows.push({ name: g.name, ing: true, date: g.last, kind: 'Ingressi · ' + g.n + (g.n === 1 ? ' entrata' : ' entrate'), inc: g.paid, due: g.tot - g.paid, src: g.paid >= g.tot ? 'Pagato' : (g.paid ? 'In parte' : 'Da incassare'), cls: g.paid >= g.tot ? 'ok' : (g.paid ? 'acc' : 'cal'), freq: null }); });
+    ingItems().forEach(function (x) { var inM = spInMonth(x.date, fnView.month), payM = x.paid && spInMonth(ingPayDay(x), fnView.month); if (!inM && !payM) return; var k = x.name.toLowerCase(); var g = ingPer[k] || (ingPer[k] = { name: x.name, n: 0, tot: 0, paid: 0, last: x.date }); if (inM) g.n++; g.tot += (x.paid ? (payM ? x.amount : 0) : x.amount); if (payM) g.paid += x.amount; if (x.date > g.last) g.last = x.date; });
+    Object.keys(ingPer).forEach(function (k) { var g = ingPer[k]; rows.push({ name: g.name, ing: true, date: g.last, kind: g.n ? 'Ingressi · ' + g.n + (g.n === 1 ? ' entrata' : ' entrate') : 'Ingresso di ' + MESI[g.last.getMonth()] + ' pagato in questo mese', inc: g.paid, due: g.tot - g.paid, src: g.paid >= g.tot ? 'Pagato' : (g.paid ? 'In parte' : 'Da incassare'), cls: g.paid >= g.tot ? 'ok' : (g.paid ? 'acc' : 'cal'), freq: null }); });
     d.coach.forEach(function (r) { if (spInMonth(r.date, fnView.month)) rows.push({ name: r.name, coachId: r.id, date: r.date, kind: r.kind, inc: r.paid ? r.amount : 0, due: r.paid ? 0 : r.amount, src: r.paid ? 'Pagato' : 'Da incassare', cls: r.paid ? 'ok' : 'cal', freq: null }); });
     d.pays.forEach(function (p) {
       var inM = spInMonth(p.date, fnView.month), cashM = spCashIn(p, fnView.month);
@@ -4917,7 +4919,7 @@
       if (k === 'inc') {
         d.pays.forEach(function (p) { if (p.aParte) return; var v = spCashIn(p, sm); if (v) list.push({ n: p.name, t: p.kind, d: p.date, a: v }); });
         d.coach.forEach(function (r) { if (r.paid && spInMonth(r.date, sm)) list.push({ n: r.name, t: r.kind, d: r.date, a: r.amount }); });
-        ingItems().forEach(function (x) { if (x.paid && x.amount && spInMonth(x.date, sm)) list.push({ n: x.name, t: 'Ingresso', d: x.date, a: x.amount }); });
+        ingItems().forEach(function (x) { if (x.paid && x.amount && spInMonth(ingPayDay(x), sm)) list.push({ n: x.name, t: 'Ingresso del ' + x.date.getDate() + ' ' + MESI[x.date.getMonth()].slice(0, 3), d: ingPayDay(x), a: x.amount }); });
       } else if (k === 'sosp') {
         d.pays.forEach(function (p) { if (!p.aParte && spInMonth(p.date, sm) && p.residuo) list.push({ n: p.name, t: p.kind + (p.paidSum ? ' (resto dopo acconto)' : ''), d: p.date, a: p.residuo }); });
         d.coach.forEach(function (r) { if (!r.paid && spInMonth(r.date, sm)) list.push({ n: r.name, t: r.kind, d: r.date, a: r.amount }); });
@@ -5649,11 +5651,13 @@
       var ov = (state.sp.ing || {})[e.id] || {};
       if (ov.eliminato) return;
       var amount = ov.amount != null ? ov.amount : ingPrice();
-      out.push({ isNew: e.created && (Date.now() - new Date(e.created).getTime()) < 86400000, id: e.id, name: name || 'Senza nome', email: mail, date: new Date(e.start.dateTime), end: new Date(e.end.dateTime), amount: amount, paid: !!ov.paid, note: ov.note || '', future: new Date(e.start.dateTime) > new Date() });
+      out.push({ isNew: e.created && (Date.now() - new Date(e.created).getTime()) < 86400000, id: e.id, name: name || 'Senza nome', email: mail, date: new Date(e.start.dateTime), end: new Date(e.end.dateTime), amount: amount, paid: !!ov.paid, paidOn: ov.paid && ov.paidOn ? ov.paidOn : '', note: ov.note || '', future: new Date(e.start.dateTime) > new Date() });
     });
     out.sort(function (a, b) { return a.date - b.date; });
     return out;
   }
+  // giorno in cui l'ingresso è stato incassato (se non indicato: il giorno dell'entrata, come prima)
+  function ingPayDay(x) { return x.paid ? (x.paidOn ? fromISO(x.paidOn) : x.date) : null; }
   function ingSet(id, patch) {
     state.sp.ing = state.sp.ing || {};
     var o = state.sp.ing[id] || {};
@@ -5710,7 +5714,8 @@
     var list = ingItems().filter(function (x) { return spInMonth(x.date, ingView.month); });
     var done = list.filter(function (x) { return !x.future; });
     var inc = 0, sosp = 0, people = {};
-    list.forEach(function (x) { if (x.paid) inc += x.amount; else sosp += x.amount; people[x.name.toLowerCase()] = true; });
+    list.forEach(function (x) { if (!x.paid) sosp += x.amount; people[x.name.toLowerCase()] = true; });
+    ingItems().forEach(function (x) { if (x.paid && spInMonth(ingPayDay(x), ingView.month)) inc += x.amount; });
     var mese = MESI[ingView.month.getMonth()];
     var defs = [
       { n: list.length, l: 'Ingressi · ' + mese + (list.length !== done.length ? ' (' + (list.length - done.length) + ' prenotati)' : '') },
@@ -5746,7 +5751,7 @@
       return '<div class="ing-row sp-' + cls + '">' +
         '<div class="ing-date"><strong>' + x.date.getDate() + '</strong><span>' + MESI[x.date.getMonth()].slice(0, 3) + '</span></div>' +
         '<div class="ing-main"><div class="ing-name">' + escapeHtml(x.name) + ' <span class="sp-badge sp-badge-' + cls + '">' + badge + '</span>' + (x.isNew ? '<span class="ing-new">NUOVA</span>' : '') + '</div>' +
-          '<div class="sp-meta">Entrata ' + GIORNI[x.date.getDay()] + ' alle ' + apTime(x.date.toISOString()) + ' – ' + apTime(x.end.toISOString()) + (x.email ? ' · ' + escapeHtml(x.email) : '') + '</div>' +
+          (x.paid ? '<div class="ing-paid-on">💶 pagato il <input type="date" data-ingpaydate="' + escapeHtml(x.id) + '" value="' + toISO(ingPayDay(x)) + '"><span class="sp-meta"> · conta negli incassi di ' + MESI[ingPayDay(x).getMonth()] + '</span></div>' : '') + '<div class="sp-meta">Entrata ' + GIORNI[x.date.getDay()] + ' alle ' + apTime(x.date.toISOString()) + ' – ' + apTime(x.end.toISOString()) + (x.email ? ' · ' + escapeHtml(x.email) : '') + '</div>' +
           '<input type="text" class="ing-note" data-ingnote="' + escapeHtml(x.id) + '" placeholder="Nota…" value="' + escapeHtml(x.note) + '"></div>' +
         '<div class="ing-side"><select class="form-input ing-amt" data-ingamt="' + escapeHtml(x.id) + '">' + opts.map(function (p) { return '<option value="' + p + '"' + (x.amount === p ? ' selected' : '') + '>' + (p ? '€ ' + p : 'Gratuito') + '</option>'; }).join('') + '</select>' +
           '<div class="ing-actions">' + (x.amount ? (x.paid ? '<button class="btn small ghost" data-ingpay="' + escapeHtml(x.id) + '" data-v="0">Annulla</button>' : '<button class="btn small sp-pay-btn" data-ingpay="' + escapeHtml(x.id) + '" data-v="1">✓ Pagato</button>') : '') +
@@ -5773,7 +5778,8 @@
     si.addEventListener('input', function () { ingView.search = si.value; var pos = si.selectionStart; renderIngressiList(); var n = document.getElementById('ingSearch'); n.focus(); n.setSelectionRange(pos, pos); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-ingf]'), function (b) { b.addEventListener('click', function () { ingView.filter = b.getAttribute('data-ingf'); renderIngressiList(); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-ingamt]'), function (s) { s.addEventListener('change', function () { ingSet(s.getAttribute('data-ingamt'), { amount: parseInt(s.value, 10) }); renderIngressiStats(); renderIngressiList(); }); });
-    Array.prototype.forEach.call(listEl.querySelectorAll('[data-ingpay]'), function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-v') === '1'; ingSet(b.getAttribute('data-ingpay'), { paid: v, paidAt: v ? new Date().toISOString() : null }); if (v) toast('Ingresso segnato come pagato'); renderIngressiStats(); renderIngressiList(); }); });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-ingpaydate]'), function (inp) { inp.addEventListener('change', function () { if (!inp.value) return; ingSet(inp.getAttribute('data-ingpaydate'), { paidOn: inp.value }); toast('Data di pagamento aggiornata'); renderIngressiStats(); renderIngressiList(); }); });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-ingpay]'), function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-v') === '1'; ingSet(b.getAttribute('data-ingpay'), { paid: v, paidAt: v ? new Date().toISOString() : null, paidOn: v ? toISO(todayMidnight()) : null }); if (v) toast('Ingresso pagato oggi · se è stato pagato un altro giorno cambia la data accanto'); renderIngressiStats(); renderIngressiList(); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-ingdel]'), function (b) {
       b.addEventListener('click', function () {
         var id = b.getAttribute('data-ingdel');
