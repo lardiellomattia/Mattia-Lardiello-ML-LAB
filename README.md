@@ -14,3 +14,9 @@ Fuori da claude.ai i dati restano solo in `localStorage` del browser.
 ## Dati dei clienti
 Il repository contiene **solo il codice**. I dati (backup JSON, CSV, PDF) non vanno mai committati:
 sono esclusi da `.gitignore`.
+
+## Allenamento
+Protocolli (mesocicli › workout › esercizi) con data di inizio della settimana 1: l'app calcola
+mesociclo e settimana in corso, li mostra nella cartella del cliente e segnala in **Oggi** i mesocicli
+che finiscono entro 7 giorni. L'assistente ha lo strumento `allenamento`
+(elenca, dettaglio, assegna, nuovo, inizio).

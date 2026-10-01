@@ -5371,6 +5371,64 @@
           return s.name + ': ' + done.join(', ');
         });
       } },
+    { name: 'allenamento', description: 'Protocolli di allenamento (pagina Allenamento: mesocicli › workout › esercizi con serie e ripetizioni per settimana). azione "elenca" (tutti, o solo quelli di un cliente), "dettaglio" (esercizi di un protocollo per il mesociclo e la settimana in corso, o quelli indicati), "assegna" (protocollo a un cliente), "nuovo" (crea un protocollo per un cliente, vuoto o copiando da_protocollo), "inizio" (imposta la data di inizio della settimana 1).',
+      inputSchema: { type: 'object', properties: { azione: { type: 'string', enum: ['elenca', 'dettaglio', 'assegna', 'nuovo', 'inizio'] }, protocollo: { type: 'string', description: 'nome del protocollo (o del cliente a cui è assegnato)' }, cliente: { type: 'string' }, da_protocollo: { type: 'string', description: 'per "nuovo": protocollo da copiare' }, nome: { type: 'string', description: 'per "nuovo": nome del nuovo protocollo' }, data: { type: 'string', description: 'YYYY-MM-DD, inizio della settimana 1' }, mesociclo: { type: 'number' }, settimana: { type: 'number' } }, required: ['azione'] },
+      execute: function (inp) {
+        if (state.anag) anSync();
+        var findPerson = function (nome) {
+          var q = asNorm(nome); if (!q) throw new Error('manca il nome del cliente');
+          var toks = q.split(/\s+/), people = (state.anag.people || []).filter(function (x) { return !x.eliminato; });
+          var list = people.filter(function (x) { var n = asNorm(x.nome); return toks.every(function (t) { return n.indexOf(t) !== -1; }); });
+          var exact = list.filter(function (x) { return asNorm(x.nome) === q; });
+          if (exact.length === 1) return exact[0]; if (list.length === 1) return list[0];
+          if (!list.length) throw new Error('nessuna persona "' + nome + '" in Anagrafica');
+          throw new Error('più persone corrispondono: ' + list.map(function (x) { return x.nome; }).join(', ') + '. Chiedi a Mattia quale.');
+        };
+        var findTr = function (nome) {
+          var q = asNorm(nome); if (!q) throw new Error('manca il nome del protocollo');
+          var toks = q.split(/\s+/), all = state.train || [];
+          var list = all.filter(function (p) { var n = asNorm(p.nome + ' ' + trPersonName(p.personId)); return toks.every(function (t) { return n.indexOf(t) !== -1; }); });
+          var exact = list.filter(function (p) { return asNorm(p.nome) === q; });
+          if (exact.length === 1) return exact[0]; if (list.length === 1) return list[0];
+          if (!list.length) throw new Error('nessun protocollo "' + nome + '". Protocolli: ' + all.map(function (p) { return p.nome; }).join(', '));
+          throw new Error('più protocolli corrispondono: ' + list.map(function (p) { return p.nome; }).join(', ') + '. Chiedi a Mattia quale.');
+        };
+        var info = function (p) { return { nome: p.nome, cliente: trPersonName(p.personId) || null, inizio: p.inizio || null, stato: trStatusText(p), mesocicli: p.mesocicli.map(function (m) { return { nome: m.nome, settimane: m.settimane, workout: m.workouts.map(function (w) { return w.nome; }) }; }) }; };
+        var done = function (p, msg) { trTouch(p); trSave(true); asMark(); asAfterWrite(); if (state.activeTab === 'allenamento') { renderTrainStats(); renderTrainList(); } return msg; };
+        if (inp.azione === 'elenca') {
+          var list = state.train || [];
+          if (inp.cliente) { var per = findPerson(inp.cliente); list = list.filter(function (p) { return p.personId === per.id; }); }
+          return list.length ? list.map(info) : 'Nessun protocollo' + (inp.cliente ? ' per ' + inp.cliente : '') + '.';
+        }
+        var p = inp.azione === 'nuovo' ? null : findTr(inp.protocollo || inp.cliente);
+        if (inp.azione === 'dettaglio') {
+          var sc = trSchedule(p), mi = inp.mesociclo ? parseInt(inp.mesociclo, 10) - 1 : (sc ? sc.meso : 0);
+          var m = p.mesocicli[mi]; if (!m) throw new Error('il protocollo ha ' + p.mesocicli.length + ' mesocicli');
+          var wi = inp.settimana ? parseInt(inp.settimana, 10) - 1 : (sc && sc.stato === 'in corso' && sc.meso === mi ? sc.week - 1 : 0);
+          if (wi < 0 || wi >= m.settimane) throw new Error(m.nome + ' ha ' + m.settimane + ' settimane');
+          return { protocollo: p.nome, cliente: trPersonName(p.personId) || null, stato: trStatusText(p), mesociclo: m.nome, settimana: wi + 1, note: p.note || {},
+            workout: m.workouts.map(function (w) { return { nome: w.nome, esercizi: w.esercizi.filter(function (e) { return e.nome; }).map(function (e) { var st = e.sett[wi] || {}; return { esercizio: e.nome, muscolo: e.muscolo, tipo: e.tipo === 'F' ? 'fondamentale' : 'complementare', serie: st.s || '', ripetizioni: st.r || '', carico: st.c || '', rest: e.rest || '', note: e.note || '' }; }) }; }) };
+        }
+        if (inp.azione === 'assegna') {
+          var pa = findPerson(inp.cliente); p.personId = pa.id; if (!trNotes(p).nome) p.note.nome = pa.nome;
+          return done(p, 'Protocollo "' + p.nome + '" assegnato a ' + pa.nome);
+        }
+        if (inp.azione === 'inizio') {
+          if (!inp.data) throw new Error('serve la data di inizio (YYYY-MM-DD)');
+          p.inizio = String(inp.data).slice(0, 10);
+          return done(p, 'Protocollo "' + p.nome + '": settimana 1 dal ' + p.inizio + ' · ' + trStatusText(p));
+        }
+        if (inp.azione === 'nuovo') {
+          var pn = inp.cliente ? findPerson(inp.cliente) : null, np;
+          if (inp.da_protocollo) { np = JSON.parse(JSON.stringify(findTr(inp.da_protocollo))); np.id = uid(); np.note = {}; np.creato = new Date().toISOString(); np.mesocicli.forEach(function (mm) { mm.workouts.forEach(function (w) { w.esercizi.forEach(function (e) { e.sett.forEach(function (st) { st.c = ''; }); }); }); }); }
+          else np = trNew();
+          np.nome = inp.nome || (pn ? 'Protocollo ' + pn.nome : 'Nuovo protocollo'); np.personId = pn ? pn.id : ''; np.inizio = inp.data ? String(inp.data).slice(0, 10) : '';
+          if (pn) np.note.nome = pn.nome;
+          state.train.push(np);
+          return done(np, 'Creato il protocollo "' + np.nome + '"' + (pn ? ' per ' + pn.nome : '') + (inp.da_protocollo ? ' (copiato, carichi vuoti)' : '') + '. Esercizi da completare nella pagina Allenamento.');
+        }
+        throw new Error('azione non valida');
+      } },
     { name: 'riepilogo', description: 'Riepilogo: tipo "urgenze" (cose da fare dal banner: check, pagamenti, rinnovi, clienti in attesa di pagamento) oppure "finanze" (incassato, da incassare e provenienza del mese, YYYY-MM).',
       inputSchema: { type: 'object', properties: { tipo: { type: 'string', enum: ['urgenze', 'finanze'] }, mese: { type: 'string' } }, required: ['tipo'] },
       execute: function (inp) {
@@ -5418,7 +5476,7 @@
       pend +
       'Non dire mai che gli appuntamenti sono stati creati: li crea solo Mattia con il pulsante. Usa l\'email del cliente come invitato solo se l\'ha trovata cerca_cliente o se Mattia la scrive. ' +
       'Per domande su orari liberi usa leggi_agenda. Per note o cose da ricordare usa aggiungi_promemoria. ' +
-      'Puoi agire su tutta l\'app: creare e modificare cartelle clienti (crea_cliente, modifica_cliente), gestire rate e richieste di pagamento (gestisci_rata), check (gestisci_check), consulenze (aggiungi_consulenza), cartelle di Sedute personal con tariffe, acconti e stato (cartella_sedute), riepiloghi (riepilogo) e aprire pagine o cartelle (apri). ' +
+      'Puoi agire su tutta l\'app: creare e modificare cartelle clienti (crea_cliente, modifica_cliente), gestire rate e richieste di pagamento (gestisci_rata), check (gestisci_check), protocolli di allenamento (allenamento), consulenze (aggiungi_consulenza), cartelle di Sedute personal con tariffe, acconti e stato (cartella_sedute), riepiloghi (riepilogo) e aprire pagine o cartelle (apri). ' +
       'Queste modifiche all\'app avvengono subito: fai SOLO quello che Mattia ha chiesto, sul cliente giusto (se il nome è ambiguo chiedi quale), e alla fine elenca in breve cosa hai cambiato. Mattia può annullare tutto con il pulsante sotto la tua risposta. ' +
       'Le date vanno nel formato YYYY-MM-DD. Distingui: "Percorsi coaching"/"Solo visite" sono le cartelle dell\'app (clienti coaching con check e rate); "Sedute personal" sono i clienti delle PT in agenda (pacchetti, tariffe, acconti). ' +
       (clienti ? 'Clienti noti: ' + clienti + '.' : '');
@@ -5436,7 +5494,7 @@
     asSetStatus('');
     asState.ctl = new AbortController();
     asState.changed = false;
-    var snap = JSON.stringify({ clients: state.clients, consulenze: state.consulenze, promemoria: state.promemoria, sp: state.sp });
+    var snap = JSON.stringify({ clients: state.clients, consulenze: state.consulenze, promemoria: state.promemoria, sp: state.sp, train: state.train });
     var turns = [{ role: 'user', content: asRules() }, { role: 'assistant', content: 'Ciao Mattia, dimmi pure.' }].concat(asState.turns);
     asState.sample(turns, {
       tools: AS_TOOLS.concat(AS_TOOLS2), signal: asState.ctl.signal, modelTier: 'complex',
@@ -5465,6 +5523,7 @@
         ub.querySelector('[data-asundo]').addEventListener('click', function () {
           var o = JSON.parse(snap);
           state.clients = normClients(o.clients); state.consulenze = o.consulenze; state.promemoria = o.promemoria; state.sp = o.sp;
+          if (Array.isArray(o.train)) { state.train = trNorm(o.train); trSave(true); }
           saveClients(); saveConsulenze(); savePromemoria(); saveSp();
           renderTabs(); render(); if (state.openFolderId) renderFolder(state.openFolderId); finRerender();
           ub.innerHTML = '<span class="as-done">↶ Modifiche annullate.</span>';
@@ -6718,10 +6777,14 @@
     var bdBanner = bdToday.map(function (b) { return '<div class="og-bday"><span class="og-bday-ico">🎂</span><div style="flex:1;"><strong>Oggi è il compleanno di ' + escapeHtml(b.p.nome) + '</strong>' + (b.age != null ? ' · compie ' + b.age + ' anni' : '') + '</div><button class="btn small nu-new" data-ogauguri="' + b.p.id + '">💬 Manda gli auguri</button><button class="btn small ghost" data-oganag="' + b.p.id + '">Scheda</button></div>'; }).join('');
     var bdNext = bd.filter(function (b) { return b.days > 0; });
     var bdBox = bdNext.length ? box('🎂 Compleanni in arrivo', bdNext.length, bdNext.map(function (b) { return '<div class="og-row og-click" data-oganag="' + b.p.id + '"><span class="og-time">' + b.date.getDate() + ' ' + MESI[b.date.getMonth()].slice(0, 3) + '</span><span class="og-title"><strong>' + escapeHtml(b.p.nome) + '</strong><span class="sp-meta"> · ' + (b.days === 1 ? 'domani' : 'tra ' + b.days + ' giorni') + (b.age != null ? ' · compie ' + b.age + ' anni' : '') + '</span></span></div>'; }).join(''), ['anagrafica', 'Anagrafica']) : '';
+    var trAtt = trAttention(), trLiberi = (state.train || []).filter(function (p) { return !p.personId; }).length;
+    var trBox = (state.train || []).length ? box('🏋️ Allenamento', trAtt.length, (trAtt.length ? trAtt.map(function (x) { return '<div class="og-row og-click" data-ogtr="' + x.id + '"><span class="og-dot og-' + (x.sev === 'scaduto' ? 'red' : 'amber') + '"></span><span class="og-title"><strong>' + escapeHtml(x.name) + '</strong><span class="sp-meta"> · ' + escapeHtml(x.what) + '</span></span></div>'; }).join('') : none('Nessun mesociclo in scadenza questa settimana.')) +
+      (trLiberi ? '<div class="og-row og-click" data-oggo="allenamento"><span class="og-title"><span class="sp-meta">' + trLiberi + (trLiberi === 1 ? ' protocollo da assegnare' : ' protocolli da assegnare') + '</span></span></div>' : ''), ['allenamento', 'Allenamento']) : '';
     var t = new Date(), h = t.getHours();
     listEl.innerHTML = bdBanner + '<div class="og-hello">' + (h < 13 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera') + ' Mattia · ' + GIORNI[t.getDay()] + ' ' + t.getDate() + ' ' + MESI[t.getMonth()] + '</div>' +
       '<div class="og-grid">' + box('📅 Agenda di oggi', finState.status === 'ok' ? d.apps.length : null, apps, ['appuntamenti', 'Apri agenda']) + box('💶 Da incassare', d.pays.length, pays, ['sedute', 'Sedute personal']) +
-      box('🔴 Check e rinnovi', d.checks.length, checks, ['coaching', 'Percorsi coaching']) + box('📝 Promemoria e solleciti', d.pms.length + d.wa.length, pms, ['promemoria', 'Tutti i promemoria']) + bdBox + '</div>';
+      box('🔴 Check e rinnovi', d.checks.length, checks, ['coaching', 'Percorsi coaching']) + box('📝 Promemoria e solleciti', d.pms.length + d.wa.length, pms, ['promemoria', 'Tutti i promemoria']) + trBox + bdBox + '</div>';
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-ogtr]'), function (b) { b.addEventListener('click', function () { trOpenFromAnywhere(b.getAttribute('data-ogtr')); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-oganag]'), function (b) { b.addEventListener('click', function () { document.querySelector('.side-btn[data-tab="anagrafica"]').click(); setTimeout(function () { openAnPerson(b.getAttribute('data-oganag')); }, 80); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-ogauguri]'), function (b) { b.addEventListener('click', function () {
       var p = anPerson(b.getAttribute('data-ogauguri')); if (!p) return;
@@ -7390,11 +7453,60 @@
   function trBlankEx(weeks) { var s = []; for (var i = 0; i < weeks; i++) s.push({ s: '', r: '', c: '' }); return { muscolo: '', tipo: 'F', nome: '', note: '', rest: "120''", sett: s }; }
   function trBlankWorkout(letter, weeks) { var ex = []; for (var i = 0; i < 7; i++) ex.push(trBlankEx(weeks)); return { nome: 'WORKOUT ' + letter, esercizi: ex }; }
   function trBlankMeso(n, weeks) { weeks = weeks || 7; return { nome: 'Mesociclo ' + n, settimane: weeks, workouts: ['A', 'B'].map(function (l) { return trBlankWorkout(l, weeks); }) }; }
-  function trNew(nome) { return { id: uid(), nome: nome || 'Nuovo protocollo', personId: '', creato: new Date().toISOString(), aggiornato: new Date().toISOString(), note: {}, mesocicli: [trBlankMeso(1)] }; }
+  function trNew(nome) { return { id: uid(), nome: nome || 'Nuovo protocollo', personId: '', inizio: '', creato: new Date().toISOString(), aggiornato: new Date().toISOString(), note: {}, mesocicli: [trBlankMeso(1)] }; }
   function trGet(id) { return (state.train || []).filter(function (x) { return x.id === id; })[0]; }
   function trTouch(p) { p.aggiornato = new Date().toISOString(); trSave(); }
   function trNum(v) { var n = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isNaN(n) ? 0 : n; }
   function trPersonName(id) { var p = id && anPerson(id); return p ? p.nome : ''; }
+  // --- calendario: dalla data di inizio ricavo mesociclo e settimana in corso
+  function trSchedule(p, at) {
+    var start = p.inizio && fromISO(p.inizio); if (!start || !p.mesocicli.length) return null;
+    at = at || todayMidnight();
+    if (at < start) return { stato: 'futuro', meso: 0, inizio: start };
+    var d = start;
+    for (var i = 0; i < p.mesocicli.length; i++) {
+      var w = Math.max(1, parseInt(p.mesocicli[i].settimane, 10) || 1), end = addDays(d, w * 7);
+      if (at < end) {
+        var giorni = Math.round((at - d) / 86400000);
+        return { stato: 'in corso', meso: i, week: Math.floor(giorni / 7) + 1, weeks: w, fine: addDays(end, -1), giorniAllaFine: Math.round((end - at) / 86400000) - 1, ultimo: i === p.mesocicli.length - 1 };
+      }
+      d = end;
+    }
+    return { stato: 'finito', meso: p.mesocicli.length - 1, fine: addDays(d, -1), giorniDallaFine: Math.round((at - addDays(d, -1)) / 86400000) };
+  }
+  function trStatusText(p) {
+    var sc = trSchedule(p);
+    if (!sc) return 'data di inizio non impostata';
+    if (sc.stato === 'futuro') return 'inizia il ' + formatItDataShort(toISO(sc.inizio));
+    if (sc.stato === 'finito') return 'terminato il ' + formatItDataShort(toISO(sc.fine));
+    return p.mesocicli[sc.meso].nome + ' · settimana ' + sc.week + '/' + sc.weeks;
+  }
+  function trClientId(p) { var per = p.personId && anPerson(p.personId); return per && per.appClientId || ''; }
+  function trForClient(clientId) { return (state.train || []).filter(function (p) { return trClientId(p) === clientId; }); }
+  function trPersonForClient(c) {
+    if (state.anag) anSync();
+    return (state.anag.people || []).filter(function (x) { return x.appClientId === c.id && !x.eliminato; })[0] || null;
+  }
+  // cosa c'è da fare sugli allenamenti (per la pagina Oggi): mesocicli che finiscono entro una settimana, protocolli appena terminati
+  function trAttention() {
+    var out = [];
+    (state.train || []).forEach(function (p) {
+      if (!p.personId) return;
+      var sc = trSchedule(p), chi = trPersonName(p.personId) || p.nome;
+      if (!sc || sc.stato === 'futuro') return;
+      if (sc.stato === 'finito') { if (sc.giorniDallaFine <= 21) out.push({ id: p.id, name: chi, what: 'protocollo terminato il ' + formatItDataShort(toISO(sc.fine)) + ' · prepara il nuovo', sev: 'scaduto', ord: -sc.giorniDallaFine }); return; }
+      if (sc.giorniAllaFine <= 7) {
+        var quando = sc.giorniAllaFine === 0 ? 'oggi' : sc.giorniAllaFine === 1 ? 'domani' : 'tra ' + sc.giorniAllaFine + ' giorni';
+        out.push({ id: p.id, name: chi, what: p.mesocicli[sc.meso].nome + ' finisce ' + quando + (sc.ultimo ? ' · ultimo mesociclo: prepara il nuovo protocollo' : ' · invia la scheda di ' + p.mesocicli[sc.meso + 1].nome), sev: sc.ultimo ? 'scaduto' : 'warning', ord: sc.giorniAllaFine });
+      }
+    });
+    return out.sort(function (a, b) { return a.ord - b.ord; });
+  }
+  function trOpenFromAnywhere(id) {
+    if (state.openFolderId) closeFolder();
+    var btn = document.querySelector('.side-btn[data-tab="allenamento"]'); if (btn) btn.click();
+    setTimeout(function () { trOpen(id); }, 60);
+  }
   // --- volume: come i fogli "Volume" (serie per gruppo muscolare e settimana)
   function trReps(v) {
     var s = String(v == null ? '' : v).replace(',', '.'), nums = s.match(/\d+(\.\d+)?/g);
@@ -7433,6 +7545,7 @@
     var cards = list.map(function (p) {
       var pn = trPersonName(p.personId), ex = 0; p.mesocicli.forEach(function (m) { m.workouts.forEach(function (w) { w.esercizi.forEach(function (e) { if (e.nome) ex++; }); }); });
       return '<div class="nu-card" data-tropen="' + p.id + '"><div class="nu-card-top"><div class="nu-icon">🏋️</div><div style="flex:1;min-width:0;"><div class="nu-name">' + escapeHtml(p.nome) + '</div><div class="sp-meta">' + (pn ? '<span class="nu-client">' + escapeHtml(pn) + '</span>' : '<span class="nu-unassigned">da assegnare</span>') + '</div></div></div>' +
+        '<div class="sp-meta" style="margin:4px 0 2px;">' + escapeHtml(trStatusText(p)) + '</div>' +
         '<div class="sp-folder-dates"><div><span>Mesocicli</span><strong>' + p.mesocicli.length + '</strong></div><div><span>Esercizi</span><strong>' + ex + '</strong></div><div><span>Aggiornato</span><strong>' + new Date(p.aggiornato).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + '</strong></div></div>' +
         '<div class="nu-card-actions"><button class="btn small" data-trdup="' + p.id + '">⧉ Duplica</button><button class="btn small ghost nu-del" data-trdel="' + p.id + '">🗑</button></div></div>';
     }).join('');
@@ -7447,7 +7560,7 @@
   }
   function trDuplicate(id) {
     var src = trGet(id); if (!src) return;
-    var p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.nome = src.nome + ' (copia)'; p.personId = ''; p.note = {}; p.creato = p.aggiornato = new Date().toISOString();
+    var p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.nome = src.nome + ' (copia)'; p.personId = ''; p.inizio = ''; p.note = {}; p.creato = p.aggiornato = new Date().toISOString();
     state.train.push(p); trSave(true); pushUndoCheckpoint(); toast('Protocollo duplicato: dagli un nome e assegnalo'); if (state.activeTab === 'allenamento') { renderTrainStats(); renderTrainList(); }
     trOpen(p.id); setTimeout(function () { var n = document.getElementById('trNome'); if (n) { n.focus(); n.select(); } }, 60);
   }
@@ -7463,10 +7576,12 @@
     if (state.anag) anSync();
     var people = (state.anag.people || []).filter(function (x) { return !x.eliminato; }).sort(function (a, b) { return a.nome.localeCompare(b.nome); });
     document.getElementById('trHead').innerHTML =
-      '<div class="nu-head-fields" style="grid-template-columns:2fr 2fr;"><div><label>Nome protocollo</label><input type="text" id="trNome" value="' + escapeHtml(p.nome) + '"></div>' +
-      '<div><label>Assegnato a</label><select id="trPerson" class="form-input"><option value="">— nessun cliente —</option>' + people.map(function (x) { return '<option value="' + x.id + '"' + (p.personId === x.id ? ' selected' : '') + '>' + escapeHtml(x.nome) + '</option>'; }).join('') + '</select></div></div>' +
+      '<div class="nu-head-fields" style="grid-template-columns:2fr 2fr 1.2fr;"><div><label>Nome protocollo</label><input type="text" id="trNome" value="' + escapeHtml(p.nome) + '"></div>' +
+      '<div><label>Assegnato a</label><select id="trPerson" class="form-input"><option value="">— nessun cliente —</option>' + people.map(function (x) { return '<option value="' + x.id + '"' + (p.personId === x.id ? ' selected' : '') + '>' + escapeHtml(x.nome) + '</option>'; }).join('') + '</select></div>' +
+        '<div><label>Inizio (settimana 1)</label><input type="date" id="trInizio" value="' + escapeHtml(p.inizio || '') + '"><div class="nu-formula" id="trStato">' + escapeHtml(trStatusText(p)) + '</div></div></div>' +
       '<div class="nu-head-btns"><button class="btn small nu-save" id="trSaveBtn">💾 Salva</button><button class="btn small" id="trPdfBtn">📄 PDF scheda</button><button class="btn small" id="trDupBtn">⧉ Duplica</button><button class="btn small ghost nu-del" id="trDelBtn">🗑</button><button class="btn small ghost" id="trCloseBtn">✕ Chiudi</button></div>';
     document.getElementById('trNome').addEventListener('input', function (e) { p.nome = e.target.value || 'Senza nome'; trTouch(p); });
+    document.getElementById('trInizio').addEventListener('change', function (e) { p.inizio = e.target.value || ''; trTouch(p); document.getElementById('trStato').textContent = trStatusText(p); });
     document.getElementById('trPerson').addEventListener('change', function (e) {
       p.personId = e.target.value; trTouch(p);
       var pn = trPersonName(p.personId);
@@ -7481,7 +7596,7 @@
     trRenderBody();
     document.getElementById('trOverlay').classList.add('open');
   }
-  function trClose() { trSave(true); pushUndoCheckpoint(); document.getElementById('trOverlay').classList.remove('open'); trOpenId = null; if (state.activeTab === 'allenamento') { renderTrainStats(); renderTrainList(); } }
+  function trClose() { trSave(true); pushUndoCheckpoint(); document.getElementById('trOverlay').classList.remove('open'); trOpenId = null; if (state.activeTab === 'allenamento') { renderTrainStats(); renderTrainList(); } else if (state.activeTab === 'oggi') render(); if (state.openFolderId) renderFolder(state.openFolderId); }
   function trRenderBody() {
     var p = trGet(trOpenId); if (!p) return;
     if (trMeso >= p.mesocicli.length) trMeso = 0;
@@ -8587,6 +8702,13 @@
           return '<div class="section-block"><h3>🥗 Cartelle nutrizionali <button class="btn tiny" id="nuFromClientBtn">+ Nuova dal modello Reset</button></h3>' + trackBox +
             (mine.length ? mine.map(function (f) { return '<div class="nu-link-row"><span><strong>' + escapeHtml(f.nome) + '</strong> · ' + escapeHtml(f.tipo || '') + ' · aggiornata ' + new Date(f.aggiornato).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + '</span><button class="btn tiny" data-nuopenc="' + f.id + '">Apri</button></div>'; }).join('') : '<div class="no-items">Nessuna cartella nutrizionale assegnata.</div>') + '</div>';
         })() +
+        (function () {
+          var mine = trForClient(c.id);
+          var liberi = (state.train || []).filter(function (p) { return !p.personId; });
+          var assegna = liberi.length ? '<select class="form-input" id="trAssignSel" style="max-width:280px;margin-bottom:8px;"><option value="">Assegna un protocollo esistente…</option>' + liberi.map(function (p) { return '<option value="' + p.id + '">' + escapeHtml(p.nome) + '</option>'; }).join('') + '</select>' : '';
+          return '<div class="section-block"><h3>🏋️ Protocolli di allenamento <button class="btn tiny" id="trFromClientBtn">+ Nuovo protocollo</button></h3>' + assegna +
+            (mine.length ? mine.map(function (p) { return '<div class="nu-link-row"><span><strong>' + escapeHtml(p.nome) + '</strong> · ' + escapeHtml(trStatusText(p)) + '</span><button class="btn tiny" data-tropenc="' + p.id + '">Apri</button></div>'; }).join('') : '<div class="no-items">Nessun protocollo assegnato.</div>') + '</div>';
+        })() +
         '<div class="section-block">' +
           '<h3>Rinnovo</h3>' +
           '<div class="renewal-box">' +
@@ -8656,6 +8778,19 @@
     if (clo) clo.addEventListener('click', function () { var key = clo.getAttribute('data-key'); closeFolder(); document.querySelector('.side-btn[data-tab="sedute"]').click(); setTimeout(function () { openSpFolder(key); }, 80); });
     var nfc = document.getElementById('nuFromClientBtn');
     if (nfc) nfc.addEventListener('click', function () { var f = nuNewFolder('Reset ' + c.cliente); f.clientId = c.id; state.nutri.push(f); saveNu(true); openNu(f.id); });
+    var tfc = document.getElementById('trFromClientBtn');
+    if (tfc) tfc.addEventListener('click', function () {
+      var per = trPersonForClient(c); if (!per) { toast('Persona non trovata in Anagrafica'); return; }
+      var np = trNew('Protocollo ' + c.cliente); np.personId = per.id; np.note.nome = c.cliente;
+      state.train.push(np); trSave(true); pushUndoCheckpoint(); trOpenFromAnywhere(np.id);
+    });
+    var tas = document.getElementById('trAssignSel');
+    if (tas) tas.addEventListener('change', function () {
+      var tp = trGet(tas.value), per = trPersonForClient(c); if (!tp || !per) return;
+      tp.personId = per.id; if (!trNotes(tp).nome) tp.note.nome = c.cliente; trTouch(tp); trSave(true); pushUndoCheckpoint();
+      toast('🏋️ ' + tp.nome + ' assegnato a ' + c.cliente); renderFolder(c.id);
+    });
+    Array.prototype.forEach.call(folderModal.querySelectorAll('[data-tropenc]'), function (b) { b.addEventListener('click', function () { trOpenFromAnywhere(b.getAttribute('data-tropenc')); }); });
     Array.prototype.forEach.call(folderModal.querySelectorAll('[data-nuopenc], [data-nutrack]'), function (b) { b.addEventListener('click', function () { openNu(b.getAttribute('data-nuopenc') || b.getAttribute('data-nutrack'), b.getAttribute('data-nutrack') ? 'track' : null); }); });
     document.getElementById('closeFolderBtn').addEventListener('click', closeFolder);
     var folderUi = getFolderUiState(c.id);
