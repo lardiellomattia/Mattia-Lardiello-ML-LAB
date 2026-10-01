@@ -267,12 +267,28 @@
   .check-row, .pay-row {
     display: grid; gap: 10px; align-items: end; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
   }
-  .check-row { grid-template-columns: 30px 100px 1fr 1fr 1fr 1.1fr auto; }
-  .check-row .num { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 16px; color: var(--ink-muted); align-self: center; }
-  .check-row .cstatus { align-self: center; }
-  .check-row .shift-toggle { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-muted); margin-top: -2px; }
+  /* riga check: campi sulla prima riga, stato e pulsanti sotto: niente esce dalla cartella */
+  .check-row {
+    grid-template-columns: 34px minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr);
+    grid-template-areas: "num tipo prevista fissata effettiva note" "stat stat stat btns btns btns" "shift shift shift shift shift shift";
+  }
+  .check-row > * { min-width: 0; }
+  .check-row input, .check-row select, .check-row textarea { width: 100%; min-width: 0; box-sizing: border-box; }
+  .check-row .num { grid-area: num; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 16px; color: var(--ink-muted); align-self: center; }
+  .check-row .cf-tipo { grid-area: tipo; }
+  .check-row .cf-prev { grid-area: prevista; }
+  .check-row .cf-fiss { grid-area: fissata; }
+  .check-row .cf-eff { grid-area: effettiva; }
+  .check-row .cf-note { grid-area: note; }
+  .check-row .cf-note textarea { min-height: 38px; resize: vertical; }
+  .check-row .cstatus { grid-area: stat; align-self: center; }
+  .check-row .cstatus .badge { white-space: normal; line-height: 1.35; }
+  .check-row .shift-toggle { grid-area: shift; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-muted); margin-top: -2px; }
   .check-row .shift-toggle input { width: auto; }
-  .check-row .row-btns { display: flex; gap: 6px; align-self: center; justify-content: flex-end; }
+  .check-row .row-btns { grid-area: btns; display: flex; flex-wrap: wrap; gap: 6px; align-self: center; justify-content: flex-end; }
+  @media (max-width: 1180px) {
+    .check-row { grid-template-columns: 34px repeat(3, minmax(0, 1fr)); grid-template-areas: "num tipo prevista fissata" ". effettiva note note" "stat stat btns btns" "shift shift shift shift"; }
+  }
   .pay-row { grid-template-columns: 0.9fr 1fr 1fr 1.4fr auto; }
   .pay-row .row-btns { display: flex; gap: 6px; align-self: center; justify-content: flex-end; }
   .mini-field label { margin-bottom: 3px; }
@@ -290,8 +306,8 @@
     .stats { grid-template-columns: 1fr 1fr; }
     .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--border); }
     .form-grid, .form-grid.cols3, .form-grid.cols4 { grid-template-columns: 1fr; }
-    .check-row { grid-template-columns: 1fr 1fr; grid-template-areas: "num tipo" "prevista fissata" "effettiva effettiva" "shift shift" "note note" "btns btns"; }
-    .check-row .num { grid-area: num; }
+    .check-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "num tipo" "prevista fissata" "effettiva effettiva" "note note" "stat stat" "btns btns" "shift shift"; }
+    .check-row .row-btns { justify-content: flex-start; }
     .pay-row { grid-template-columns: 1fr 1fr; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -8539,11 +8555,11 @@
       return (
         '<div class="check-row" data-check="' + chk.id + '">' +
           '<div class="num">#' + chk.numero + '</div>' +
-          '<div class="mini-field"><label>Tipo</label><select class="form-input chk-tipo">' + TIPI.map(function (t) { return '<option' + (t === chk.tipoCheck ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div>' +
-          '<div class="mini-field"><label>Data prevista</label><input type="date" class="chk-prevista" value="' + (chk.dataPrevista || '') + '"></div>' +
-          '<div class="mini-field"><label>Data fissata</label><input type="date" class="chk-fissata" value="' + (chk.dataFissata || '') + '"></div>' +
-          '<div class="mini-field"><label>Data svolta</label><input type="date" class="chk-effettiva" value="' + (chk.dataEffettiva || '') + '"></div>' +
-          '<div class="mini-field"><label>Note check</label><textarea class="chk-note note-area">' + escapeHtml(chk.note || '') + '</textarea></div>' +
+          '<div class="mini-field cf-tipo"><label>Tipo</label><select class="form-input chk-tipo">' + TIPI.map(function (t) { return '<option' + (t === chk.tipoCheck ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div>' +
+          '<div class="mini-field cf-prev"><label>Data prevista</label><input type="date" class="chk-prevista" value="' + (chk.dataPrevista || '') + '"></div>' +
+          '<div class="mini-field cf-fiss"><label>Data fissata</label><input type="date" class="chk-fissata" value="' + (chk.dataFissata || '') + '"></div>' +
+          '<div class="mini-field cf-eff"><label>Data svolta</label><input type="date" class="chk-effettiva" value="' + (chk.dataEffettiva || '') + '"></div>' +
+          '<div class="mini-field cf-note"><label>Note check</label><textarea class="chk-note note-area">' + escapeHtml(chk.note || '') + '</textarea></div>' +
           '<div class="row-btns">' +
             '<button class="btn tiny chk-recalc" title="Ricalcola dalla cadenza (check precedente + settimane)">Ricalcola data</button>' +
             (stato !== 'Completato' ? '<button class="btn tiny primary chk-complete">Completato</button>' : '<button class="btn tiny chk-reopen">Riapri</button>') +
