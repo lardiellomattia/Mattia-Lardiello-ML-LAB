@@ -4098,7 +4098,7 @@
   // --- Lettura degli appuntamenti: consulenze e sedute PT numerate
   function spSelfDeclined(e) { var me = ((e && e.attendees) || []).filter(function (a) { return a.self; })[0]; return !!(me && me.responseStatus === 'declined'); }
   function spCleanName(s) {
-    return s.replace(/\b(pt|di|con|la|il|a|e|seduta|sedute|check|checkup|prova|valutazione|test|recupero|online|controllo|misurazioni|misure|foto|bia|plico|plicometria)\b/gi, ' ').replace(/[^A-Za-zÀ-ÿ'\s]/g, ' ').replace(/\s+/g, ' ').trim()
+    return s.replace(/\d+\s*[aª°]?(?![A-Za-zÀ-ÿ])/g, ' ').replace(/\b(pt|di|con|la|il|a|e|seduta|sedute|check|checkup|prova|valutazione|test|recupero|online|controllo|misurazioni|misure|foto|bia|plico|plicometria)\b/gi, ' ').replace(/[^A-Za-zÀ-ÿ'\s]/g, ' ').replace(/\s+/g, ' ').trim()
       .split(' ').map(function (w) { return w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w; }).join(' ');
   }
   function spParse(e) {
@@ -4121,10 +4121,21 @@
     if (!m || !n || n > 40) return null;
     var rest = t.slice(0, m.index) + ' ' + t.slice(m.index + m[0].length);
     var cp = spCouple(rest);
-    if (cp) return { type: 'pt', n: n, tot: tot, name: cp.join(' + '), couple: cp, date: date, ev: e };
+    if (cp) {
+      // numero di ciascuno scritto nel titolo ("3a PT Giovanna + 2a Matilde")
+      var tp = /[+&]/.test(t) ? t.split(/[+&]/) : t.split(/\s+e\s+/i);
+      var cn2 = tp.length === 2 ? tp.map(function (x) { var mm = x.match(/(\d{1,2})\s*[aª°]?/); return mm ? parseInt(mm[1], 10) : null; }) : [null, null];
+      return { type: 'pt', n: n, tot: tot, name: cp.join(' + '), couple: cp, coupleN: cn2, date: date, ev: e };
+    }
     var name = spCleanName(rest);
     if (!name) return null;
     return { type: 'pt', n: n, tot: tot, name: name, date: date, ev: e };
+  }
+  // chi scala la seduta di coppia dal proprio pacchetto: 'own' = entrambi, 'own:1' = solo il secondo
+  function spOwnWho(pg) {
+    if (pg === 'own') return [0, 1];
+    if (typeof pg === 'string' && pg.indexOf('own:') === 0) return [parseInt(pg.slice(4), 10) || 0];
+    return null;
   }
   // coppia: due nomi separati da "+", "&" oppure " e "
   function spCouple(s) {
@@ -4140,13 +4151,19 @@
     var keyOf = function (name) { var tk = name.toLowerCase().split(' '); return tk[0] + (tk[1] ? ' ' + tk[1].charAt(0) : ''); };
     var keys = {};
     items.forEach(function (it) { it.key = it.couple ? 'coppia:' + it.couple.map(function (x) { return keyOf(x); }).join('+') : keyOf(it.name); keys[it.key] = keys[it.key] || []; keys[it.key].push(it); });
-    // coppie "ognuno dal proprio pacchetto": la seduta vale una PT per ciascuno dei due
+    // coppie "ognuno dal proprio pacchetto" (la seduta vale una PT per ciascuno dei due)
+    // o "scala solo dal pacchetto di uno" (own:<i>: l'altra persona non paga)
     var extra = [];
     items.forEach(function (it) {
       if (!it.couple) return;
-      var cc = state.sp.clients[it.key]; if (!cc || cc.pagante !== 'own') return;
+      var cc = state.sp.clients[it.key]; if (!cc) return;
+      var who = spOwnWho(cc.pagante); if (!who) return;
       it.noPay = true;
-      it.couple.forEach(function (mem) { var s = { type: 'pt', n: null, tot: null, name: mem, date: it.date, ev: it.ev, synthetic: true, fromCouple: it.name }; s.key = keyOf(mem); keys[s.key] = keys[s.key] || []; keys[s.key].push(s); extra.push(s); });
+      who.forEach(function (idx) {
+        var mem = it.couple[idx]; if (!mem) return;
+        var s = { type: 'pt', n: (it.coupleN && it.coupleN[idx]) || null, tot: null, name: mem, date: it.date, ev: it.ev, synthetic: true, fromCouple: it.name };
+        s.key = keyOf(mem); keys[s.key] = keys[s.key] || []; keys[s.key].push(s); extra.push(s);
+      });
     });
     items = items.concat(extra);
     Object.keys(keys).forEach(function (k) {
@@ -4188,7 +4205,7 @@
     items.forEach(function (it) {
       if (it.type !== 'pt' || it.couple) return;
       var P = state.sp.clients[it.key] ? spPac(state.sp.clients[it.key]) : 10;
-      if (it.synthetic) { var l = lastN[it.key] || 0; it.n = P > 0 ? (l >= P ? 1 : l + 1) : 1; }
+      if (it.synthetic && !it.n) { var l = lastN[it.key] || 0; it.n = P > 0 ? (l >= P ? 1 : l + 1) : 1; }
       lastN[it.key] = it.n;
     });
     return items;
@@ -4387,6 +4404,7 @@
   function spPayerLabel(c) {
     if (!c || !c.coppia) return '';
     if (c.pagante === 'own') return 'ognuno dal proprio pacchetto';
+    var ow = spOwnWho(c.pagante); if (ow) return 'scala dal pacchetto di ' + (c.coppia[ow[0]] || '').split(' ')[0];
     return c.pagante === 'both' ? 'metà ciascuno' : 'paga ' + (c.coppia[c.pagante || 0] || c.coppia[0]).split(' ')[0];
   }
   function spDateShort(d) { return GIORNI[d.getDay()].slice(0, 3) + ' ' + d.getDate() + ' ' + MESI[d.getMonth()].slice(0, 3); }
@@ -4621,7 +4639,7 @@
     var pr = document.getElementById('spcPayRow');
     if (c.coppia) {
       pr.style.display = '';
-      document.getElementById('spcPagante').innerHTML = c.coppia.map(function (n, i) { return '<option value="' + i + '"' + ((c.pagante || 0) == i && c.pagante !== 'both' ? ' selected' : '') + '>Paga ' + escapeHtml(n) + ' (l\'altra persona non paga)</option>'; }).join('') + '<option value="both"' + (c.pagante === 'both' ? ' selected' : '') + '>Metà ciascuno (pacchetto di coppia diviso a metà)</option>' + '<option value="own"' + (c.pagante === 'own' ? ' selected' : '') + '>Ognuno dal proprio pacchetto (la seduta vale una PT per ciascuno)</option>';
+      document.getElementById('spcPagante').innerHTML = c.coppia.map(function (n, i) { return '<option value="' + i + '"' + (typeof c.pagante !== 'string' && (c.pagante || 0) == i ? ' selected' : '') + '>Paga ' + escapeHtml(n) + ' (l\'altra persona non paga)</option>'; }).join('') + '<option value="both"' + (c.pagante === 'both' ? ' selected' : '') + '>Metà ciascuno (pacchetto di coppia diviso a metà)</option>' + '<option value="own"' + (c.pagante === 'own' ? ' selected' : '') + '>Ognuno dal proprio pacchetto (la seduta vale una PT per ciascuno)</option>' + c.coppia.map(function (n, i) { return '<option value="own:' + i + '"' + (c.pagante === 'own:' + i ? ' selected' : '') + '>Scala solo dal pacchetto di ' + escapeHtml(n) + ' (l\'altra persona non paga)</option>'; }).join('');
     } else pr.style.display = 'none';
     var curLink = linkedSpClientId(key);
     var cls = state.clients.slice().sort(function (a, b) { return a.cliente.localeCompare(b.cliente); });
@@ -4696,7 +4714,7 @@
   })();
   function spSaveFolder(close) {
     var c = state.sp.clients[spOpenKey]; if (!c) return;
-    if (c.coppia) { var pv = document.getElementById('spcPagante').value; c.pagante = (pv === 'both' || pv === 'own') ? pv : parseInt(pv, 10); }
+    if (c.coppia) { var pv = document.getElementById('spcPagante').value; c.pagante = (pv === 'both' || pv === 'own' || pv.indexOf('own:') === 0) ? pv : parseInt(pv, 10); }
     var t = document.getElementById('spcTariffa').value;
     c.tariffa = t ? parseInt(t, 10) : null;
     c.pacchetto = parseInt(document.getElementById('spcPacchetto').value, 10);
@@ -7031,7 +7049,7 @@
     var att = ctx.att, det = c && att.details[c.id];
     var couples = (p.coupleKeys || []).map(function (t) { var pr = t.split('|'); return { s: ctx.sums.filter(function (s) { return s.key === pr[0]; })[0], idx: parseInt(pr[1], 10) }; }).filter(function (x) { return x.s; });
     var due = 0; sps.forEach(function (s) { due += s.due || 0; }); ings.forEach(function (x) { if (!x.paid && !x.future) due += x.amount; });
-    couples.forEach(function (x) { var pg = x.s.client.pagante; x.share = pg === 'own' ? 0 : (pg === 'both' ? 0.5 : ((pg || 0) === x.idx ? 1 : 0)); due += (x.s.due || 0) * x.share; });
+    couples.forEach(function (x) { var pg = x.s.client.pagante; x.share = spOwnWho(pg) ? 0 : (pg === 'both' ? 0.5 : ((pg || 0) === x.idx ? 1 : 0)); due += (x.s.due || 0) * x.share; });
     var pm = (p.emails || []).map(function (m) { return m.toLowerCase(); }), pn = [p.nome].concat(p.alias || []).map(anTok).filter(function (n) { return n && n.length >= 3; });
     var agenda = (ctx.evs || []).filter(function (ev) { return ev.mails.some(function (m) { return pm.indexOf(m) !== -1; }) || pn.some(function (n) { return ev.t.indexOf(' ' + n + ' ') !== -1; }); });
     var nextAg = agenda.filter(function (ev) { return ev.d >= todayMidnight(); }).sort(function (a, b) { return a.d - b.d; })[0];
@@ -7210,7 +7228,7 @@
     }).join(''));
     if (i.couples.length) html += sec('👥 PT di coppia', i.couples.map(function (x) {
       var s = x.s, other = s.client.coppia.filter(function (n, j) { return j !== x.idx; })[0];
-      var pays = s.client.pagante === 'own' ? 'conta nel suo pacchetto' : (x.share === 1 ? 'paga lei/lui' : (x.share === 0.5 ? 'paga metà' : 'non paga'));
+      var ow = spOwnWho(s.client.pagante), pays = ow ? (ow.indexOf(x.idx) !== -1 ? 'conta nel suo pacchetto' : 'non paga') : (x.share === 1 ? 'paga lei/lui' : (x.share === 0.5 ? 'paga metà' : 'non paga'));
       return '<div class="an-kv"><span>con ' + escapeHtml(other || '') + '</span><strong>' + (s.P > 1 && s.lastPt ? s.progress + 'ª di ' + s.P + ' PT' : spPacLabel(s.P)) + ' · ' + pays + '</strong><em>' + (s.nextApp ? 'prossimo ' + spDateShort(s.nextApp.date) + ' ' + apTime(s.nextApp.date.toISOString()) : 'nessun appuntamento in programma') + (s.due && x.share ? ' · <span class="an-red">da incassare ' + spEuro(s.due * x.share) + '</span>' : '') + '</em><button class="btn tiny" data-angosp="' + escapeHtml(s.key) + '">Apri</button></div>';
     }).join(''));
     var trs = (state.train || []).filter(function (t) { return t.personId === p.id; });
