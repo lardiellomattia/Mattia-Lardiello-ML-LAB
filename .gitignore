@@ -1,0 +1,6 @@
+# Mai versionare i dati dei clienti
+*.json
+backup*
+*.csv
+*.pdf
+.DS_Store
