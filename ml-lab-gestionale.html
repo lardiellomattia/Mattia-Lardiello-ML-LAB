@@ -1225,6 +1225,9 @@
   .tr-zero td, .tr-zero th { color: #BDBDBD; }
 
   .tr-rowacts { display: flex; gap: 2px; align-items: center; justify-content: center; }
+  .tr-addrow-cell { padding: 6px !important; border-bottom: none !important; }
+  .tr-addrow { width: 100%; background: #FFF8E3; border: 1.5px dashed #F6DFA6; border-radius: 10px; padding: 9px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; color: #8A6200; cursor: pointer; }
+  .tr-addrow:hover { background: #FFF1C7; border-color: #FFBF00; }
   .tr-mini { background: none; border: none; cursor: pointer; font-size: 13px; padding: 3px 4px; border-radius: 6px; opacity: 0.6; }
   .tr-mini:hover { opacity: 1; background: #FFF4D1; }
   .tr-paste { opacity: 1; background: #FFF4D1; }
@@ -7656,7 +7659,7 @@
           '<td rowspan="2"><input class="tr-in tr-name" data-tre="' + wi + ',' + ei + ',nome" value="' + escapeHtml(ex.nome) + '" placeholder="Esercizio"></td>' +
           '<td rowspan="2"><input class="tr-in tr-note" data-tre="' + wi + ',' + ei + ',note" value="' + escapeHtml(ex.note) + '" placeholder="Note"></td>' +
           '<td rowspan="2"><input class="tr-in tr-rest" data-tre="' + wi + ',' + ei + ',rest" value="' + escapeHtml(ex.rest) + '"></td>' + cells +
-          '<td rowspan="2" class="tr-rowbtn"><div class="tr-rowacts"><button class="tr-mini" data-trdupex="' + wi + ',' + ei + '" title="Duplica la riga sotto (stesse serie e ripetizioni, esercizio da scrivere)">⧉</button>' +
+          '<td rowspan="2" class="tr-rowbtn"><div class="tr-rowacts"><button class="tr-mini tr-ins" data-trinsex="' + wi + ',' + ei + '" title="Inserisci un esercizio vuoto sotto questa riga">➕</button><button class="tr-mini" data-trdupex="' + wi + ',' + ei + '" title="Duplica la riga sotto (stesse serie e ripetizioni, esercizio da scrivere)">⧉</button>' +
             '<button class="tr-mini" data-trcpex="' + wi + ',' + ei + '" title="Copia serie, ripetizioni e rest di questa riga">📋</button>' +
             (trClip ? '<button class="tr-mini tr-paste" data-trpsex="' + wi + ',' + ei + '" title="Incolla qui serie, ripetizioni e rest copiati">📥</button>' : '') +
             '<button class="ing-del" data-trdelex="' + wi + ',' + ei + '" title="Elimina esercizio">✕</button></div></td></tr><tr class="tr-loadrow">' + load + '</tr>';
@@ -7666,7 +7669,7 @@
         '<button class="btn tiny" data-trdupwk="' + wi + '" title="Crea una copia di questo workout">⧉ Duplica workout</button>' +
         (others.length ? '<select class="form-input tr-copyto" data-trcopywk="' + wi + '"><option value="">Copia in…</option>' + others.map(function (k) { return '<option value="' + k + '">' + escapeHtml(trGet(trOpenId).mesocicli[k].nome) + '</option>'; }).join('') + '</select>' : '') +
         '<button class="btn tiny ghost nu-del" data-trdelwk="' + wi + '">🗑 Workout</button></div>' +
-        '<div class="nu-table-wrap"><table class="tr-table"><thead><tr><th rowspan="2">Musc.</th><th rowspan="2">F/C</th><th rowspan="2" style="min-width:170px;">Esercizio</th><th rowspan="2" style="min-width:130px;">Note</th><th rowspan="2">Rest</th>' + weekHead + '<th rowspan="2"></th></tr><tr>' + sub + '</tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+        '<div class="nu-table-wrap"><table class="tr-table"><thead><tr><th rowspan="2">Musc.</th><th rowspan="2">F/C</th><th rowspan="2" style="min-width:170px;">Esercizio</th><th rowspan="2" style="min-width:130px;">Note</th><th rowspan="2">Rest</th>' + weekHead + '<th rowspan="2"></th></tr><tr>' + sub + '</tr></thead><tbody>' + rows + '</tbody><tfoot><tr><td colspan="' + (6 + W * 2) + '" class="tr-addrow-cell"><button type="button" class="tr-addrow" data-traddex="' + wi + '">+ Aggiungi esercizio</button></td></tr></tfoot></table></div></div>';
     }).join('');
     return head + wks + '<div id="trVolBox">' + trVolHtml(m) + '</div>';
   }
@@ -7771,7 +7774,9 @@
     body.querySelectorAll('[data-trs]').forEach(function (el) { el.addEventListener('input', function () { var a = el.getAttribute('data-trs').split(','); var ex = m.workouts[+a[0]].esercizi[+a[1]]; ex.sett[+a[2]] = ex.sett[+a[2]] || { s: '', r: '', c: '' }; ex.sett[+a[2]][a[3]] = el.value; trTouch(p); if (a[3] === 's' || a[3] === 'r') vol(); }); });
     body.querySelectorAll('[data-tre]').forEach(function (el) { var h = function () { var a = el.getAttribute('data-tre').split(','); m.workouts[+a[0]].esercizi[+a[1]][a[2]] = el.value; trTouch(p); }; el.addEventListener('input', h); if (el.tagName === 'SELECT') el.addEventListener('change', function () { h(); vol(); }); });
     body.querySelectorAll('[data-trwn]').forEach(function (el) { el.addEventListener('input', function () { m.workouts[+el.getAttribute('data-trwn')].nome = el.value; trTouch(p); }); });
-    body.querySelectorAll('[data-traddex]').forEach(function (b) { b.addEventListener('click', function () { m.workouts[+b.getAttribute('data-traddex')].esercizi.push(trBlankEx(m.settimane)); trTouch(p); re(); }); });
+    var focusEx = function (wi, ei) { setTimeout(function () { var n = document.querySelector('[data-tre="' + wi + ',' + ei + ',nome"]'); if (n) { n.scrollIntoView({ block: 'nearest' }); n.focus(); } }, 30); };
+    body.querySelectorAll('[data-traddex]').forEach(function (b) { b.addEventListener('click', function () { var wi = +b.getAttribute('data-traddex'), list = m.workouts[wi].esercizi; list.push(trBlankEx(m.settimane)); trTouch(p); re(); focusEx(wi, list.length - 1); }); });
+    body.querySelectorAll('[data-trinsex]').forEach(function (b) { b.addEventListener('click', function () { var a = b.getAttribute('data-trinsex').split(','), wi = +a[0], ei = +a[1]; m.workouts[wi].esercizi.splice(ei + 1, 0, trBlankEx(m.settimane)); trTouch(p); re(); focusEx(wi, ei + 1); }); });
     body.querySelectorAll('[data-trdupex]').forEach(function (b) { b.addEventListener('click', function () {
       var a = b.getAttribute('data-trdupex').split(','), list = m.workouts[+a[0]].esercizi, src = list[+a[1]];
       var cp = JSON.parse(JSON.stringify(src)); cp.nome = ''; cp.note = ''; cp.sett.forEach(function (s) { s.c = ''; });
