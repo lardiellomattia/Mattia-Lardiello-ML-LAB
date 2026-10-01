@@ -1225,6 +1225,14 @@
   .tr-zero td, .tr-zero th { color: #BDBDBD; }
 
   .tr-rowacts { display: flex; gap: 2px; align-items: center; justify-content: center; }
+  .check-done-head { margin: 16px 0 6px; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 13.5px; color: var(--ok); }
+  .check-done { background: var(--ok-soft); border: 1px solid #BFE6CD; border-radius: 8px; padding: 7px 12px; margin-bottom: 6px; font-size: 13px; }
+  .check-done .cdn-main { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .check-done .cdn-ok { color: var(--ok); font-weight: 800; }
+  .check-done .cdn-txt { flex: 1 1 220px; min-width: 0; }
+  .check-done .cdn-note { color: var(--ink-muted); }
+  .check-done .cdn-acts { display: flex; gap: 6px; }
+  .check-done .visit-pay { margin-top: 6px; }
   .tr-addrow-cell { padding: 6px !important; border-bottom: none !important; }
   .tr-addrow { width: 100%; background: #FFF8E3; border: 1.5px dashed #F6DFA6; border-radius: 10px; padding: 9px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; color: #8A6200; cursor: pointer; }
   .tr-addrow:hover { background: #FFF1C7; border-color: #FFBF00; }
@@ -7659,7 +7667,7 @@
           '<td rowspan="2"><input class="tr-in tr-name" data-tre="' + wi + ',' + ei + ',nome" value="' + escapeHtml(ex.nome) + '" placeholder="Esercizio"></td>' +
           '<td rowspan="2"><input class="tr-in tr-note" data-tre="' + wi + ',' + ei + ',note" value="' + escapeHtml(ex.note) + '" placeholder="Note"></td>' +
           '<td rowspan="2"><input class="tr-in tr-rest" data-tre="' + wi + ',' + ei + ',rest" value="' + escapeHtml(ex.rest) + '"></td>' + cells +
-          '<td rowspan="2" class="tr-rowbtn"><div class="tr-rowacts"><button class="tr-mini tr-ins" data-trinsex="' + wi + ',' + ei + '" title="Inserisci un esercizio vuoto sotto questa riga">➕</button><button class="tr-mini" data-trdupex="' + wi + ',' + ei + '" title="Duplica la riga sotto (stesse serie e ripetizioni, esercizio da scrivere)">⧉</button>' +
+          '<td rowspan="2" class="tr-rowbtn"><div class="tr-rowacts"><button class="tr-mini tr-ins" data-trinsex="' + wi + ',' + ei + '" title="Inserisci un esercizio vuoto sotto questa riga">➕</button><button class="tr-mini" data-trdupex="' + wi + ',' + ei + '" title="Duplica la riga sotto (stesso esercizio, serie e ripetizioni; carichi vuoti)">⧉</button>' +
             '<button class="tr-mini" data-trcpex="' + wi + ',' + ei + '" title="Copia serie, ripetizioni e rest di questa riga">📋</button>' +
             (trClip ? '<button class="tr-mini tr-paste" data-trpsex="' + wi + ',' + ei + '" title="Incolla qui serie, ripetizioni e rest copiati">📥</button>' : '') +
             '<button class="ing-del" data-trdelex="' + wi + ',' + ei + '" title="Elimina esercizio">✕</button></div></td></tr><tr class="tr-loadrow">' + load + '</tr>';
@@ -7779,8 +7787,8 @@
     body.querySelectorAll('[data-trinsex]').forEach(function (b) { b.addEventListener('click', function () { var a = b.getAttribute('data-trinsex').split(','), wi = +a[0], ei = +a[1]; m.workouts[wi].esercizi.splice(ei + 1, 0, trBlankEx(m.settimane)); trTouch(p); re(); focusEx(wi, ei + 1); }); });
     body.querySelectorAll('[data-trdupex]').forEach(function (b) { b.addEventListener('click', function () {
       var a = b.getAttribute('data-trdupex').split(','), list = m.workouts[+a[0]].esercizi, src = list[+a[1]];
-      var cp = JSON.parse(JSON.stringify(src)); cp.nome = ''; cp.note = ''; cp.sett.forEach(function (s) { s.c = ''; });
-      list.splice(+a[1] + 1, 0, cp); trTouch(p); re(); toast('Riga duplicata: scrivi il nuovo esercizio');
+      var cp = JSON.parse(JSON.stringify(src)); cp.sett.forEach(function (s) { s.c = ''; });
+      list.splice(+a[1] + 1, 0, cp); trTouch(p); re(); toast('Riga duplicata con lo stesso esercizio (carichi vuoti)');
       setTimeout(function () { var n = document.querySelector('[data-tre="' + a[0] + ',' + (+a[1] + 1) + ',nome"]'); if (n) n.focus(); }, 30);
     }); });
     body.querySelectorAll('[data-trcpex]').forEach(function (b) { b.addEventListener('click', function () {
@@ -8551,8 +8559,20 @@
     var u = clientUrgency(c);
     var checksSorted = c.checks.slice().sort(function (a, b) { return a.numero - b.numero; });
 
-    var checksHtml = checksSorted.map(function (chk) {
+    var isVisitaC = clientTab(c) === 'visita' || (c.pacchetto && c.pacchetto.tipoPagamento === 'A visita');
+    var vpHtml = function (chk) {
+            var amt = chk.importo != null && chk.importo !== '' ? chk.importo : (c.prezzoVisita != null ? c.prezzoVisita : 70);
+            return '<div class="visit-pay' + (chk.pagato ? ' paid' : '') + '"><span class="vp-lbl">💶 Pagamento visita</span>' +
+              '<label>Importo <span class="vp-amt">€ <input type="text" class="chk-importo" inputmode="decimal" value="' + escapeHtml(String(amt)) + '"></span></label>' +
+              '<label class="ap-check" style="margin:0;"><input type="checkbox" class="chk-pagato"' + (chk.pagato ? ' checked' : '') + '> Pagata</label>' +
+              '<label>il <input type="date" class="chk-datapag" value="' + (chk.dataPagamento || '') + '"></label>' +
+              (chk.pagato ? '' : (chk.dataEffettiva ? '<span class="vp-due">da incassare</span>' : '')) + '</div>';
+    };
+    var checkRowHtml = function (chk) {
       var stato = checkStato(chk);
+      // check svolto: una riga di sola lettura con la data, si può riaprire
+      if (stato === 'Completato') return '<div class="check-done" data-check="' + chk.id + '"><div class="cdn-main"><span class="cdn-ok">✓</span><span class="cdn-txt"><strong>#' + chk.numero + ' · ' + escapeHtml(chk.tipoCheck) + '</strong> · svolto il ' + formatItData(chk.dataEffettiva) + (chk.note ? '<span class="cdn-note"> · ' + escapeHtml(chk.note) + '</span>' : '') + '</span>' +
+        '<span class="cdn-acts"><button class="btn tiny chk-reopen" title="Rimetti il check tra quelli da fare">Riapri</button><button class="btn tiny danger chk-delete">Elimina</button></span></div>' + (isVisitaC ? vpHtml(chk) : '') + '</div>';
       var badgeCls = stato === 'Completato' ? 'ok' : (stato === 'Fissato' ? 'neutral' : 'warning');
       var isVisita = clientTab(c) === 'visita' || (c.pacchetto && c.pacchetto.tipoPagamento === 'A visita');
       var dueDays = stato !== 'Completato' ? daysUntil(chk.dataFissata || chk.dataPrevista) : null;
@@ -8571,18 +8591,14 @@
             '<button class="btn tiny danger chk-delete">Elimina</button>' +
           '</div>' +
           '<div class="shift-toggle"><label><input type="checkbox" class="chk-shift"> sposta anche i check successivi se cambio questa data</label></div>' +
-          (isVisita ? (function () {
-            var amt = chk.importo != null && chk.importo !== '' ? chk.importo : (c.prezzoVisita != null ? c.prezzoVisita : 70);
-            return '<div class="visit-pay' + (chk.pagato ? ' paid' : '') + '"><span class="vp-lbl">💶 Pagamento visita</span>' +
-              '<label>Importo <span class="vp-amt">€ <input type="text" class="chk-importo" inputmode="decimal" value="' + escapeHtml(String(amt)) + '"></span></label>' +
-              '<label class="ap-check" style="margin:0;"><input type="checkbox" class="chk-pagato"' + (chk.pagato ? ' checked' : '') + '> Pagata</label>' +
-              '<label>il <input type="date" class="chk-datapag" value="' + (chk.dataPagamento || '') + '"></label>' +
-              (chk.pagato ? '' : (chk.dataEffettiva ? '<span class="vp-due">da incassare</span>' : '')) + '</div>';
-          })() : '') +
+          (isVisita ? vpHtml(chk) : '') +
           '<div class="cstatus"><span class="badge ' + badgeCls + '">' + stato + dueTxt + '</span></div>' +
         '</div>'
       );
-    }).join('');
+    };
+    var checksHtml = checksSorted.filter(function (k) { return !k.dataEffettiva; }).map(checkRowHtml).join('');
+    var doneChecks = checksSorted.filter(function (k) { return k.dataEffettiva; }).sort(function (a, b) { return b.dataEffettiva.localeCompare(a.dataEffettiva) || b.numero - a.numero; });
+    var doneHtml = doneChecks.length ? '<div class="check-done-head">✓ ' + (isVisitaC ? 'Visite svolte' : 'Check svolti') + ' <span class="sp-meta">(' + doneChecks.length + ')</span></div>' + doneChecks.map(checkRowHtml).join('') : '';
 
     var uiState = getFolderUiState(c.id);
 
@@ -8746,7 +8762,7 @@
       '<div class="folder-tab-panel' + (ft === 'check' ? ' active' : '') + '" data-fpanel="check">' +
         '<div class="section-block">' +
           '<h3>' + (c.sequenzaTipi.length === 1 && c.sequenzaTipi[0] === 'Visita' ? 'Visite' : 'Piano dei check') + ' <button class="btn tiny primary" id="addCheckBtn">+ Aggiungi check</button></h3>' +
-          (checksHtml || '<div class="no-items">Nessun check pianificato.</div>') +
+          (checksHtml || '<div class="no-items">Nessun check da fare: aggiungine uno o registra il rinnovo.</div>') + doneHtml +
         '</div>' +
       '</div>' +
 
@@ -8845,32 +8861,33 @@
     });
 
     // Check rows
-    Array.prototype.forEach.call(folderModal.querySelectorAll('.check-row'), function (rowEl) {
+    Array.prototype.forEach.call(folderModal.querySelectorAll('.check-row, .check-done'), function (rowEl) {
       var checkId = rowEl.getAttribute('data-check');
+      var q = function (sel) { return rowEl.querySelector(sel) || document.createElement('i'); };
       var chk = c.checks.find(function (x) { return x.id === checkId; });
       if (!chk) return;
 
-      rowEl.querySelector('.chk-tipo').addEventListener('change', function (e) { chk.tipoCheck = e.target.value; saveClients(); });
-      rowEl.querySelector('.chk-note').addEventListener('change', function (e) { chk.note = e.target.value.trim(); saveClients(); });
+      q('.chk-tipo').addEventListener('change', function (e) { chk.tipoCheck = e.target.value; saveClients(); });
+      q('.chk-note').addEventListener('change', function (e) { chk.note = e.target.value.trim(); saveClients(); });
       var vpA = rowEl.querySelector('.chk-importo'), vpP = rowEl.querySelector('.chk-pagato'), vpD = rowEl.querySelector('.chk-datapag');
       if (vpA) vpA.addEventListener('change', function (e) { var v = String(e.target.value).replace(',', '.').trim(); chk.importo = v === '' ? null : parseFloat(v); if (chk.importo != null && !isNaN(chk.importo)) c.prezzoVisita = chk.importo; saveClients(); });
       if (vpP) vpP.addEventListener('change', function (e) { chk.pagato = e.target.checked; if (chk.pagato && !chk.dataPagamento) chk.dataPagamento = chk.dataEffettiva || toISO(todayMidnight()); if (chk.importo == null) chk.importo = c.prezzoVisita != null ? c.prezzoVisita : 70; saveClients(); toast(chk.pagato ? 'Visita segnata come pagata' : 'Visita da incassare'); renderFolder(c.id); });
       if (vpD) vpD.addEventListener('change', function (e) { chk.dataPagamento = e.target.value; saveClients(); });
 
-      rowEl.querySelector('.chk-prevista').addEventListener('change', function (e) {
+      q('.chk-prevista').addEventListener('change', function (e) {
         applyDateChange(c, chk, 'dataPrevista', e.target.value, rowEl.querySelector('.chk-shift').checked);
         saveClients(); renderFolder(c.id); render();
       });
-      rowEl.querySelector('.chk-fissata').addEventListener('change', function (e) {
+      q('.chk-fissata').addEventListener('change', function (e) {
         applyDateChange(c, chk, 'dataFissata', e.target.value, rowEl.querySelector('.chk-shift').checked);
         saveClients(); renderFolder(c.id); render();
       });
-      rowEl.querySelector('.chk-effettiva').addEventListener('change', function (e) {
+      q('.chk-effettiva').addEventListener('change', function (e) {
         chk.dataEffettiva = e.target.value;
         if (chk.dataEffettiva && !chk.dataFissata) chk.dataFissata = chk.dataEffettiva;
         saveClients(); renderFolder(c.id); render();
       });
-      rowEl.querySelector('.chk-recalc').addEventListener('click', function () {
+      q('.chk-recalc').addEventListener('click', function () {
         var sorted = c.checks.slice().sort(function (a, b) { return a.numero - b.numero; });
         var idx = sorted.findIndex(function (x) { return x.id === chk.id; });
         var prev = sorted[idx - 1];
@@ -8892,7 +8909,7 @@
         saveClients(); renderFolder(c.id); render();
         if (tolti) toast('Check #' + chk.numero + ' riaperto · tolto il check successivo creato in automatico');
       });
-      rowEl.querySelector('.chk-delete').addEventListener('click', function () {
+      q('.chk-delete').addEventListener('click', function () {
         showConfirm('Eliminare il check #' + chk.numero + '?', function () {
           c.checks = c.checks.filter(function (x) { return x.id !== checkId; });
           saveClients(); renderFolder(c.id); render();
