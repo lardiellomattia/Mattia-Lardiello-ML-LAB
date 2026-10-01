@@ -1662,7 +1662,8 @@
     <div class="modal-sub">Solo esercizi, serie e ripetizioni, pronto da stampare o inviare al cliente.</div>
     <div class="nu-sec-title" style="margin-top:12px;">Mesocicli da includere</div>
     <div id="trPdfMesi" class="nu-pdf-weeks"></div>
-    <label class="ap-check" style="margin-top:10px;"><input type="checkbox" id="trPdfRest"> includi anche il recupero (rest)</label>
+    <label class="ap-check" style="margin-top:10px;"><input type="checkbox" id="trPdfCarichi" checked> riga "Carico" sotto ogni esercizio, da compilare a penna</label>
+    <label class="ap-check" style="margin-top:6px;"><input type="checkbox" id="trPdfRest"> includi anche il recupero (rest)</label>
     <div class="modal-actions"><div></div><div class="right"><button class="btn ghost" id="trPdfCancel">Annulla</button><button class="btn primary" id="trPdfGo">📄 Crea PDF</button></div></div>
   </div>
 </div>
@@ -7836,8 +7837,8 @@
       need(14); doc.text(M, y, m.nome, 13, { bold: true }); y += 6;
       m.workouts.forEach(function (wk) {
         var ex = wk.esercizi.filter(function (e) { return e.nome; }); if (!ex.length) return;
-        var nameW = Wk > 5 ? 52 : 66, restW = opt.rest ? 13 : 0, cw = (W - nameW - restW) / Wk, rh = 7;
-        need(14 + rh * (ex.length + 1));
+        var nameW = Wk > 5 ? 52 : 66, restW = opt.rest ? 13 : 0, cw = (W - nameW - restW) / Wk, rh = 7, lh = opt.carichi ? 9 : 0;
+        need(14 + rh + (rh + lh) * ex.length);
         doc.text(M, y, wk.nome, 10.5, { bold: true, color: '#B08600' }); y += 3;
         doc.rect(M, y, W, rh, '#FFBF00');
         doc.text(M + 2, y + 4.7, 'Esercizio', 8.5, { bold: true }); if (opt.rest) doc.text(M + nameW + restW / 2, y + 4.7, 'Rest', 8, { bold: true, align: 'center' });
@@ -7845,18 +7846,29 @@
         y += rh;
         ex.forEach(function (e, k) {
           var lines = doc.wrap(e.nome, 8.5, nameW - 3, true), h = Math.max(rh, 3 + lines.length * 3.8);
-          need(h);
+          need(h + lh);
           doc.rect(M, y, W, h, k % 2 ? '#FAFAF8' : '#FFFFFF', '#E4E4E2');
+          if (opt.carichi) for (var g = 0; g < Wk; g++) doc.rect(M + nameW + restW + cw * g, y, cw, h, null, '#E4E4E2');
           lines.forEach(function (l, j) { doc.text(M + 2, y + 4.6 + j * 3.8, l, 8.5, { bold: true }); });
           if (opt.rest) doc.text(M + nameW + restW / 2, y + 4.6, e.rest || '', 7.5, { align: 'center', color: '#666666' });
           for (var i = 0; i < Wk; i++) { var s = e.sett[i] || {}, t = (s.s || s.r) ? (s.s || '–') + ' × ' + (s.r || '–') : ''; doc.text(M + nameW + restW + cw * i + cw / 2, y + 4.6, t, 8, { align: 'center' }); }
           y += h;
+          // riga vuota per scrivere i carichi a penna (se il carico è già indicato lo riporto in piccolo)
+          if (opt.carichi) {
+            doc.rect(M, y, W, lh, '#FFF8E3', '#E4E4E2');
+            doc.text(M + 2, y + 5.6, 'Carico (kg)', 7.5, { color: '#8A6200' });
+            for (var j = 0; j < Wk; j++) {
+              doc.rect(M + nameW + restW + cw * j, y, cw, lh, '#FFFFFF', '#D8D2BE');
+              var cc = (e.sett[j] || {}).c; if (cc) doc.text(M + nameW + restW + cw * j + 1.5, y + 3, String(cc), 6, { color: '#999999' });
+            }
+            y += lh;
+          }
         });
         y += 7;
       });
       y += 3;
     });
-    need(8); doc.text(M, y, 'Serie × ripetizioni per settimana (W1, W2…). Documento generato da ML LAB.', 7.5, { color: '#999999' });
+    need(8); doc.text(M, y, 'Serie × ripetizioni per settimana (W1, W2…)' + (opt.carichi ? '; nella riga Carico scrivi il peso usato.' : '.') + ' Documento generato da ML LAB.', 7.5, { color: '#999999' });
     return doc.output();
   }
   (function () {
@@ -7866,7 +7878,7 @@
       var p = trGet(trOpenId); if (!p) return;
       var mesi = Array.prototype.map.call(ov.querySelectorAll('[data-trpm]:checked'), function (x) { return +x.getAttribute('data-trpm'); });
       if (!mesi.length) { toast('Scegli almeno un mesociclo'); return; }
-      var bytes = trBuildPdf(p, mesi, { rest: document.getElementById('trPdfRest').checked });
+      var bytes = trBuildPdf(p, mesi, { rest: document.getElementById('trPdfRest').checked, carichi: document.getElementById('trPdfCarichi').checked });
       var name = ('Scheda allenamento - ' + (trPersonName(p.personId) || p.nome) + '.pdf').replace(/[\\/:*?"<>|]/g, '');
       Promise.resolve(window.claude && window.claude.use ? window.claude.use('downloads') : null).then(function (dl) {
         if (!dl) { toast('Il PDF si scarica aprendo l\'app pubblicata su claude.ai'); return; }
