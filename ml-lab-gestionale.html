@@ -2231,6 +2231,25 @@
     if (!c.anamnesi.valori) c.anamnesi.valori = {};
     if (!c.checkDettagliati) c.checkDettagliati = [];
   }
+  // porta ogni cliente alla stessa forma (i record più vecchi o importati hanno campi mancanti o importi come testo)
+  function normClient(c) {
+    if (!c || typeof c !== 'object') return c;
+    if (!Array.isArray(c.checks)) c.checks = [];
+    if (!Array.isArray(c.sequenzaTipi) || !c.sequenzaTipi.length) c.sequenzaTipi = ['Live+PT', 'Online', 'Live', 'Online'];
+    var cad = parseFloat(c.cadenzaSettimane); c.cadenzaSettimane = cad > 0 ? cad : 5;
+    ensureClientForms(c);
+    if (c.telefono == null) c.telefono = '';
+    if (c.noteGenerali == null) c.noteGenerali = '';
+    if (c.pacchetto && typeof c.pacchetto === 'object') {
+      if (!Array.isArray(c.pacchetto.rate)) c.pacchetto.rate = [];
+      c.pacchetto.rate.forEach(function (r) {
+        if (r.importo == null || String(r.importo).trim() === '') r.importo = '';   // vuoto = importo non ancora deciso
+        else if (typeof r.importo !== 'number') r.importo = fnParseAmount(r.importo);
+      });
+    }
+    return c;
+  }
+  function normClients(list) { (list || []).forEach(normClient); return list; }
   function suggestCheckName() {
     var d = new Date();
     return MESI[d.getMonth()].charAt(0).toUpperCase() + MESI[d.getMonth()].slice(1) + ' ' + d.getFullYear();
@@ -2411,7 +2430,7 @@
     if (prev.nutri) state.nutri = prev.nutri;
     if (prev.nutriCartelle) state.nutriCartelle = prev.nutriCartelle;
     if (prev.wa) state.wa = prev.wa;
-    if (prev.train) { state.train = prev.train; try { localStorage.setItem(STORAGE_KEY_TR, JSON.stringify(state.train)); } catch (e) { /* ignore */ } }
+    if (prev.train) { state.train = trNorm(prev.train); try { localStorage.setItem(STORAGE_KEY_TR, JSON.stringify(state.train)); } catch (e) { /* ignore */ } }
     if (prev.anag) { state.anag = prev.anag; try { localStorage.setItem(STORAGE_KEY_AN, JSON.stringify(state.anag)); } catch (e) { /* ignore */ } }
     undoBaseline = cloneUndoState();
     try {
@@ -2489,10 +2508,10 @@
     pendingRemote = null;
     applyingRemote = true;
     var cloned = JSON.parse(JSON.stringify(data));
-    if (Array.isArray(cloned.clients)) state.clients = cloned.clients;
+    if (Array.isArray(cloned.clients)) state.clients = normClients(cloned.clients);
     if (Array.isArray(cloned.consulenze)) state.consulenze = cloned.consulenze;
     if (Array.isArray(cloned.promemoria)) state.promemoria = cloned.promemoria;
-    if (Array.isArray(cloned.train) && !trOpenId) { state.train = cloned.train; try { localStorage.setItem(STORAGE_KEY_TR, JSON.stringify(state.train)); } catch (e) { /* ignore */ } }
+    if (Array.isArray(cloned.train) && !trOpenId) { state.train = trNorm(cloned.train); try { localStorage.setItem(STORAGE_KEY_TR, JSON.stringify(state.train)); } catch (e) { /* ignore */ } }
     if (cloned.anag && Array.isArray(cloned.anag.people) && !anOpenId) { state.anag = { people: cloned.anag.people, rejected: cloned.anag.rejected || {}, noAuto: cloned.anag.noAuto || {}, purged: cloned.anag.purged || {} }; try { localStorage.setItem(STORAGE_KEY_AN, JSON.stringify(state.anag)); } catch (e) { /* ignore */ } }
     if (Array.isArray(cloned.nutriCartelle)) { state.nutriCartelle = cloned.nutriCartelle; try { localStorage.setItem(STORAGE_KEY_NUC, JSON.stringify(state.nutriCartelle)); } catch (e) { /* ignore */ } }
     if (Array.isArray(cloned.nutri) && !nuOpenId) { state.nutri = cloned.nutri; try { localStorage.setItem(STORAGE_KEY_NU, JSON.stringify(state.nutri)); } catch (e) { /* ignore */ } }
@@ -5291,7 +5310,7 @@
         if (inp.azione === 'aggiungi') {
           if (!c.pacchetto || c.pacchetto.tipoPagamento === 'A visita') c.pacchetto = { tipoPagamento: 'A rate', note: '', rate: (c.pacchetto && c.pacchetto.rate) || [] };
           var mx = c.pacchetto.rate.reduce(function (m, r) { return Math.max(m, r.numero || 0); }, 0);
-          c.pacchetto.rate.push({ id: uid(), numero: mx + 1, scadenza: String(inp.scadenza || '').slice(0, 10), importo: inp.importo != null ? String(inp.importo) : '', pagato: false });
+          c.pacchetto.rate.push({ id: uid(), numero: mx + 1, scadenza: String(inp.scadenza || '').slice(0, 10), importo: inp.importo != null && String(inp.importo).trim() !== '' ? fnParseAmount(inp.importo) : '', pagato: false });
           saveClients(); asMark(); asAfterWrite();
           return 'Aggiunta la rata ' + (mx + 1) + ' a ' + c.cliente;
         }
@@ -5313,7 +5332,7 @@
         if (!ck) throw new Error('check non trovato per ' + c.cliente);
         var d = inp.data ? String(inp.data).slice(0, 10) : toISO(todayMidnight());
         if (inp.azione === 'fissa') { if (!inp.data) throw new Error('serve la data da fissare'); ck.dataFissata = d; }
-        else { ck.dataEffettiva = d; if (!ck.dataFissata) ck.dataFissata = d; }
+        else markComplete(c, ck, d);
         saveClients(); asMark(); asAfterWrite();
         return c.cliente + ': check ' + ck.numero + ' (' + ck.tipoCheck + ') ' + (inp.azione === 'fissa' ? 'fissato il ' : 'completato il ') + d;
       } },
@@ -5445,7 +5464,7 @@
         asEl('asBody').appendChild(ub); asScroll();
         ub.querySelector('[data-asundo]').addEventListener('click', function () {
           var o = JSON.parse(snap);
-          state.clients = o.clients; state.consulenze = o.consulenze; state.promemoria = o.promemoria; state.sp = o.sp;
+          state.clients = normClients(o.clients); state.consulenze = o.consulenze; state.promemoria = o.promemoria; state.sp = o.sp;
           saveClients(); saveConsulenze(); savePromemoria(); saveSp();
           renderTabs(); render(); if (state.openFolderId) renderFolder(state.openFolderId); finRerender();
           ub.innerHTML = '<span class="as-done">↶ Modifiche annullate.</span>';
@@ -7358,7 +7377,10 @@
   var STORAGE_KEY_TR = 'mllab_allenamento_v1';
   var TR_MUSCLES = [['Q', 'Quadricipiti'], ['P', 'Petto'], ['G', 'Glutei'], ['D', 'Dorsali'], ['T', 'Centro schiena'], ['B', 'Bicipiti'], ['TR', 'Tricipiti'], ['PO', 'Polpacci'], ['IC', 'Coscia posteriore'], ['A', 'Addome'], ['C', 'Cardio'], ['S', 'Spalle']];
   var TR_NOTE_FIELDS = [['nome', 'Nome e Cognome'], ['eta', 'Età'], ['obiettivo', 'Obiettivo della persona'], ['voto', 'Voto sull\'allenamento della persona'], ['punti', '3 punti su cui lavorare'], ['infortuni', 'Infortuni'], ['noteFinali', 'Note finali']];
-  function trLoad() { try { var o = JSON.parse(localStorage.getItem(STORAGE_KEY_TR) || 'null'); if (Array.isArray(o)) return o; } catch (e) { /* ignore */ } return []; }
+  // le note devono essere un oggetto: su una lista ([]) i campi scritti si perdono al salvataggio
+  function trNotes(p) { if (!p.note || typeof p.note !== 'object' || Array.isArray(p.note)) p.note = {}; return p.note; }
+  function trNorm(list) { (list || []).forEach(trNotes); return list; }
+  function trLoad() { try { var o = JSON.parse(localStorage.getItem(STORAGE_KEY_TR) || 'null'); if (Array.isArray(o)) return trNorm(o); } catch (e) { /* ignore */ } return []; }
   var trSaveTimer = null;
   function trSave(now) {
     clearTimeout(trSaveTimer);
@@ -7448,7 +7470,7 @@
     document.getElementById('trPerson').addEventListener('change', function (e) {
       p.personId = e.target.value; trTouch(p);
       var pn = trPersonName(p.personId);
-      if (pn && !(p.note && p.note.nome)) { p.note = p.note || {}; p.note.nome = pn; if (trTab === 'note') trRenderBody(); }
+      if (pn && !trNotes(p).nome) { p.note.nome = pn; if (trTab === 'note') trRenderBody(); }
       toast(p.personId ? '🏋️ Protocollo assegnato a ' + pn : 'Assegnazione tolta');
     });
     document.getElementById('trSaveBtn').addEventListener('click', function () { var ae = document.activeElement; if (ae && ae.blur) ae.blur(); trTouch(p); trSave(true); if (typeof doDbSave === 'function') doDbSave(); toast('💾 Protocollo salvato'); });
@@ -7482,7 +7504,7 @@
     trWire(p, body);
   }
   function trNoteHtml(p) {
-    p.note = p.note || {};
+    trNotes(p);
     return '<div class="tr-notes">' + TR_NOTE_FIELDS.map(function (f) {
       var big = f[0] === 'obiettivo' || f[0] === 'punti' || f[0] === 'infortuni' || f[0] === 'noteFinali';
       return '<div class="' + (big ? 'full' : '') + '"><label>' + f[1] + '</label>' + (big ? '<textarea class="note-area" data-trnote="' + f[0] + '" style="min-height:70px;">' + escapeHtml(p.note[f[0]] || '') + '</textarea>' : '<input type="text" data-trnote="' + f[0] + '" value="' + escapeHtml(p.note[f[0]] || '') + '">') + '</div>';
@@ -7603,7 +7625,7 @@
       })();
   }
   function trWire(p, body) {
-    body.querySelectorAll('[data-trnote]').forEach(function (el) { el.addEventListener('input', function () { p.note = p.note || {}; p.note[el.getAttribute('data-trnote')] = el.value; trTouch(p); }); });
+    body.querySelectorAll('[data-trnote]').forEach(function (el) { el.addEventListener('input', function () { trNotes(p)[el.getAttribute('data-trnote')] = el.value; trTouch(p); }); });
     var m = p.mesocicli[trMeso]; if (!m || trTab !== 'meso') return;
     var re = function () { var y = body.scrollTop; trRenderBody(); document.getElementById('trBody').scrollTop = y; };
     body.querySelector('#trMesoNome').addEventListener('input', function (e) { m.nome = e.target.value || 'Mesociclo'; trTouch(p); });
@@ -8710,8 +8732,9 @@
       });
       var reopenBtn = rowEl.querySelector('.chk-reopen');
       if (reopenBtn) reopenBtn.addEventListener('click', function () {
-        chk.dataEffettiva = '';
+        var tolti = reopenCheck(c, chk);
         saveClients(); renderFolder(c.id); render();
+        if (tolti) toast('Check #' + chk.numero + ' riaperto · tolto il check successivo creato in automatico');
       });
       rowEl.querySelector('.chk-delete').addEventListener('click', function () {
         showConfirm('Eliminare il check #' + chk.numero + '?', function () {
@@ -8863,8 +8886,8 @@
     }
   }
 
-  function markComplete(client, chk) {
-    chk.dataEffettiva = chk.dataFissata || toISO(todayMidnight());
+  function markComplete(client, chk, data) {
+    chk.dataEffettiva = data || chk.dataFissata || toISO(todayMidnight());
     if (!chk.dataFissata) chk.dataFissata = chk.dataEffettiva;
     var sorted = client.checks.slice().sort(function (a, b) { return a.numero - b.numero; });
     var isLast = sorted[sorted.length - 1].id === chk.id;
@@ -8872,8 +8895,19 @@
       var tipoIdx = Math.max(0, client.sequenzaTipi.indexOf(chk.tipoCheck));
       var nextTipo = client.sequenzaTipi[(tipoIdx + 1) % client.sequenzaTipi.length];
       var newDate = toISO(addDays(fromISO(chk.dataEffettiva), Math.round(client.cadenzaSettimane * 7)));
-      client.checks.push({ id: uid(), numero: chk.numero + 1, tipoCheck: nextTipo, dataPrevista: newDate, dataFissata: '', dataEffettiva: '', note: '' });
+      client.checks.push({ id: uid(), numero: chk.numero + 1, tipoCheck: nextTipo, dataPrevista: newDate, dataFissata: '', dataEffettiva: '', note: '', autoDa: chk.id });
     }
+  }
+  // riapre un check completato e toglie il check successivo che il completamento aveva creato, se non è ancora stato toccato
+  function reopenCheck(client, chk) {
+    chk.dataEffettiva = '';
+    var tolti = 0;
+    client.checks = client.checks.filter(function (x) {
+      var auto = x.autoDa === chk.id && !x.dataFissata && !x.dataEffettiva && !x.note;
+      if (auto) tolti++;
+      return !auto;
+    });
+    return tolti;
   }
 
   // --- Import CSV ---
@@ -9024,7 +9058,7 @@
     }
     var imported = csvToClients(text);
     if (!imported.length) { toast('Nessun cliente valido trovato nel CSV'); return; }
-    state.clients = imported;
+    state.clients = normClients(imported);
     saveClients();
     importOverlay.classList.remove('open');
     render();
@@ -9070,6 +9104,7 @@
   var DRIVE_BACKUP_NAME = 'ML LAB - backup.json';
   var DRIVE_BACKUP_FOLDER_ID = '1sTH9TgGM9wKAReWp5QNx2-ivi23VYidS';
   var LAST_BACKUP_KEY = 'mllab_last_backup_at';
+  var backupFailed = false;
   function pad2(n) { return String(n).padStart(2, '0'); }
 
   function setLastBackupNow() {
@@ -9083,10 +9118,10 @@
     var el = document.getElementById('backupStatus');
     if (!el) return;
     var d = getLastBackupDate();
-    if (!d) { el.textContent = 'Nessun backup ancora'; return; }
+    if (!d) { el.textContent = backupFailed ? '⚠ Backup non riuscito' : 'Nessun backup ancora'; return; }
     var days = Math.floor((todayMidnight() - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
     var when = days <= 0 ? 'oggi alle ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) : (days === 1 ? 'ieri' : 'da ' + days + ' giorni');
-    el.textContent = 'Ultimo backup: ' + when;
+    el.textContent = 'Ultimo backup: ' + when + (backupFailed ? ' · ⚠ l\'ultimo tentativo non è riuscito' : '');
   }
 
   async function doBackupToDrive(silent) {
@@ -9102,16 +9137,19 @@
     try {
       var search = await mcp.callTool('Google Drive', 'search_files', { query: "title = '" + DRIVE_BACKUP_NAME + "' and parentId = '" + DRIVE_BACKUP_FOLDER_ID + "'" });
       var found = (search && search.payload && search.payload.files) || [];
-      for (var i = 0; i < found.length; i++) {
-        try { await mcp.callTool('Google Drive', 'trash_file', { fileId: found[i].id }); } catch (e2) { /* continua comunque */ }
-      }
+      // prima creo il nuovo backup, poi cestino i vecchi: se la creazione fallisce il backup precedente resta su Drive
       await mcp.callTool('Google Drive', 'create_file', {
         title: DRIVE_BACKUP_NAME, textContent: content, contentMimeType: 'application/json', disableConversionToGoogleType: true, parentId: DRIVE_BACKUP_FOLDER_ID
       });
+      for (var i = 0; i < found.length; i++) {
+        try { await mcp.callTool('Google Drive', 'trash_file', { fileId: found[i].id }); } catch (e2) { /* il nuovo c'è già: un vecchio rimasto non è un problema */ }
+      }
+      backupFailed = false;
       setLastBackupNow();
       if (!silent) toast('Backup salvato in "ML LAB - Backup" su Drive' + (found.length ? ' (sovrascritto)' : ''));
     } catch (err) {
       var code = err && err.code;
+      backupFailed = true; renderBackupStatus();
       if (silent) return;
       if (code === 'needs_reauth' || code === 'server_not_connected' || code === 'consent_required') {
         toast('Ricollega Google Drive in Impostazioni → Connettori su claude.ai per il backup automatico');
@@ -9424,7 +9462,7 @@
   });
 
   // --- Init ---
-  state.clients = loadClients();
+  state.clients = normClients(loadClients());
   state.consulenze = loadConsulenze();
   state.promemoria = loadPromemoria();
   state.wa = loadWa();
