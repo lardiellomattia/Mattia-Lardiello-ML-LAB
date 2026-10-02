@@ -4255,6 +4255,15 @@
         if (P !== 0 && ((P === 1) || it.n === 1)) out.push({ id: 'r:' + it.ev.id + (it.synthetic ? ':' + it.key : ''), key: it.key, name: it.displayName, date: it.date, kind: P === 1 ? 'Seduta singola' : 'Pacchetto ' + P + ' PT', pacchetto: P, base: c.tariffa, n: it.n });
       }
     });
+    // "Inizio pacchetto" impostato a mano e la 1ª PT non è in agenda (es. ha pagato alla 2ª): il pacchetto parte dalla prima PT da quella data
+    Object.keys(state.sp.clients).forEach(function (k) {
+      var c = state.sp.clients[k]; if (!c || !c.inizio) return;
+      var P = spPac(c); if (P <= 1) return;
+      var from = fromISO(c.inizio);
+      var first = items.filter(function (it) { return it.key === k && it.type === 'pt' && !it.noPay && it.date >= from; })[0];
+      if (!first || first.n === 1) return;
+      out.push({ id: 'i:' + k + ':' + c.inizio, key: k, name: first.displayName, date: first.date, kind: 'Pacchetto ' + P + ' PT', pacchetto: P, base: c.tariffa, n: first.n, daInizio: true });
+    });
     out.forEach(function (p) {
       var ov = state.sp.pay[p.id] || {};
       p.amount = ov.amount != null ? ov.amount : (p.base || 0);
@@ -4642,7 +4651,7 @@
     document.getElementById('spcTariffa').innerHTML = '<option value="">— da impostare —</option>' + SP_TARIFFE.map(function (t) { return '<option value="' + t + '"' + (c.tariffa === t ? ' selected' : '') + '>€ ' + t + '</option>'; }).join('');
     document.getElementById('spcPacchetto').innerHTML = spPacOptions(c).map(function (p) { return '<option value="' + p + '"' + (c.pacchetto === p ? ' selected' : '') + '>' + spPacLabel(p) + '</option>'; }).join('');
     document.getElementById('spcInizio').value = c.inizio || (s && s.autoInizio) || '';
-    document.getElementById('spcInizioHint').textContent = !c.inizio && s && s.autoInizio ? 'letta dalla 1ª PT in agenda' : (c.inizio ? 'impostata da te' : 'nessuna 1ª PT trovata');
+    document.getElementById('spcInizioHint').textContent = !c.inizio && s && s.autoInizio ? 'letta dalla 1ª PT in agenda' : (c.inizio ? 'impostata da te · il pagamento parte da qui' : 'nessuna 1ª PT trovata: metti la data in cui ha iniziato/pagato');
     document.getElementById('spcStato').value = c.stato || 'attivo';
     var pr = document.getElementById('spcPayRow');
     if (c.coppia) {
@@ -4685,7 +4694,9 @@
         '<input type="text" class="spf-pnote" data-pnote="' + eid + '" placeholder="Nota sul pagamento…" value="' + escapeHtml(p.note) + '"></div>' +
         '<div class="spf-pay-side"><label class="spf-amt-lbl">Importo pacchetto</label><div class="spf-amt"><span>€</span><input type="number" min="0" step="1" data-pamt="' + eid + '" value="' + (p.amount || '') + '" placeholder="0"></div>' +
         (p.paid ? '<button class="btn small ghost" data-unpay="' + eid + '">Annulla</button>' : '<button class="btn small sp-pay-btn" data-pay="' + eid + '">✓ Saldato</button>') + '</div></div>';
-    }).join('') : '<div class="no-items">' + (allPays.length ? 'Nessun pagamento in ' + MESI[spView.month.getMonth()] + '.' : 'Nessun pagamento generato: arriverà con la 1ª PT del prossimo pacchetto o con una consulenza.') + '</div>';
+    }).join('') : '<div class="no-items">' + (allPays.length ? 'Nessun pagamento in ' + MESI[spView.month.getMonth()] + '.' : 'Nessun pagamento generato: arriverà con la 1ª PT del prossimo pacchetto o con una consulenza.' + (s && s.pts.length && s.P > 1 && !c.inizio ? '<div style="margin-top:8px;"><button class="btn small" id="spfStartHere" data-d="' + toISO(s.pts[0].date) + '">＋ Il pacchetto è iniziato con la PT del ' + spDateShort(s.pts[0].date) + '</button></div>' : '')) + '</div>';
+    var sh = document.getElementById('spfStartHere');
+    if (sh) sh.addEventListener('click', function () { c.inizio = sh.getAttribute('data-d'); saveSp(); finRerender(); openSpFolder(key); toast('Pacchetto di ' + c.name + ' dal ' + spDateShort(fromISO(c.inizio)) + ': ora puoi segnarlo pagato'); });
     var tg = document.getElementById('spfPaysToggle');
     if (tg) tg.addEventListener('click', function () { spFolderAllPays = !spFolderAllPays; openSpFolder(key); });
     var ov = document.getElementById('spFolderOverlay');
@@ -4741,7 +4752,7 @@
     document.getElementById('spfClose').addEventListener('click', function () { spSaveFolder(true); });
     document.getElementById('spfDelete').addEventListener('click', function () { spSaveFolder(false); spDeleteClient(spOpenKey); });
     ov.addEventListener('click', function (e) { if (e.target === ov) spSaveFolder(true); });
-    ['spcTariffa', 'spcPacchetto', 'spcStato', 'spcParte', 'spcPagante'].forEach(function (id) { document.getElementById(id).addEventListener('change', function () { spSaveFolder(false); }); });
+    ['spcTariffa', 'spcPacchetto', 'spcInizio', 'spcStato', 'spcParte', 'spcPagante'].forEach(function (id) { document.getElementById(id).addEventListener('change', function () { spSaveFolder(false); }); });
   })();
   function spPacOptions(c) { var l = SP_PACCHETTI.slice(); if (c.pacchetto && l.indexOf(c.pacchetto) === -1) l.push(c.pacchetto); return l.sort(function (a, b) { return a - b; }); }
   function openSpTariffe() {
