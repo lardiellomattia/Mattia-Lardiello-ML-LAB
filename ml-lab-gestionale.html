@@ -6573,12 +6573,13 @@
     openNu(f.id);
     setTimeout(function () { var n = document.getElementById('nuNome'); if (n) { n.focus(); n.select(); } }, 60);
   }
-  function nuDelete(id) {
+  function nuDelete(id, after) {
     var f = nuGet(id); if (!f) return;
     showConfirm('Eliminare la cartella "' + f.nome + '"?', function () {
       state.nutri = state.nutri.filter(function (x) { return x.id !== id; }); saveNu(true); pushUndoCheckpoint();
       document.getElementById('nuOverlay').classList.remove('open');
       toast('Cartella eliminata'); renderTabs(); render();
+      if (after) after();
     });
   }
   function nuTouch(f) { f.aggiornato = new Date().toISOString(); saveNu(); }
@@ -8957,7 +8958,7 @@
           var mine = (state.nutri || []).filter(function (f) { return f.clientId === c.id; });
           var trackBox = mine.length ? '<div class="nu-client-track">' + nuTrackHtml(c.id, null) + '</div>' : '';
           return '<div class="section-block"><h3>🥗 Cartelle nutrizionali <button class="btn tiny" id="nuFromClientBtn">+ Nuova dal modello Reset</button></h3>' + trackBox +
-            (mine.length ? mine.map(function (f) { return '<div class="nu-link-row"><span><strong>' + escapeHtml(f.nome) + '</strong> · ' + escapeHtml(f.tipo || '') + ' · aggiornata ' + new Date(f.aggiornato).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + '</span><button class="btn tiny" data-nuopenc="' + f.id + '">Apri</button></div>'; }).join('') : '<div class="no-items">Nessuna cartella nutrizionale assegnata.</div>') + '</div>';
+            (mine.length ? mine.map(function (f) { return '<div class="nu-link-row"><span><strong>' + escapeHtml(f.nome) + '</strong> · ' + escapeHtml(f.tipo || '') + ' · aggiornata ' + new Date(f.aggiornato).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + '</span><span style="display:flex;gap:6px;align-items:center;"><button class="btn tiny" data-nuopenc="' + f.id + '">Apri</button><button class="ing-del" data-nudelc="' + f.id + '" title="Elimina questa cartella nutrizionale">🗑</button></span></div>'; }).join('') : '<div class="no-items">Nessuna cartella nutrizionale assegnata.</div>') + '</div>';
         })() +
         (function () {
           var mine = trForClient(c.id);
@@ -9048,6 +9049,7 @@
       toast('🏋️ ' + tp.nome + ' assegnato a ' + c.cliente); renderFolder(c.id);
     });
     Array.prototype.forEach.call(folderModal.querySelectorAll('[data-tropenc]'), function (b) { b.addEventListener('click', function () { trOpenFromAnywhere(b.getAttribute('data-tropenc')); }); });
+    Array.prototype.forEach.call(folderModal.querySelectorAll('[data-nudelc]'), function (b) { b.addEventListener('click', function () { nuDelete(b.getAttribute('data-nudelc'), function () { if (state.openFolderId) renderFolder(state.openFolderId); }); }); });
     Array.prototype.forEach.call(folderModal.querySelectorAll('[data-nuopenc], [data-nutrack]'), function (b) { b.addEventListener('click', function () { nuOpenFromAnywhere(b.getAttribute('data-nuopenc') || b.getAttribute('data-nutrack'), b.getAttribute('data-nutrack') ? 'track' : null); }); });
     document.getElementById('closeFolderBtn').addEventListener('click', closeFolder);
     var folderUi = getFolderUiState(c.id);
