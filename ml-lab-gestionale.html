@@ -6669,6 +6669,14 @@
         '<div class="nu-copy-row"><button class="btn small nu-copy-go" id="nuCopyGo">3 · Copia ' + NU_DAYS_FULL[nuCopyFrom] + (nuCopyTo.length ? ' su ' + nuCopyTo.slice().sort().map(function (i) { return NU_DAYS_FULL[i].slice(0, 3); }).join(', ') : '') + '</button><span class="nu-copy-hint">copia carboidrati, proteine, grassi, acqua e sale</span></div></div>';
     return pills + table + extra + '<div id="nuPerKg">' + nuPerKgHtml(f) + '</div>' + '<div id="nuSum">' + nuSummaryHtml(f) + '</div>';
   }
+  // casella successiva nella tabella dei macro: giù nello stesso giorno, poi in cima al giorno dopo (colonna "all" resta nella sua colonna)
+  function nuGridNext(keys, day, key, dir) {
+    var r = keys.indexOf(key) + dir;
+    if (r >= 0 && r < keys.length) return { d: day, k: keys[r] };
+    if (day === 'all') return null;
+    var nd = day + dir; if (nd < 0 || nd > 6) return null;
+    return { d: nd, k: keys[dir > 0 ? 0 : keys.length - 1] };
+  }
   function nuPerKgHtml(f) {
     var w = f.weeks[nuWeek], k = nuCalc(f), peso = k.peso, mm = k.mm, st = nuWeekStats(w);
     var head = '<div class="fn-sum-title">Grammi per kg · ' + (nuWeek + 1) + ' WEEK' + (mm ? ' <span class="nu-kg-note">macro su massa magra ' + nuFmt(mm, 1) + ' kg · kcal su peso ' + nuFmt(peso, 1) + ' kg</span>' : '') + '</div>';
@@ -6866,6 +6874,12 @@
     var dw = body.querySelector('#nuDelWeek'); if (dw) dw.addEventListener('click', function () { showConfirm('Eliminare la ' + (nuWeek + 1) + 'ª settimana con i suoi dati?', function () { var del = nuWeek; f.weeks.splice(del, 1); if (f.pastiDay) { var nm = {}; Object.keys(f.pastiDay).forEach(function (k) { var pr = k.split('-'), wi = parseInt(pr[0], 10); if (wi < del) nm[k] = f.pastiDay[k]; else if (wi > del) nm[(wi - 1) + '-' + pr[1]] = f.pastiDay[k]; }); f.pastiDay = nm; } nuWeek = Math.max(0, nuWeek - 1); nuTouch(f); nuRenderBody(); }); });
     body.querySelectorAll('input[data-nud]').forEach(function (el) {
       el.addEventListener('input', function () { f.weeks[nuWeek].days[parseInt(el.getAttribute('data-nud'), 10)][el.getAttribute('data-nuk')] = el.value; nuTouch(f); nuSoftWeek(f); });
+      // Invio = casella sotto (stesso giorno); dall'ultima riga passa in cima al giorno dopo. Maiusc+Invio = casella sopra
+      el.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return; e.preventDefault();
+        var t = nuGridNext(['c', 'p', 'g', 'acqua', 'sale'], parseInt(el.getAttribute('data-nud'), 10), el.getAttribute('data-nuk'), e.shiftKey ? -1 : 1);
+        var nx = t && body.querySelector('input[data-nud="' + t.d + '"][data-nuk="' + t.k + '"]'); if (nx) { nx.focus(); nx.select(); } else el.blur();
+      });
     });
     body.querySelectorAll('[data-nuwf]').forEach(function (el) { el.addEventListener('input', function () { f.weeks[nuWeek][el.getAttribute('data-nuwf')] = el.value; nuTouch(f); nuSoftWeek(f); }); });
     var cp = body.querySelector('#nuCopyPrev'); if (cp) cp.addEventListener('click', function () { f.weeks[nuWeek] = JSON.parse(JSON.stringify(f.weeks[nuWeek - 1])); nuTouch(f); nuRenderBody(); toast('Copiata la settimana ' + nuWeek); });
@@ -6890,7 +6904,12 @@
         if (d === 'all') { el.value = ''; toast(nuFmt(gkg, 2) + ' g/kg applicato a tutti i giorni (' + grams + ' g)'); }
       };
       pk.addEventListener('change', function (e) { var el = e.target; if (!el.classList || !el.classList.contains('nu-kgin')) return; applyKg(el); nuSoftWeek(nuGet(nuOpenId) || f); });
-      pk.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.classList.contains('nu-kgin')) { e.preventDefault(); e.target.blur(); } });
+      pk.addEventListener('keydown', function (e) {
+        var el = e.target; if (e.key !== 'Enter' || !el.classList.contains('nu-kgin')) return; e.preventDefault();
+        var d = el.getAttribute('data-kgd'), t = nuGridNext(['c', 'p', 'g'], d === 'all' ? 'all' : parseInt(d, 10), el.getAttribute('data-kgk'), e.shiftKey ? -1 : 1);
+        el.blur();
+        if (t) setTimeout(function () { var nx = pk.querySelector('input[data-kgd="' + t.d + '"][data-kgk="' + t.k + '"]'); if (nx) { nx.focus(); nx.select(); } }, 0);
+      });
     }
     body.querySelectorAll('[data-nutrack]').forEach(function (b) { b.addEventListener('click', function () { var id = b.getAttribute('data-nutrack'); if (id !== nuOpenId) { saveNu(true); openNu(id, 'track'); } }); });
     var rb = body.querySelector('#nuReportBtn'); if (rb) rb.addEventListener('click', function () { saveNu(true); nuDownloadReport(f.clientId); });
