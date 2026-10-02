@@ -7733,6 +7733,11 @@
     });
     return out.sort(function (a, b) { return a.ord - b.ord; });
   }
+  // la cartella nutrizionale sta sotto la cartella cliente: chiudo prima la cartella cliente
+  function nuOpenFromAnywhere(id, tab) {
+    if (state.openFolderId) closeFolder();
+    setTimeout(function () { openNu(id, tab); }, 60);
+  }
   function trOpenFromAnywhere(id) {
     if (state.openFolderId) closeFolder();
     var btn = document.querySelector('.side-btn[data-tab="allenamento"]'); if (btn) btn.click();
@@ -9029,7 +9034,7 @@
     var clo = document.getElementById('clOpenSp');
     if (clo) clo.addEventListener('click', function () { var key = clo.getAttribute('data-key'); closeFolder(); document.querySelector('.side-btn[data-tab="sedute"]').click(); setTimeout(function () { openSpFolder(key); }, 80); });
     var nfc = document.getElementById('nuFromClientBtn');
-    if (nfc) nfc.addEventListener('click', function () { var f = nuNewFolder('Reset ' + c.cliente); f.clientId = c.id; state.nutri.push(f); saveNu(true); openNu(f.id); });
+    if (nfc) nfc.addEventListener('click', function () { var f = nuNewFolder('Reset ' + c.cliente); f.clientId = c.id; state.nutri.push(f); saveNu(true); nuOpenFromAnywhere(f.id); });
     var tfc = document.getElementById('trFromClientBtn');
     if (tfc) tfc.addEventListener('click', function () {
       var per = trPersonForClient(c); if (!per) { toast('Persona non trovata in Anagrafica'); return; }
@@ -9043,7 +9048,7 @@
       toast('🏋️ ' + tp.nome + ' assegnato a ' + c.cliente); renderFolder(c.id);
     });
     Array.prototype.forEach.call(folderModal.querySelectorAll('[data-tropenc]'), function (b) { b.addEventListener('click', function () { trOpenFromAnywhere(b.getAttribute('data-tropenc')); }); });
-    Array.prototype.forEach.call(folderModal.querySelectorAll('[data-nuopenc], [data-nutrack]'), function (b) { b.addEventListener('click', function () { openNu(b.getAttribute('data-nuopenc') || b.getAttribute('data-nutrack'), b.getAttribute('data-nutrack') ? 'track' : null); }); });
+    Array.prototype.forEach.call(folderModal.querySelectorAll('[data-nuopenc], [data-nutrack]'), function (b) { b.addEventListener('click', function () { nuOpenFromAnywhere(b.getAttribute('data-nuopenc') || b.getAttribute('data-nutrack'), b.getAttribute('data-nutrack') ? 'track' : null); }); });
     document.getElementById('closeFolderBtn').addEventListener('click', closeFolder);
     var folderUi = getFolderUiState(c.id);
     Array.prototype.forEach.call(folderModal.querySelectorAll('.folder-tab-btn'), function (btn) {
