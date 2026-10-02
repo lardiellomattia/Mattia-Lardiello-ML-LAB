@@ -876,6 +876,8 @@
   .ing-price { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; margin: 0 4px 0 0; }
   .ing-price select { width: auto; padding: 5px 8px; font-size: 12.5px; }
   .ing-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .ing-tag { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #EEF2FF; color: #4338CA; vertical-align: middle; }
+  .ing-tag-gone { background: #FEF3C7; color: #92400E; }
   .ing-row { display: flex; align-items: center; gap: 14px; background: #FFFFFF; border: 1px solid var(--border); border-left: 5px solid var(--border); border-radius: 16px; padding: 10px 14px; }
   .ing-row.sp-pagato { border-left-color: var(--ok); } .ing-row.sp-in-scadenza { border-left-color: #F29D0B; } .ing-row.sp-da-saldare { border-left-color: var(--urgent); }
   .ing-date { width: 46px; flex-shrink: 0; text-align: center; background: #0A0A0A; color: #FFBF00; border-radius: 12px; padding: 6px 0; line-height: 1.1; }
@@ -4818,7 +4820,7 @@
     var before = all.filter(function (e) { return e.created && new Date(e.created) < m; });
     finState.events = before;
     var items, ingPrev;
-    try { items = spBuildItems(); ingPrev = ingItems(); } finally { finState.events = all; }
+    try { items = spBuildItems(); ingPrev = ingItems({ noSnap: true }); } finally { finState.events = all; }
     var tot = 0;
     spPayments(items).forEach(function (p) { if (!p.aParte && spInMonth(p.date, m)) tot += p.amount; });
     spForecast(items, new Date(spAddMonths(m, 1).getTime() - 1), m).list.forEach(function (e) { if (spInMonth(e.date, m) && !(state.sp.clients[e.key] && state.sp.clients[e.key].aParte)) tot += e.amount; });
@@ -5676,8 +5678,15 @@
   var ingView = { month: null, search: '', filter: 'tutti' };
   var ingShowDel = false;
   function ingPrice() { var p = state.sp && state.sp.ingPrezzo; return p != null ? p : 15; }
-  function ingItems() {
-    var out = [];
+  // ogni ingresso letto dall'agenda viene copiato qui (snap): se l'appuntamento viene cancellato per sbaglio, l'ingresso resta
+  var ingSnapTimer = null;
+  function ingSnapSave() {
+    clearTimeout(ingSnapTimer);
+    ingSnapTimer = setTimeout(function () { try { localStorage.setItem(STORAGE_KEY_SP, JSON.stringify(state.sp)); } catch (e) { /* ignore */ } scheduleDbSave(); }, 400);
+  }
+  function ingItems(opt) {
+    var out = [], seen = {}, dirty = false, now = new Date();
+    state.sp.ing = state.sp.ing || {};
     finState.events.forEach(function (e) {
       var t = (e.summary || '').trim();
       if (!/^prenota il tuo spazio/i.test(t) || !e.start || !e.start.dateTime || spSelfDeclined(e)) return;
@@ -5685,11 +5694,28 @@
       if (!name && e.description) name = String(e.description).replace(/\(.*$/, '').trim();
       var guest = ((e.attendees) || []).filter(function (a) { return !a.self && a.email; })[0];
       var mail = guest ? guest.email : ((String(e.description || '').match(/[\w.+-]+@[\w-]+\.[\w.]+/) || [])[0] || '');
-      var ov = (state.sp.ing || {})[e.id] || {};
+      seen[e.id] = 1;
+      var ov = state.sp.ing[e.id] || {};
       if (ov.eliminato) return;
+      if (!(opt && opt.noSnap)) {
+        var sn = { n: name || 'Senza nome', e: mail || '', s: e.start.dateTime, f: e.end.dateTime };
+        if (!ov.snap || ov.snap.n !== sn.n || ov.snap.e !== sn.e || ov.snap.s !== sn.s || ov.snap.f !== sn.f) { ov.snap = sn; state.sp.ing[e.id] = ov; dirty = true; }
+      }
       var amount = ov.amount != null ? ov.amount : ingPrice();
       out.push({ isNew: e.created && (Date.now() - new Date(e.created).getTime()) < 86400000, id: e.id, name: name || 'Senza nome', email: mail, date: new Date(e.start.dateTime), end: new Date(e.end.dateTime), amount: amount, paid: !!ov.paid, paidOn: ov.paid && ov.paidOn ? ov.paidOn : '', note: ov.note || '', future: new Date(e.start.dateTime) > new Date() });
     });
+    if (!(opt && opt.noSnap)) {
+      var from = finState.from, to = finState.to;
+      Object.keys(state.sp.ing).forEach(function (id) {
+        var ov = state.sp.ing[id];
+        if (seen[id] || !ov || ov.eliminato || !ov.snap) return;
+        var d = new Date(ov.snap.s), d2 = new Date(ov.snap.f);
+        // tolto dall'agenda: lo tengo se era già fatto o pagato (una prenotazione futura cancellata sparisce, come prima)
+        if (!ov.manual) { if (!from || !to || d < from || d >= to) return; if (!ov.paid && d > now) return; }
+        out.push({ isNew: false, id: id, name: ov.snap.n, email: ov.snap.e || '', date: d, end: d2, amount: ov.amount != null ? ov.amount : ingPrice(), paid: !!ov.paid, paidOn: ov.paid && ov.paidOn ? ov.paidOn : '', note: ov.note || '', future: d > now, manual: !!ov.manual, gone: !ov.manual });
+      });
+    }
+    if (dirty) ingSnapSave();
     out.sort(function (a, b) { return a.date - b.date; });
     return out;
   }
@@ -5745,6 +5771,44 @@
   window.addEventListener('focus', function () { if (state.activeTab === 'ingressi') ingQuickRefresh(true); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden && state.activeTab === 'ingressi') ingQuickRefresh(true); });
 
+  // ingresso inserito a mano (non serve l'appuntamento in agenda)
+  function openIngAdd() {
+    var m = ingView.month || spMonthStart(todayMidnight()), t = todayMidnight();
+    var def = spInMonth(t, m) ? t : m;
+    var names = {}; ingItems().forEach(function (x) { names[x.name] = 1; });
+    var opts = ING_PREZZI.map(function (p) { return '<option value="' + p + '"' + (ingPrice() === p ? ' selected' : '') + '>' + (p ? '€ ' + p : 'Gratuito') + '</option>'; }).join('');
+    var box = document.createElement('div');
+    box.className = 'overlay open'; box.id = 'ingAddOverlay';
+    box.innerHTML = '<div class="modal" style="max-width:480px;"><h2>Aggiungi ingresso</h2><div class="modal-sub">Per un ingresso che non è in agenda: conta in Ingressi e nelle Finanze come gli altri.</div><div class="form-grid">' +
+      '<div class="full"><label>Persona</label><input type="text" id="iaNome" list="iaNomi" placeholder="Nome e cognome"><datalist id="iaNomi">' + Object.keys(names).sort().map(function (n) { return '<option value="' + escapeHtml(n) + '">'; }).join('') + '</datalist></div>' +
+      '<div class="full"><label>Giorno</label><input type="date" id="iaData" value="' + toISO(def) + '"></div>' +
+      '<div><label>Dalle</label><input type="time" id="iaDa" value="18:00"></div><div><label>Alle</label><input type="time" id="iaA" value="19:00"></div>' +
+      '<div><label>Prezzo</label><select class="form-input" id="iaPrezzo">' + opts + '</select></div>' +
+      '<div><label>Pagamento</label><label class="ap-check" style="margin-top:8px;"><input type="checkbox" id="iaPagato"> Già pagato</label></div>' +
+      '<div class="full" id="iaPagRow" style="display:none;"><label>Pagato il</label><input type="date" id="iaPagDate" value="' + toISO(t) + '"></div>' +
+      '<div class="full"><label>Nota</label><input type="text" id="iaNota" placeholder="Facoltativa"></div></div>' +
+      '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px;"><button class="btn ghost" id="iaAnnulla" type="button">Annulla</button><button class="btn primary" id="iaSalva" type="button">Aggiungi</button></div></div>';
+    document.body.appendChild(box);
+    var close = function () { box.remove(); };
+    box.addEventListener('click', function (e) { if (e.target === box) close(); });
+    document.getElementById('iaAnnulla').addEventListener('click', close);
+    document.getElementById('iaPagato').addEventListener('change', function (e) { document.getElementById('iaPagRow').style.display = e.target.checked ? '' : 'none'; });
+    document.getElementById('iaNome').focus();
+    document.getElementById('iaSalva').addEventListener('click', function () {
+      var nome = document.getElementById('iaNome').value.trim(), d = document.getElementById('iaData').value;
+      var da = document.getElementById('iaDa').value || '18:00', a = document.getElementById('iaA').value || da;
+      if (!nome) { toast('Scrivi il nome della persona'); return; }
+      if (!d) { toast('Scegli il giorno'); return; }
+      var st = new Date(d + 'T' + da + ':00'), en = new Date(d + 'T' + a + ':00'); if (en <= st) en = new Date(st.getTime() + 3600000);
+      var paid = document.getElementById('iaPagato').checked;
+      var id = 'man_' + uid();
+      state.sp.ing = state.sp.ing || {};
+      state.sp.ing[id] = { manual: true, snap: { n: nome, e: '', s: st.toISOString(), f: en.toISOString() }, amount: parseInt(document.getElementById('iaPrezzo').value, 10), paid: paid, paidAt: paid ? new Date().toISOString() : null, paidOn: paid ? (document.getElementById('iaPagDate').value || toISO(todayMidnight())) : null, note: document.getElementById('iaNota').value.trim(), creato: new Date().toISOString() };
+      saveSp(); close();
+      ingView.month = spMonthStart(st);
+      toast('Ingresso di ' + nome + ' aggiunto'); renderIngressiStats(); renderIngressiList();
+    });
+  }
   function renderIngressiStats() {
     if (!ingView.month) ingView.month = spMonthStart(todayMidnight());
     if (finState.status !== 'ok') { statsEl.innerHTML = ''; return; }
@@ -5766,8 +5830,8 @@
     emptyEl.style.display = 'none';
     if (!ingView.month) ingView.month = spMonthStart(todayMidnight());
     var priceSel = '<label class="ing-price">Prezzo ingresso <select class="form-input" id="ingPrezzoStd">' + ING_PREZZI.map(function (p) { return '<option value="' + p + '"' + (ingPrice() === p ? ' selected' : '') + '>' + (p ? '€ ' + p : 'Gratuito') + '</option>'; }).join('') + '</select></label>';
-    var head = '<div class="ap-toolbar">' + finMonthNav('ing', ingView.month, priceSel) + '</div>';
-    var wire = function () { finWireMonthNav('ing', ingView, function () { renderIngressiStats(); renderIngressiList(); }); var ps = document.getElementById('ingPrezzoStd'); if (ps) ps.addEventListener('change', function () { state.sp.ingPrezzo = parseInt(ps.value, 10); saveSp(); toast('Prezzo standard: ' + (state.sp.ingPrezzo ? '€ ' + state.sp.ingPrezzo : 'gratuito') + ' (vale per gli ingressi senza prezzo scelto)'); renderIngressiStats(); renderIngressiList(); }); };
+    var head = '<div class="ap-toolbar">' + finMonthNav('ing', ingView.month, priceSel + '<button class="btn small" id="ingAddBtn" type="button">＋ Aggiungi ingresso</button>') + '</div>';
+    var wire = function () { finWireMonthNav('ing', ingView, function () { renderIngressiStats(); renderIngressiList(); }); var ab = document.getElementById('ingAddBtn'); if (ab) ab.addEventListener('click', openIngAdd); var ps = document.getElementById('ingPrezzoStd'); if (ps) ps.addEventListener('change', function () { state.sp.ingPrezzo = parseInt(ps.value, 10); saveSp(); toast('Prezzo standard: ' + (state.sp.ingPrezzo ? '€ ' + state.sp.ingPrezzo : 'gratuito') + ' (vale per gli ingressi senza prezzo scelto)'); renderIngressiStats(); renderIngressiList(); }); };
     var st = finStatusBox();
     if (st) { listEl.innerHTML = head + st; wire(); finWireStatus(); return; }
     var all = ingItems();
@@ -5787,7 +5851,7 @@
       var opts = ING_PREZZI.slice(); if (opts.indexOf(x.amount) === -1) opts.push(x.amount); opts.sort(function (a, b) { return a - b; });
       return '<div class="ing-row sp-' + cls + '">' +
         '<div class="ing-date"><strong>' + x.date.getDate() + '</strong><span>' + MESI[x.date.getMonth()].slice(0, 3) + '</span></div>' +
-        '<div class="ing-main"><div class="ing-name">' + escapeHtml(x.name) + ' <span class="sp-badge sp-badge-' + cls + '">' + badge + '</span>' + (x.isNew ? '<span class="ing-new">NUOVA</span>' : '') + '</div>' +
+        '<div class="ing-main"><div class="ing-name">' + escapeHtml(x.name) + ' <span class="sp-badge sp-badge-' + cls + '">' + badge + '</span>' + (x.isNew ? '<span class="ing-new">NUOVA</span>' : '') + (x.manual ? '<span class="ing-tag">✍️ inserito a mano</span>' : '') + (x.gone ? '<span class="ing-tag ing-tag-gone" title="L\'appuntamento non è più su Google Calendar: l\'ingresso resta qui finché non lo cancelli">non più in agenda</span>' : '') + '</div>' +
           (x.paid ? '<div class="ing-paid-on">💶 pagato il <input type="date" data-ingpaydate="' + escapeHtml(x.id) + '" value="' + toISO(ingPayDay(x)) + '"><span class="sp-meta"> · conta negli incassi di ' + MESI[ingPayDay(x).getMonth()] + '</span></div>' : '') + '<div class="sp-meta">Entrata ' + GIORNI[x.date.getDay()] + ' alle ' + apTime(x.date.toISOString()) + ' – ' + apTime(x.end.toISOString()) + (x.email ? ' · ' + escapeHtml(x.email) : '') + '</div>' +
           '<input type="text" class="ing-note" data-ingnote="' + escapeHtml(x.id) + '" placeholder="Nota…" value="' + escapeHtml(x.note) + '"></div>' +
         '<div class="ing-side"><select class="form-input ing-amt" data-ingamt="' + escapeHtml(x.id) + '">' + opts.map(function (p) { return '<option value="' + p + '"' + (x.amount === p ? ' selected' : '') + '>' + (p ? '€ ' + p : 'Gratuito') + '</option>'; }).join('') + '</select>' +
@@ -5804,6 +5868,7 @@
       perRows.map(function (p) { return '<tr><td><strong>' + escapeHtml(p.name) + '</strong></td><td>' + p.n + '</td><td style="text-align:right;">' + spEuro(p.tot) + '</td><td style="text-align:right;' + (p.due ? 'color:var(--urgent);font-weight:700;' : '') + '">' + spEuro(p.due) + '</td></tr>'; }).join('') + '</tbody></table></div>' : '';
     var delIds = Object.keys(state.sp.ing || {}).filter(function (k) { return state.sp.ing[k].eliminato && !state.sp.ing[k].purged; });
     var delNames = {};
+    delIds.forEach(function (k) { var sn = state.sp.ing[k].snap; if (sn) delNames[k] = { t: sn.n, d: new Date(sn.s) }; });
     finState.events.forEach(function (e) { if (delIds.indexOf(e.id) !== -1) delNames[e.id] = { t: (e.summary || '').replace(/^prenota il tuo spazio( in)?( ml ?lab)?\s*[-–:]?\s*/i, ''), d: e.start && e.start.dateTime ? new Date(e.start.dateTime) : null }; });
     var delShown = delIds.filter(function (k) { return delNames[k] && delNames[k].d && spInMonth(delNames[k].d, ingView.month); });
     var delBox = delShown.length ? '<div class="sp-deleted"><button class="sp-set-tariff" id="ingToggleDel">' + delShown.length + (delShown.length === 1 ? ' entrata cancellata' : ' entrate cancellate') + ' in questo mese · ' + (ingShowDel ? 'nascondi' : 'mostra') + '</button>' +
