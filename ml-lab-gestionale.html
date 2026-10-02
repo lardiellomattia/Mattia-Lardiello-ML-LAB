@@ -876,6 +876,36 @@
   .ing-price { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; margin: 0 4px 0 0; }
   .ing-price select { width: auto; padding: 5px 8px; font-size: 12.5px; }
   .ing-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .co-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .co-chip { border: 1px solid var(--border); background: #FFFFFF; border-radius: 999px; padding: 7px 16px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .co-chip.on { background: #0A0A0A; color: #FFFFFF; border-color: #0A0A0A; }
+  .co-head { display: grid; grid-template-columns: 2fr 1fr 3fr auto; gap: 10px; align-items: end; background: #FFFFFF; border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; margin-bottom: 14px; }
+  .co-head label, .co-day-note label { font-size: 11px; color: var(--ink-muted); display: block; margin-bottom: 3px; }
+  .co-day { background: #FFFFFF; border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; margin-bottom: 14px; }
+  .co-day-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .co-day-head h3 { margin: 0; font-size: 16px; flex: 1 1 auto; }
+  .co-day-note { display: flex; align-items: center; gap: 6px; } .co-day-note input { width: 130px; padding: 6px 10px; font-size: 13px; }
+  .co-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; }
+  .co-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-muted); text-align: left; padding: 0 6px; font-weight: 600; }
+  .co-table td { padding: 4px 6px; background: #FFFBEB; }
+  .co-table tr td:first-child { border-radius: 10px 0 0 10px; border-left: 5px solid #FACC15; } .co-table tr td:last-child { border-radius: 0 10px 10px 0; }
+  .co-table tr.co-ok td { background: #ECFDF3; } .co-table tr.co-ok td:first-child { border-left-color: #22C55E; }
+  .co-table tr.co-wait td { background: #ECFEFF; } .co-table tr.co-wait td:first-child { border-left-color: #22D3EE; }
+  .co-table input[type="text"], .co-table input[type="time"] { padding: 6px 8px; font-size: 13px; width: 100%; background: rgba(255,255,255,.85); }
+  .co-table input[type="time"] { width: 112px; }
+  .co-table .co-ck { width: 20px; height: 20px; cursor: pointer; }
+  .co-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--ink-muted); margin: 4px 0 12px; }
+  .co-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .co-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 6px; font-size: 13px; }
+  @media (max-width: 760px) {
+    .co-head { grid-template-columns: 1fr 1fr; }
+    .co-table thead { display: none; } .co-table, .co-table tbody, .co-table tr, .co-table td { display: block; width: 100%; }
+    .co-table tr { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 6px; align-items: center; margin-bottom: 8px; border-radius: 12px; padding: 8px; background: #FFFBEB; border-left: 5px solid #FACC15; }
+    .co-table tr.co-ok { background: #ECFDF3; border-left-color: #22C55E; } .co-table tr.co-wait { background: #ECFEFF; border-left-color: #22D3EE; }
+    .co-table td, .co-table tr td:first-child, .co-table tr td:last-child { background: transparent !important; border: none !important; border-radius: 0 !important; padding: 0; width: auto; }
+    .co-table td.co-c, .co-table td.co-s { grid-column: 1 / -1; order: 2; }
+    .co-table input[type="time"] { width: 100%; }
+  }
   .ing-tag { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #EEF2FF; color: #4338CA; vertical-align: middle; }
   .ing-tag-gone { background: #FEF3C7; color: #92400E; }
   .ing-row { display: flex; align-items: center; gap: 14px; background: #FFFFFF; border: 1px solid var(--border); border-left: 5px solid var(--border); border-radius: 16px; padding: 10px 14px; }
@@ -1298,6 +1328,7 @@
       <div class="side-title side-group">Agenda</div>
       <button class="tab-btn side-btn" data-tab="appuntamenti" title="Appuntamenti"><svg viewBox="0 0 24 24"><circle class="ring" cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span class="side-text">Appuntamenti</span><span class="count ap-wa-count" id="tabCountAppuntamenti" title="Solleciti WhatsApp da inviare"></span></button>
       <button class="tab-btn side-btn" data-tab="ingressi" title="Ingressi"><svg viewBox="0 0 24 24"><path d="M14 4h4.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14"/><path d="M10 16l4-4-4-4M4 12h10"/></svg><span class="side-text">Ingressi</span><span class="count"></span></button>
+      <button class="tab-btn side-btn" data-tab="collaboratori" title="Collaboratori"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.8 14.2c2.4.2 4.2 1.8 4.7 4.8"/></svg><span class="side-text">Collaboratori</span><span class="count"></span></button>
       <button class="tab-btn side-btn" data-tab="promemoria" title="Promemoria"><svg viewBox="0 0 24 24"><path d="M9 7h11M9 12h11M9 17h11"/><circle cx="4.5" cy="7" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="17" r="1"/></svg><span class="side-text">Promemoria</span><span class="count" id="tabCountPromemoria"></span></button>
       <div class="side-title side-group">Economia</div>
       <button class="tab-btn side-btn" data-tab="finanze" title="Previsionale &amp; Finanze"><svg viewBox="0 0 24 24"><path d="M4 18l5-5 4 3 7-8"/><path d="M15 8h5v5"/></svg><span class="side-text">Previsionale &amp; Finanze</span><span class="count"></span></button>
@@ -2556,7 +2587,7 @@
     if (cloned.anag && Array.isArray(cloned.anag.people) && !anOpenId) { state.anag = { people: cloned.anag.people, rejected: cloned.anag.rejected || {}, noAuto: cloned.anag.noAuto || {}, purged: cloned.anag.purged || {} }; try { localStorage.setItem(STORAGE_KEY_AN, JSON.stringify(state.anag)); } catch (e) { /* ignore */ } }
     if (Array.isArray(cloned.nutriCartelle)) { state.nutriCartelle = cloned.nutriCartelle; try { localStorage.setItem(STORAGE_KEY_NUC, JSON.stringify(state.nutriCartelle)); } catch (e) { /* ignore */ } }
     if (Array.isArray(cloned.nutri) && !nuOpenId) { state.nutri = cloned.nutri; try { localStorage.setItem(STORAGE_KEY_NU, JSON.stringify(state.nutri)); } catch (e) { /* ignore */ } }
-    if (cloned.sp && typeof cloned.sp === 'object') { state.sp = { clients: cloned.sp.clients || {}, pay: cloned.sp.pay || {}, ing: cloned.sp.ing || {}, ingPrezzo: cloned.sp.ingPrezzo, manual: cloned.sp.manual || {}, ignore: cloned.sp.ignore || {}, links: cloned.sp.links || {}, alias: cloned.sp.alias || {}, affitti: cloned.sp.affitti || { list: [], pag: {} } }; try { localStorage.setItem(STORAGE_KEY_SP, JSON.stringify(state.sp)); } catch (e) { /* ignore */ } }
+    if (cloned.sp && typeof cloned.sp === 'object') { state.sp = { clients: cloned.sp.clients || {}, pay: cloned.sp.pay || {}, ing: cloned.sp.ing || {}, ingPrezzo: cloned.sp.ingPrezzo, manual: cloned.sp.manual || {}, ignore: cloned.sp.ignore || {}, links: cloned.sp.links || {}, alias: cloned.sp.alias || {}, affitti: cloned.sp.affitti || { list: [], pag: {} }, collab: cloned.sp.collab || { list: [] } }; try { localStorage.setItem(STORAGE_KEY_SP, JSON.stringify(state.sp)); } catch (e) { /* ignore */ } }
     if (cloned.wa && typeof cloned.wa === 'object') { state.wa = { phones: cloned.wa.phones || {}, flags: cloned.wa.flags || {} }; try { localStorage.setItem(STORAGE_KEY_WA, JSON.stringify(state.wa)); } catch (e) { /* ignore */ } }
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.clients)); } catch (e) { /* ignore */ }
     try { localStorage.setItem(STORAGE_KEY_CONSULENZE, JSON.stringify(state.consulenze)); } catch (e) { /* ignore */ }
@@ -2678,7 +2709,7 @@
   }
 
   function renderTabs() {
-    var TITLES = { coaching: 'Percorsi coaching', visita: 'Solo visite', consulenze: 'Consulenze', promemoria: 'Promemoria', appuntamenti: 'Appuntamenti', sedute: 'Sedute personal', finanze: 'Previsionale & Finanze', ingressi: 'Ingressi', nutrizione: 'Nutrizione', oggi: 'Oggi', anagrafica: 'Anagrafica', allenamento: 'Allenamento' };
+    var TITLES = { coaching: 'Percorsi coaching', visita: 'Solo visite', consulenze: 'Consulenze', promemoria: 'Promemoria', appuntamenti: 'Appuntamenti', sedute: 'Sedute personal', finanze: 'Previsionale & Finanze', ingressi: 'Ingressi', nutrizione: 'Nutrizione', oggi: 'Oggi', anagrafica: 'Anagrafica', allenamento: 'Allenamento', collaboratori: 'Collaboratori' };
     var pt = document.getElementById('pageTitle');
     if (pt) pt.textContent = TITLES[state.activeTab] || '';
     var coachingCount = state.clients.filter(function (c) { return clientTab(c) === 'coaching'; }).length;
@@ -2706,6 +2737,7 @@
     if (state.activeTab === 'oggi') { document.getElementById('consulenzeMonthly').style.display = 'none'; renderOggiStats(); return; }
     if (state.activeTab === 'anagrafica') { document.getElementById('consulenzeMonthly').style.display = 'none'; renderAnagraficaStats(); return; }
     if (state.activeTab === 'allenamento') { document.getElementById('consulenzeMonthly').style.display = 'none'; renderTrainStats(); return; }
+    if (state.activeTab === 'collaboratori') { document.getElementById('consulenzeMonthly').style.display = 'none'; renderCollabStats(); return; }
     if (state.activeTab === 'consulenze') { renderConsulenzeStats(); renderConsulenzeMonthly(); return; }
     document.getElementById('consulenzeMonthly').style.display = 'none';
     if (state.activeTab === 'promemoria') { renderPromemoriaStats(); return; }
@@ -4010,7 +4042,7 @@
   function spPacLabel(p) { return p === 0 ? 'Consulenza' : p + ' PT'; }
   var STORAGE_KEY_SP = 'mllab_sedute_v1';
   function loadSp() {
-    try { var raw = localStorage.getItem(STORAGE_KEY_SP); if (raw) { var o = JSON.parse(raw); if (o && typeof o === 'object') return { clients: o.clients || {}, pay: o.pay || {}, ing: o.ing || {}, ingPrezzo: o.ingPrezzo, manual: o.manual || {}, ignore: o.ignore || {}, links: o.links || {}, alias: o.alias || {}, affitti: o.affitti || { list: [], pag: {} } }; } } catch (e) { /* ignore */ }
+    try { var raw = localStorage.getItem(STORAGE_KEY_SP); if (raw) { var o = JSON.parse(raw); if (o && typeof o === 'object') return { clients: o.clients || {}, pay: o.pay || {}, ing: o.ing || {}, ingPrezzo: o.ingPrezzo, manual: o.manual || {}, ignore: o.ignore || {}, links: o.links || {}, alias: o.alias || {}, affitti: o.affitti || { list: [], pag: {} }, collab: o.collab || { list: [] } }; } } catch (e) { /* ignore */ }
     return { clients: {}, pay: {}, ing: {} };
   }
   function saveSp() {
@@ -5619,7 +5651,7 @@
             state.activeTab = 'sedute'; render(); finLoad(false).then(function () { openSpFolder(m.key); }); return 'Aperta la cartella sedute di ' + m.name;
           }
         }
-        var tabs = ['oggi', 'anagrafica', 'allenamento', 'coaching', 'visita', 'consulenze', 'promemoria', 'appuntamenti', 'sedute', 'finanze', 'ingressi', 'nutrizione'];
+        var tabs = ['oggi', 'anagrafica', 'allenamento', 'coaching', 'visita', 'consulenze', 'promemoria', 'appuntamenti', 'sedute', 'finanze', 'ingressi', 'nutrizione', 'collaboratori'];
         if (tabs.indexOf(inp.pagina) === -1) throw new Error('pagina sconosciuta');
         var btn = document.querySelector('.side-btn[data-tab="' + inp.pagina + '"]'); if (btn) btn.click();
         return 'Aperta la pagina ' + inp.pagina;
@@ -5994,6 +6026,143 @@
     var itd = document.getElementById('ingToggleDel'); if (itd) itd.addEventListener('click', function () { ingShowDel = !ingShowDel; renderIngressiList(); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-ingrestore]'), function (b) { b.addEventListener('click', function () { ingSet(b.getAttribute('data-ingrestore'), { eliminato: false }); toast('Entrata ripristinata'); renderIngressiStats(); renderIngressiList(); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-ingnote]'), function (t) { t.addEventListener('change', function () { ingSet(t.getAttribute('data-ingnote'), { note: t.value }); }); });
+  }
+
+  // ================= COLLABORATORI: fasce orarie settimanali di ogni collaboratore =================
+  var CO_DAYS = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+  var coSel = null;
+  try { coSel = localStorage.getItem('mllab_collab_sel_v1'); } catch (e) { /* ignore */ }
+  function coData() { state.sp.collab = state.sp.collab || { list: [] }; state.sp.collab.list = state.sp.collab.list || []; return state.sp.collab; }
+  function coCur() { var L = coData().list; return L.filter(function (c) { return c.id === coSel; })[0] || L[0] || null; }
+  // stato della fascia: confermata (verde), con cliente da confermare (azzurro), libera (giallo)
+  function coStatus(sl) { return sl.cliente && String(sl.cliente).trim() ? (sl.ok ? 'ok' : 'wait') : 'free'; }
+  function coMin(t) { var m = String(t || '').match(/(\d{1,2})[:.](\d{2})/); return m ? +m[1] * 60 + +m[2] : 9999; }
+  function coFmt(min) { return ('0' + Math.floor(min / 60)).slice(-2) + ':' + ('0' + (min % 60)).slice(-2); }
+  function coStats(c) {
+    var o = { tot: 0, ok: 0, wait: 0, free: 0 };
+    (c ? c.slots : []).forEach(function (sl) { o.tot++; o[coStatus(sl)]++; });
+    o.euro = o.ok * fnParseAmount(c && c.compenso); o.euroAll = (o.ok + o.wait) * fnParseAmount(c && c.compenso);
+    return o;
+  }
+  function renderCollabStats() {
+    var c = coCur(), st = coStats(c);
+    var defs = c ? [
+      { n: st.ok, l: 'Fasce confermate · ' + escapeHtml(c.nome || 'collaboratore') },
+      { n: st.wait, l: 'Con cliente, da confermare' },
+      { n: st.free, l: 'Fasce libere da riempire' },
+      { n: spEuro(st.euro), l: 'Compenso confermato (' + st.ok + ' × ' + spEuro(fnParseAmount(c.compenso)) + ')' + (st.wait ? ' · ' + spEuro(st.euroAll) + ' con le da confermare' : '') }
+    ] : [{ n: coData().list.length, l: 'Collaboratori' }];
+    statsEl.innerHTML = defs.map(function (d) { return '<div class="stat"><div class="n">' + d.n + '</div><div class="l">' + d.l + '</div></div>'; }).join('');
+  }
+  function coSave(rerender) { saveSp(); renderCollabStats(); if (rerender) renderCollabList(); }
+  function coNames() {
+    var o = {};
+    (state.clients || []).forEach(function (c) { if (c.cliente) o[c.cliente] = 1; });
+    ((state.anag && state.anag.people) || []).forEach(function (p) { if (p.nome && !p.eliminato) o[p.nome] = 1; });
+    Object.keys((state.sp && state.sp.clients) || {}).forEach(function (k) { var c = state.sp.clients[k]; if (c && c.name && !c.coppia && !c.eliminato) o[c.name] = 1; });
+    return Object.keys(o).sort(function (a, b) { return a.localeCompare(b); });
+  }
+  function renderCollabList() {
+    var A = coData(), c = coCur();
+    var bar = '<div class="co-bar">' + A.list.map(function (x) { return '<button type="button" class="co-chip' + (c && x.id === c.id ? ' on' : '') + '" data-cosel="' + x.id + '">👤 ' + escapeHtml(x.nome || 'Senza nome') + '</button>'; }).join('') +
+      '<button type="button" class="btn small" id="coAdd">＋ Nuovo collaboratore</button></div>';
+    if (!c) {
+      listEl.innerHTML = bar + '<div class="no-items">Nessun collaboratore. Aggiungine uno: per ognuno inserisci le fasce orarie dei giorni in cui lavora, il cliente di ogni fascia e se è confermato.</div>';
+      document.getElementById('coAdd').addEventListener('click', coAddCollab);
+      return;
+    }
+    var names = coNames();
+    var head = '<div class="co-head"><div><label>Collaboratore</label><input type="text" id="coNome" value="' + escapeHtml(c.nome || '') + '" placeholder="Nome e cognome"></div>' +
+      '<div><label>Compenso a seduta €</label><input type="number" min="0" step="1" id="coComp" value="' + escapeHtml(c.compenso == null ? '' : String(c.compenso)) + '"></div>' +
+      '<div><label>Note</label><input type="text" id="coNote" value="' + escapeHtml(c.note || '') + '" placeholder="Es. disponibile anche il sabato mattina"></div>' +
+      '<button class="ing-del" id="coDel" title="Elimina collaboratore">🗑</button></div>';
+    var legend = '<div class="co-legend"><span><i style="background:#22C55E"></i>Confermata</span><span><i style="background:#22D3EE"></i>Cliente da confermare</span><span><i style="background:#FACC15"></i>Libera</span></div>';
+    var days = [0, 1, 2, 3, 4, 5, 6].filter(function (g) { return c.slots.some(function (sl) { return sl.g === g; }); });
+    var blocks = days.map(function (g) {
+      var sl = c.slots.filter(function (x) { return x.g === g; }).sort(function (a, b) { return coMin(a.da) - coMin(b.da); });
+      var okN = sl.filter(function (x) { return coStatus(x) === 'ok'; }).length, freeN = sl.filter(function (x) { return coStatus(x) === 'free'; }).length;
+      var rows = sl.map(function (x) {
+        var id = escapeHtml(x.id), stc = coStatus(x);
+        return '<tr class="co-' + stc + '" data-corow="' + id + '"><td><input type="time" data-cof="da" data-coid="' + id + '" value="' + escapeHtml(x.da || '') + '"></td><td><input type="time" data-cof="a" data-coid="' + id + '" value="' + escapeHtml(x.a || '') + '"></td>' +
+          '<td class="co-c"><input type="text" list="coNomi" data-cof="cliente" data-coid="' + id + '" value="' + escapeHtml(x.cliente || '') + '" placeholder="— libera —"></td>' +
+          '<td class="co-s"><input type="text" data-cof="sost" data-coid="' + id + '" value="' + escapeHtml(x.sost || '') + '" placeholder="Possibili sostituzioni"></td>' +
+          '<td style="text-align:center;"><input type="checkbox" class="co-ck" data-cof="ok" data-coid="' + id + '"' + (x.ok ? ' checked' : '') + ' title="Confermata"></td>' +
+          '<td><button class="ing-del" data-codel="' + id + '" title="Elimina fascia">🗑</button></td></tr>';
+      }).join('');
+      var others = CO_DAYS.map(function (d, i) { return i === g ? '' : '<option value="' + i + '">' + d + '</option>'; }).join('');
+      return '<div class="co-day"><div class="co-day-head"><h3>' + CO_DAYS[g] + '</h3>' +
+        '<span class="sp-meta">' + sl.length + ' fasce · ' + okN + ' confermate' + (freeN ? ' · ' + freeN + ' libere' : '') + '</span>' +
+        '<span class="co-day-note"><label style="margin:0;">Disponibilità</label><input type="text" data-codaynote="' + g + '" value="' + escapeHtml((c.giorni || {})[g] || '') + '" placeholder="es. 12.30-19"></span></div>' +
+        '<table class="co-table"><thead><tr><th>Dalle</th><th>Alle</th><th>Cliente</th><th>Possibili sostituzioni</th><th style="text-align:center;">Conferma</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<div class="co-foot"><button class="btn small" data-coaddslot="' + g + '">＋ Fascia</button>' +
+        '<span><select class="form-input" data-cocopy="' + g + '" style="width:auto;display:inline-block;padding:5px 10px;font-size:13px;"><option value="">⧉ Copia questi orari su…</option>' + others + '</select>' +
+        ' <strong style="margin-left:8px;">' + spEuro(okN * fnParseAmount(c.compenso)) + '</strong> <span class="sp-meta">confermate</span></span></div></div>';
+    }).join('');
+    var freeDays = [0, 1, 2, 3, 4, 5, 6].filter(function (g) { return days.indexOf(g) === -1; });
+    var addDay = freeDays.length ? '<div style="margin:4px 0 16px;"><select class="form-input" id="coAddDay" style="width:auto;display:inline-block;"><option value="">＋ Aggiungi un giorno di lavoro…</option>' + freeDays.map(function (g) { return '<option value="' + g + '">' + CO_DAYS[g] + '</option>'; }).join('') + '</select></div>' : '';
+    var st = coStats(c);
+    var tot = c.slots.length ? '<div class="fn-summary"><div class="fn-sum-title">Settimana di ' + escapeHtml(c.nome || 'collaboratore') + '</div><div class="sp-meta" style="font-size:14px;">' + st.tot + ' fasce · <strong>' + st.ok + ' confermate</strong> · ' + st.wait + ' da confermare · ' + st.free + ' libere · compenso confermato <strong>' + spEuro(st.euro) + '</strong>' + (st.wait ? ' (' + spEuro(st.euroAll) + ' con le da confermare)' : '') + '</div></div>' : '';
+    listEl.innerHTML = bar + head + legend + (blocks || '<div class="no-items">Nessuna fascia: scegli qui sotto il primo giorno in cui lavora.</div>') + addDay + tot +
+      '<datalist id="coNomi">' + names.map(function (n) { return '<option value="' + escapeHtml(n) + '">'; }).join('') + '</datalist>' +
+      '<div class="ap-hint" style="margin-top:10px;">Le fasce valgono ogni settimana. Scrivi il cliente nella fascia (vuota = libera) e spunta Conferma quando è confermato: il compenso conta solo le fasce confermate. Invio passa alla riga sotto.</div>';
+    // collegamenti
+    document.getElementById('coAdd').addEventListener('click', coAddCollab);
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-cosel]'), function (b) { b.addEventListener('click', function () { coSel = b.getAttribute('data-cosel'); try { localStorage.setItem('mllab_collab_sel_v1', coSel); } catch (e) { /* ignore */ } renderCollabStats(); renderCollabList(); }); });
+    document.getElementById('coNome').addEventListener('change', function (e) { c.nome = e.target.value.trim(); coSave(true); });
+    document.getElementById('coComp').addEventListener('change', function (e) { c.compenso = e.target.value === '' ? null : fnParseAmount(e.target.value); coSave(true); });
+    document.getElementById('coNote').addEventListener('change', function (e) { c.note = e.target.value; coSave(false); });
+    document.getElementById('coDel').addEventListener('click', function () {
+      showConfirm('Eliminare ' + (c.nome || 'questo collaboratore') + ' con tutte le sue fasce orarie?', function () { A.list = A.list.filter(function (x) { return x.id !== c.id; }); coSel = null; coSave(true); toast('Collaboratore eliminato'); });
+    });
+    var slotOf = function (id) { return c.slots.filter(function (x) { return x.id === id; })[0]; };
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-cof]'), function (inp) {
+      var f = inp.getAttribute('data-cof');
+      inp.addEventListener('change', function () {
+        var sl = slotOf(inp.getAttribute('data-coid')); if (!sl) return;
+        if (f === 'ok') sl.ok = inp.checked; else sl[f] = inp.value;
+        if (f === 'da' && sl.a && coMin(sl.a) <= coMin(sl.da)) sl.a = coFmt(coMin(sl.da) + 60);
+        // gli orari riordinano le righe; nome e conferma cambiano solo il colore della riga
+        if (f === 'da' || f === 'a' || f === 'ok') { coSave(true); return; }
+        var tr = inp.closest('tr'); if (tr) tr.className = 'co-' + coStatus(sl);
+        coSave(false);
+      });
+      if (f === 'cliente' || f === 'sost') inp.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return; e.preventDefault();
+        var all = Array.prototype.slice.call(listEl.querySelectorAll('[data-cof="' + f + '"]')), i = all.indexOf(inp), nx = all[i + (e.shiftKey ? -1 : 1)];
+        inp.blur(); if (nx) { nx.focus(); nx.select(); }
+      });
+    });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-codel]'), function (b) { b.addEventListener('click', function () { var id = b.getAttribute('data-codel'); c.slots = c.slots.filter(function (x) { return x.id !== id; }); coSave(true); }); });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-codaynote]'), function (inp) { inp.addEventListener('change', function () { c.giorni = c.giorni || {}; c.giorni[inp.getAttribute('data-codaynote')] = inp.value; coSave(false); }); });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-coaddslot]'), function (b) {
+      b.addEventListener('click', function () {
+        var g = parseInt(b.getAttribute('data-coaddslot'), 10), sl = c.slots.filter(function (x) { return x.g === g; });
+        var last = sl.reduce(function (m, x) { return Math.max(m, coMin(x.a) < 9999 ? coMin(x.a) : coMin(x.da) + 60); }, -1);
+        var st0 = last < 0 ? 8 * 60 + 30 : last + 15;
+        c.slots.push({ id: 's_' + uid(), g: g, da: coFmt(st0), a: coFmt(st0 + 60), cliente: '', sost: '', ok: false });
+        coSave(true);
+        var rows = listEl.querySelectorAll('[data-cof="cliente"]'); var lastIn = Array.prototype.filter.call(rows, function (r) { return r.closest('.co-day').querySelector('[data-coaddslot="' + g + '"]'); }).pop(); if (lastIn) lastIn.focus();
+      });
+    });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-cocopy]'), function (sel) {
+      sel.addEventListener('change', function () {
+        var from = parseInt(sel.getAttribute('data-cocopy'), 10), to = parseInt(sel.value, 10); if (isNaN(to)) return;
+        var go = function () {
+          c.slots = c.slots.filter(function (x) { return x.g !== to; }).concat(c.slots.filter(function (x) { return x.g === from; }).map(function (x) { return { id: 's_' + uid(), g: to, da: x.da, a: x.a, cliente: '', sost: '', ok: false }; }));
+          if ((c.giorni || {})[from]) { c.giorni[to] = c.giorni[from]; }
+          coSave(true); toast('Orari di ' + CO_DAYS[from] + ' copiati su ' + CO_DAYS[to] + ' (fasce libere)');
+        };
+        sel.value = '';
+        if (c.slots.some(function (x) { return x.g === to; })) showConfirm(CO_DAYS[to] + ' ha già delle fasce: sostituirle con gli orari di ' + CO_DAYS[from] + '?', go); else go();
+      });
+    });
+    var ad = document.getElementById('coAddDay');
+    if (ad) ad.addEventListener('change', function () { var g = parseInt(ad.value, 10); if (isNaN(g)) return; c.slots.push({ id: 's_' + uid(), g: g, da: '08:30', a: '09:30', cliente: '', sost: '', ok: false }); coSave(true); });
+  }
+  function coAddCollab() {
+    var A = coData(), c = { id: 'co_' + uid(), nome: 'Collaboratore ' + (A.list.length + 1), compenso: null, note: '', giorni: {}, slots: [], creato: new Date().toISOString() };
+    A.list.push(c); coSel = c.id; try { localStorage.setItem('mllab_collab_sel_v1', coSel); } catch (e) { /* ignore */ }
+    coSave(true); var n = document.getElementById('coNome'); if (n) { n.focus(); n.select(); }
   }
 
   // ================= NUTRIZIONE (cartelle nutrizionali dal modello "Reset") =================
@@ -8246,6 +8415,7 @@
     if (state.activeTab === 'oggi') { emptyEl.innerHTML = DEFAULT_EMPTY_HTML; renderOggiList(); return; }
     if (state.activeTab === 'anagrafica') { emptyEl.innerHTML = DEFAULT_EMPTY_HTML; renderAnagraficaList(); return; }
     if (state.activeTab === 'allenamento') { emptyEl.innerHTML = DEFAULT_EMPTY_HTML; renderTrainList(); return; }
+    if (state.activeTab === 'collaboratori') { emptyEl.innerHTML = DEFAULT_EMPTY_HTML; renderCollabList(); return; }
     emptyEl.innerHTML = DEFAULT_EMPTY_HTML;
     if (state.activeTab === 'consulenze') { renderConsulenzeList(); return; }
     if (state.activeTab === 'promemoria') { renderPromemoriaList(); return; }
@@ -8374,8 +8544,8 @@
     if (state.openFolderId) renderFolder(state.openFolderId);
     if (typeof renderBanner === 'function') renderBanner();
     renderFilterChip();
-    var noTools = ['promemoria', 'appuntamenti', 'sedute', 'finanze', 'ingressi', 'nutrizione', 'oggi', 'anagrafica', 'allenamento'].indexOf(state.activeTab) !== -1;
-    document.querySelector('.toolbar').style.display = ['appuntamenti', 'sedute', 'finanze', 'ingressi', 'nutrizione', 'oggi', 'anagrafica', 'allenamento'].indexOf(state.activeTab) !== -1 ? 'none' : '';
+    var noTools = ['promemoria', 'appuntamenti', 'sedute', 'finanze', 'ingressi', 'nutrizione', 'oggi', 'anagrafica', 'allenamento', 'collaboratori'].indexOf(state.activeTab) !== -1;
+    document.querySelector('.toolbar').style.display = ['appuntamenti', 'sedute', 'finanze', 'ingressi', 'nutrizione', 'oggi', 'anagrafica', 'allenamento', 'collaboratori'].indexOf(state.activeTab) !== -1 ? 'none' : '';
     document.getElementById('filterUrgenza').style.display = (state.activeTab === 'consulenze' || noTools) ? 'none' : '';
     document.getElementById('addBtn').style.display = noTools ? 'none' : '';
     document.querySelector('.search-wrap').style.display = noTools ? 'none' : '';
@@ -9889,7 +10059,7 @@
   undoBaseline = cloneUndoState();
   try {
     var savedTab = localStorage.getItem(LAST_TAB_KEY);
-    if (savedTab && ['coaching', 'visita', 'consulenze', 'promemoria', 'appuntamenti', 'sedute', 'finanze', 'ingressi', 'nutrizione', 'oggi', 'anagrafica', 'allenamento'].indexOf(savedTab) !== -1) state.activeTab = savedTab;
+    if (savedTab && ['coaching', 'visita', 'consulenze', 'promemoria', 'appuntamenti', 'sedute', 'finanze', 'ingressi', 'nutrizione', 'oggi', 'anagrafica', 'allenamento', 'collaboratori'].indexOf(savedTab) !== -1) state.activeTab = savedTab;
     else state.activeTab = 'oggi';
   } catch (e) { /* ignore */ }
   addBtnLabel();
