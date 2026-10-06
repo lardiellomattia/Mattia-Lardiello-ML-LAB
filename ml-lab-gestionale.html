@@ -6767,15 +6767,18 @@
       '<div><label>Assegnata a</label><select id="nuClient" class="form-input"><option value="">— nessun cliente —</option>' + opt('coaching', 'Percorsi coaching') + opt('visita', 'Solo visite') + '</select></div>' +
       '<div><label>Inizio protocollo</label><input type="date" id="nuInizio" value="' + (f.dataInizio || (f.creato ? f.creato.slice(0, 10) : '')) + '"></div>' +
       '<div><label>Tipo</label><select id="nuTipo" class="form-input">' + ['Normocalorica', 'Ipocalorica', 'Ipercalorica', 'Reverse', 'Reset'].map(function (t) { return '<option' + (f.tipo === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div></div>' +
-      '<div class="nu-head-btns"><button class="btn small nu-save" id="nuSaveBtn">💾 Salva</button><button class="btn small" id="nuPdfBtn">📄 PDF per il cliente</button><button class="btn small nu-assign" id="nuAssignBtn">📁 Assegna al cliente</button><button class="btn small" id="nuDupBtn">⧉ Duplica</button><button class="btn small ghost nu-del" id="nuDelBtn">🗑 Elimina</button><button class="btn small ghost" id="nuCloseBtn">✕ Chiudi</button></div>';
+      '<div class="nu-head-btns"><button class="btn small" id="nuGoClient" style="display:none;"></button><button class="btn small nu-save" id="nuSaveBtn">💾 Salva</button><button class="btn small" id="nuPdfBtn">📄 PDF per il cliente</button><button class="btn small nu-assign" id="nuAssignBtn">📁 Assegna al cliente</button><button class="btn small" id="nuDupBtn">⧉ Duplica</button><button class="btn small ghost nu-del" id="nuDelBtn">🗑 Elimina</button><button class="btn small ghost" id="nuCloseBtn">✕ Chiudi</button></div>';
     document.getElementById('nuNome').addEventListener('input', function (e) { f.nome = e.target.value || 'Senza nome'; nuTouch(f); });
     var nuAssignSync = function () {
       var sel = document.getElementById('nuClient').value, btn = document.getElementById('nuAssignBtn');
       var same = sel === (f.clientId || '');
       btn.disabled = same;
+      var gc = document.getElementById('nuGoClient'), gcl = f.clientId && getClient(f.clientId);
+      gc.style.display = gcl ? '' : 'none'; if (gcl) gc.textContent = '👤 Scheda di ' + gcl.cliente;
       btn.textContent = same ? (f.clientId ? '✓ Assegnata a ' + nuClientName(f.clientId) : '📁 Scegli un cliente') : (sel ? '📁 Assegna a ' + nuClientName(sel) : 'Togli assegnazione');
     };
     document.getElementById('nuClient').addEventListener('change', nuAssignSync);
+    document.getElementById('nuGoClient').addEventListener('click', function () { var id = f.clientId; nuClose(); goToClientFolder(id); });
     document.getElementById('nuAssignBtn').addEventListener('click', function () {
       var sel = document.getElementById('nuClient').value;
       f.clientId = sel; nuTouch(f); saveNu(true); nuAssignSync();
@@ -7922,6 +7925,12 @@
     });
     return out.sort(function (a, b) { return a.ord - b.ord; });
   }
+  // dal piano (nutrizione o allenamento) alla scheda del cliente
+  function goToClientFolder(id) {
+    var cl = id && getClient(id); if (!cl) { toast('Cliente non trovato'); return false; }
+    state.activeTab = clientTab(cl); try { localStorage.setItem(LAST_TAB_KEY, state.activeTab); } catch (e) { /* ignore */ }
+    addBtnLabel(); render(); openFolder(cl.id); return true;
+  }
   // la cartella nutrizionale sta sotto la cartella cliente: chiudo prima la cartella cliente
   function nuOpenFromAnywhere(id, tab) {
     if (state.openFolderId) closeFolder();
@@ -8004,11 +8013,18 @@
       '<div class="nu-head-fields" style="grid-template-columns:2fr 2fr 1.2fr;"><div><label>Nome protocollo</label><input type="text" id="trNome" value="' + escapeHtml(p.nome) + '"></div>' +
       '<div><label>Assegnato a</label><select id="trPerson" class="form-input"><option value="">— nessun cliente —</option>' + people.map(function (x) { return '<option value="' + x.id + '"' + (p.personId === x.id ? ' selected' : '') + '>' + escapeHtml(x.nome) + '</option>'; }).join('') + '</select></div>' +
         '<div><label>Inizio (settimana 1)</label><input type="date" id="trInizio" value="' + escapeHtml(p.inizio || '') + '"><div class="nu-formula" id="trStato">' + escapeHtml(trStatusText(p)) + '</div></div></div>' +
-      '<div class="nu-head-btns"><button class="btn small nu-save" id="trSaveBtn">💾 Salva</button><button class="btn small" id="trPdfBtn">📄 PDF scheda</button><button class="btn small" id="trDupBtn">⧉ Duplica</button><button class="btn small ghost nu-del" id="trDelBtn">🗑</button><button class="btn small ghost" id="trCloseBtn">✕ Chiudi</button></div>';
+      '<div class="nu-head-btns"><button class="btn small" id="trGoClient" style="display:none;"></button><button class="btn small nu-save" id="trSaveBtn">💾 Salva</button><button class="btn small" id="trPdfBtn">📄 PDF scheda</button><button class="btn small" id="trDupBtn">⧉ Duplica</button><button class="btn small ghost nu-del" id="trDelBtn">🗑</button><button class="btn small ghost" id="trCloseBtn">✕ Chiudi</button></div>';
     document.getElementById('trNome').addEventListener('input', function (e) { p.nome = e.target.value || 'Senza nome'; trTouch(p); });
+    // scheda del cliente: la cartella coaching/visite se c'è, altrimenti la persona in Anagrafica
+    var trGoSync = function () { var gb = document.getElementById('trGoClient'), pn = p.personId && trPersonName(p.personId); gb.style.display = pn ? '' : 'none'; if (pn) gb.textContent = '👤 Scheda di ' + pn; };
+    trGoSync();
+    document.getElementById('trGoClient').addEventListener('click', function () {
+      var cid = trClientId(p), pid = p.personId; trClose();
+      if (cid && getClient(cid)) goToClientFolder(cid); else if (pid) { var b = document.querySelector('.side-btn[data-tab="anagrafica"]'); if (b) b.click(); setTimeout(function () { openAnPerson(pid); }, 60); }
+    });
     document.getElementById('trInizio').addEventListener('change', function (e) { p.inizio = e.target.value || ''; trTouch(p); document.getElementById('trStato').textContent = trStatusText(p); });
     document.getElementById('trPerson').addEventListener('change', function (e) {
-      p.personId = e.target.value; trTouch(p);
+      p.personId = e.target.value; trTouch(p); trGoSync();
       var pn = trPersonName(p.personId);
       if (pn && !trNotes(p).nome) { p.note.nome = pn; if (trTab === 'note') trRenderBody(); }
       toast(p.personId ? '🏋️ Protocollo assegnato a ' + pn : 'Assegnazione tolta');
