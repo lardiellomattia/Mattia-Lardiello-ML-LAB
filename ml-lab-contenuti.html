@@ -1,0 +1,1159 @@
+<title>ML LAB Contenuti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Layout: brand header, tab bar, one working panel per tab (dashboard, table, kanban, month grid, library, settings). Same identity as the ML LAB gestionale. */
+  :root {
+    --bg: #0A0A0A;
+    --surface: #161616;
+    --surface-2: #232323;
+    --ink: #FAFAFA;
+    --ink-muted: #9A9A9A;
+    --border: #2C2C2C;
+    --accent: #FFBF00;
+    --accent-ink: #111111;
+    --accent-soft: #332B00;
+    --urgent: #FF6B5E;
+    --urgent-soft: #3A1613;
+    --warning: #FFA53D;
+    --ok: #3ECF7E;
+    --ok-soft: #103322;
+    --c-reel: #FFBF00;
+    --c-car: #6FB7FF;
+    --c-post: #C79BFF;
+    --c-story: #3ECF7E;
+    --display: 'Montserrat', 'Arial Black', system-ui, sans-serif;
+    --body: 'Inter', system-ui, -apple-system, sans-serif;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #FFFFFF; --surface: #FAFAFA; --surface-2: #EFEFEF; --ink: #0A0A0A; --ink-muted: #5C5C5C;
+      --border: #DEDEDE; --accent: #FFBF00; --accent-ink: #111111; --accent-soft: #FFF3D1;
+      --urgent: #D9362A; --urgent-soft: #FBE4E1; --warning: #C97A0E; --ok: #1E9E5A; --ok-soft: #E2F5EA;
+      --c-reel: #D99A00; --c-car: #2F7FD1; --c-post: #8A55D6; --c-story: #1E9E5A;
+      color-scheme: light;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #FFFFFF; --surface: #FAFAFA; --surface-2: #EFEFEF; --ink: #0A0A0A; --ink-muted: #5C5C5C;
+    --border: #DEDEDE; --accent: #FFBF00; --accent-ink: #111111; --accent-soft: #FFF3D1;
+    --urgent: #D9362A; --urgent-soft: #FBE4E1; --warning: #C97A0E; --ok: #1E9E5A; --ok-soft: #E2F5EA;
+    --c-reel: #D99A00; --c-car: #2F7FD1; --c-post: #8A55D6; --c-story: #1E9E5A;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 80px; }
+  @media (max-width: 520px) { .wrap { padding-inline: 16px; } }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .muted { color: var(--ink-muted); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  header.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding-bottom: 22px; border-bottom: 2px solid var(--ink); }
+  .brand { display: grid; gap: 6px; }
+  .eyebrow { font-weight: 600; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+  .mark { font-family: var(--display); font-weight: 800; font-size: clamp(32px, 6vw, 44px); letter-spacing: -.01em; line-height: .95; }
+  .sync { font-size: 12.5px; color: var(--ink-muted); display: flex; align-items: center; gap: 8px; }
+  .sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-muted); display: inline-block; }
+  .sync.on i { background: var(--ok); }
+
+  nav.tabs { display: flex; gap: 4px; overflow-x: auto; margin: 18px 0 26px; padding-bottom: 2px; scrollbar-width: none; }
+  nav.tabs button { border: 1px solid transparent; background: none; padding: 9px 16px; border-radius: 999px; font-weight: 600; color: var(--ink-muted); cursor: pointer; white-space: nowrap; }
+  nav.tabs button:hover { color: var(--ink); }
+  nav.tabs button.on { background: var(--ink); color: var(--bg); }
+
+  .btn { border: 1px solid var(--border); background: var(--surface); padding: 9px 16px; border-radius: 999px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn:hover { border-color: var(--ink-muted); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { filter: brightness(1.06); }
+  .btn.ghost { background: none; }
+  .btn.small { padding: 6px 12px; font-size: 12.5px; }
+  .btn.danger { color: var(--urgent); }
+  .btn.danger.armed { background: var(--urgent); border-color: var(--urgent); color: #fff; }
+  .btn[disabled] { opacity: .5; cursor: default; }
+  .iconbtn { border: none; background: none; cursor: pointer; padding: 4px 6px; border-radius: 6px; color: var(--ink-muted); font-size: 15px; line-height: 1; }
+  .iconbtn:hover { background: var(--surface-2); color: var(--ink); }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+  .bar .grow { flex: 1 1 180px; min-width: 0; }
+  .field { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 9px 12px; width: 100%; }
+  .bar .field { border-radius: 999px; width: auto; }
+  .bar .grow.field { width: 100%; }
+  select.field { cursor: pointer; }
+  textarea.field { resize: vertical; min-height: 84px; line-height: 1.5; }
+
+  .sec-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 30px 0 12px; flex-wrap: wrap; }
+  .sec-title h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .sec-title .muted { font-size: 12.5px; }
+
+  /* KPI strip */
+  .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); }
+  .stat { padding: 16px 18px; border-right: 1px solid var(--border); min-width: 0; }
+  .stat:last-child { border-right: none; }
+  .stat .n { font-family: var(--display); font-weight: 700; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat .l { margin-top: 7px; font-size: 12.5px; color: var(--ink-muted); line-height: 1.3; }
+  .delta { font-size: 12px; font-weight: 600; margin-left: 6px; font-family: var(--body); }
+  .delta.up { color: var(--ok); } .delta.down { color: var(--urgent); }
+  @media (max-width: 820px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stat { border-bottom: 1px solid var(--border); } .stat:nth-child(2n) { border-right: none; } .stat:last-child { grid-column: 1 / -1; border-bottom: none; } }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; }
+  @media (max-width: 820px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+  .panel { border: 1px solid var(--border); border-radius: 16px; padding: 18px; background: var(--surface); min-width: 0; }
+  .panel h3 { font-size: 15px; margin-bottom: 4px; }
+  .panel .hint { font-size: 12.5px; color: var(--ink-muted); margin: 0 0 14px; }
+
+  .chart { width: 100%; height: auto; display: block; }
+  .chart text { fill: var(--ink-muted); font: 11px var(--body); }
+  .hbars { display: grid; gap: 10px; }
+  .hbar { display: grid; grid-template-columns: minmax(0, 120px) minmax(0, 1fr) 52px; gap: 10px; align-items: center; font-size: 13px; }
+  .hbar .lab { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hbar .track { height: 10px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+  .hbar .fill { height: 100%; border-radius: 6px; background: var(--accent); }
+  .hbar .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  .insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .insight { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; background: var(--surface); }
+  .insight .k { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); font-weight: 600; }
+  .insight .v { font-family: var(--display); font-weight: 700; font-size: 19px; margin-top: 6px; }
+  .insight .s { font-size: 12.5px; color: var(--ink-muted); margin-top: 3px; }
+
+  .cadence { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; align-items: end; }
+  .cadence .wk { display: grid; gap: 4px; justify-items: center; font-size: 11px; color: var(--ink-muted); }
+  .cadence .col { width: 100%; height: 64px; background: var(--surface-2); border-radius: 6px; position: relative; overflow: hidden; }
+  .cadence .col b { position: absolute; left: 0; right: 0; bottom: 0; background: var(--accent); border-radius: 6px 6px 0 0; }
+  .cadence .col.short b { background: var(--warning); }
+  .cadence .col .goal { position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--ink-muted); }
+
+  /* pills */
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--ink); white-space: nowrap; }
+  .pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--fmt, var(--ink-muted)); }
+  .er { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .er.hi { color: var(--ok); } .er.lo { color: var(--urgent); }
+
+  /* table */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 880px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  th { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap; position: sticky; top: 0; background: var(--surface); }
+  th.sorted { color: var(--ink); }
+  td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: var(--surface-2); }
+  .ttl { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+
+  .empty { border: 1.5px dashed var(--border); border-radius: 16px; padding: 28px 22px; text-align: center; color: var(--ink-muted); display: grid; gap: 10px; justify-items: center; }
+  .empty strong { color: var(--ink); font-family: var(--display); font-size: 16px; }
+  .empty p { margin: 0; max-width: 52ch; line-height: 1.5; }
+
+  /* kanban */
+  .kanban { display: grid; grid-template-columns: repeat(5, minmax(220px, 1fr)); gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+  .kcol { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: grid; gap: 10px; align-content: start; min-height: 160px; }
+  .kcol.drop { border-color: var(--accent); }
+  .kcol h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; display: flex; justify-content: space-between; gap: 8px; }
+  .kcol h3 span { color: var(--ink-muted); font-family: var(--body); }
+  .kcard { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: grid; gap: 8px; cursor: grab; }
+  .kcard:hover { border-color: var(--ink-muted); }
+  .kcard .t { font-weight: 600; line-height: 1.35; }
+  .kcard .h { font-size: 12.5px; color: var(--ink-muted); line-height: 1.4; }
+  .kcard .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .kcard .moves { display: flex; justify-content: space-between; align-items: center; }
+  .kcard .date { font-size: 12px; color: var(--ink-muted); }
+  .kcard .date.late { color: var(--urgent); font-weight: 600; }
+  .kadd { border: 1.5px dashed var(--border); background: none; border-radius: 12px; padding: 10px; color: var(--ink-muted); cursor: pointer; font-weight: 600; }
+  .kadd:hover { color: var(--ink); border-color: var(--ink-muted); }
+
+  /* AI panel */
+  .ai { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 16px; padding: 18px; margin-bottom: 22px; display: grid; gap: 12px; }
+  .ai h3 { font-size: 15px; }
+  .ai .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .ai .row .field { flex: 1 1 240px; width: auto; }
+  .sugg { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .sg { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: grid; gap: 8px; align-content: start; }
+  .sg .t { font-weight: 700; }
+  .sg .h { font-size: 13px; font-style: italic; }
+  .sg .w { font-size: 12.5px; color: var(--ink-muted); line-height: 1.45; }
+  .aitext { white-space: pre-wrap; line-height: 1.55; font-size: 13.5px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; max-height: 460px; overflow: auto; }
+
+  /* calendar */
+  .calhead { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .calhead h2 { font-size: 20px; text-transform: capitalize; min-width: 180px; }
+  .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); }
+  .cal .dow { padding: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+  .cal .day { min-height: 104px; padding: 6px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); display: grid; gap: 4px; align-content: start; cursor: pointer; min-width: 0; }
+  .cal .day:nth-child(7n) { border-right: none; }
+  .cal .day:hover { background: var(--surface-2); }
+  .cal .day.out { opacity: .4; }
+  .cal .day .d { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cal .day.today .d { background: var(--accent); color: var(--accent-ink); border-radius: 999px; width: 22px; height: 22px; display: grid; place-items: center; }
+  .ev { font-size: 11.5px; padding: 3px 6px; border-radius: 6px; background: var(--surface-2); border-left: 3px solid var(--fmt, var(--ink-muted)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ev.done { opacity: .7; text-decoration: line-through; text-decoration-color: var(--ink-muted); }
+  @media (max-width: 640px) { .cal .day { min-height: 70px; } .ev { font-size: 0; padding: 0; height: 6px; border-left-width: 0; background: var(--fmt, var(--ink-muted)); } .cal .dow { font-size: 10px; padding: 6px 4px; } }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 12.5px; color: var(--ink-muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; background: var(--fmt); }
+
+  /* spunti */
+  .spunti { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .sp { border: 1px solid var(--border); border-radius: 14px; padding: 14px; background: var(--surface); display: grid; gap: 10px; align-content: start; }
+  .sp .txt { line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .sp a { color: var(--accent); font-size: 12.5px; overflow-wrap: anywhere; }
+  .sp .foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--border); background: none; border-radius: 999px; padding: 6px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--ink-muted); }
+  .chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+
+  /* settings */
+  .form { display: grid; gap: 14px; max-width: 680px; }
+  .form label { display: grid; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--ink-muted); }
+  .form .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+  @media (max-width: 560px) { .form .two { grid-template-columns: minmax(0, 1fr); } }
+  .form .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 560px) { .form .three { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .note { font-size: 12.5px; color: var(--ink-muted); line-height: 1.55; max-width: 68ch; }
+
+  /* modal */
+  .ov { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 50; }
+  .modal { background: var(--bg); border: 1px solid var(--border); border-radius: 18px; width: min(640px, 100%); max-height: calc(100% - 32px); overflow: auto; padding: 22px; display: grid; gap: 16px; }
+  .modal header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .modal h2 { font-size: 19px; }
+  .modal .actions { display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; }
+  .modal .actions > div { display: flex; gap: 10px; flex-wrap: wrap; }
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 13px; z-index: 60; max-width: calc(100% - 32px); text-align: center; }
+
+  @media (prefers-reduced-motion: no-preference) { .panel, .kcard, .sp { transition: border-color .15s ease; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">ML LAB · Instagram</span>
+      <span class="mark">Contenuti</span>
+      <span class="muted" id="hdrHandle">Monitoraggio, idee e piano editoriale</span>
+    </div>
+    <div class="sync" id="sync"><i></i><span>Caricamento…</span></div>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="Sezioni">
+    <button data-tab="panoramica" class="on">Panoramica</button>
+    <button data-tab="contenuti">Contenuti</button>
+    <button data-tab="idee">Idee</button>
+    <button data-tab="calendario">Calendario</button>
+    <button data-tab="spunti">Spunti</button>
+    <button data-tab="impostazioni">Impostazioni</button>
+  </nav>
+
+  <main id="view"></main>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- costanti ----------
+  var FORMATI = ['Reel', 'Carosello', 'Post', 'Storia'];
+  var FMT_VAR = { Reel: 'var(--c-reel)', Carosello: 'var(--c-car)', Post: 'var(--c-post)', Storia: 'var(--c-story)' };
+  var STATI = [
+    { id: 'idea', nome: 'Idea' },
+    { id: 'registrare', nome: 'Da registrare' },
+    { id: 'montaggio', nome: 'In montaggio' },
+    { id: 'programmato', nome: 'Programmato' },
+    { id: 'pubblicato', nome: 'Pubblicato' }
+  ];
+  var TIPI_SPUNTO = ['Hook', 'Domanda di un cliente', 'Trend', 'Da un altro profilo', 'Ispirazione'];
+  var DEFAULT_SETTINGS = {
+    handle: '',
+    pilastri: ['Allenamento', 'Postura', 'Nutrizione', 'Risultati clienti', 'Mindset', 'Dietro le quinte'],
+    pubblico: '',
+    obiettivo: '',
+    frequenza: 4
+  };
+  var KEYS = ['posts', 'ideas', 'spunti', 'crescita', 'settings'];
+  var LS_KEY = 'mllab-contenuti-v1';
+
+  // ---------- stato ----------
+  var state = { posts: [], ideas: [], spunti: [], crescita: [], settings: clone(DEFAULT_SETTINGS) };
+  var ui = { tab: 'panoramica', periodo: 30, q: '', fFmt: '', fPil: '', sort: 'data', dir: -1, calY: 0, calM: 0, spTipo: '', aiIdeas: [], aiBusy: false, aiText: '', aiTextBusy: false };
+  var db = null, sample = null, downloads = null;
+  var dirty = {}, writing = {}, timers = {};
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function n(v) { var x = Number(v); return isFinite(x) ? x : 0; }
+  function fmtN(v) { v = n(v); if (Math.abs(v) >= 10000) return (v / 1000).toLocaleString('it-IT', { maximumFractionDigits: 1 }) + 'k'; return Math.round(v).toLocaleString('it-IT'); }
+  function pct(v) { return (v * 100).toLocaleString('it-IT', { maximumFractionDigits: 1, minimumFractionDigits: 1 }) + '%'; }
+  function todayISO() { var d = new Date(); return iso(d); }
+  function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function parseISO(s) { var p = String(s || '').split('-'); return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1); }
+  function fmtDate(s) { if (!s) return '—'; return parseISO(s).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: '2-digit' }); }
+  function daysAgo(k) { var d = new Date(); d.setDate(d.getDate() - k); return iso(d); }
+  function fmtPill(f) { return '<span class="pill" style="--fmt:' + (FMT_VAR[f] || 'var(--ink-muted)') + '"><i></i>' + esc(f || '—') + '</span>'; }
+
+  // ---------- metriche ----------
+  function interazioni(p) { return n(p.like) + n(p.commenti) + n(p.condivisioni) + n(p.salvataggi); }
+  function base(p) { return n(p.reach) || n(p.views); }
+  function er(p) { var b = base(p); return b ? interazioni(p) / b : 0; }
+  function avg(arr, f) { if (!arr.length) return 0; var s = 0; arr.forEach(function (x) { s += f(x); }); return s / arr.length; }
+  function postsIn(from, to) { return state.posts.filter(function (p) { return p.data >= from && (!to || p.data <= to); }); }
+  function erClass(v, ref) { if (!ref) return ''; return v >= ref * 1.25 ? 'hi' : v <= ref * .7 ? 'lo' : ''; }
+
+  // ---------- persistenza ----------
+  function loadLocal() {
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      KEYS.forEach(function (k) { if (d[k]) state[k] = d[k]; });
+      state.settings = Object.assign(clone(DEFAULT_SETTINGS), state.settings);
+    } catch (e) {}
+  }
+  function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+  function docBody(k) { return k === 'settings' ? clone(state.settings) : { items: state[k] }; }
+
+  function save(k) {
+    saveLocal();
+    if (!db) return;
+    dirty[k] = true;
+    clearTimeout(timers[k]);
+    timers[k] = setTimeout(function () { flush(k); }, 700);
+  }
+  function flush(k) {
+    if (writing[k]) { timers[k] = setTimeout(function () { flush(k); }, 400); return; }
+    writing[k] = true;
+    var body = docBody(k);
+    db.doc('app/' + k).set(body).then(function () {
+      writing[k] = false; dirty[k] = false; setSync(true);
+    }, function (e) {
+      writing[k] = false;
+      if (e && e.code === 'quota_exceeded') toast('Spazio pieno: esporta un backup ed elimina i contenuti più vecchi.');
+      else if (e && e.code === 'invalid_argument') { toast('Non hai i permessi per modificare questi dati.'); dirty[k] = false; }
+      else setTimeout(function () { flush(k); }, 1500 + Math.random() * 1000);
+    });
+  }
+  function setSync(on) {
+    var el = document.getElementById('sync');
+    el.className = 'sync' + (on ? ' on' : '');
+    el.querySelector('span').textContent = on ? 'Sincronizzato su tutti i dispositivi' : 'Salvato solo su questo dispositivo';
+  }
+
+  function connect() {
+    if (!window.claude || typeof window.claude.use !== 'function') { setSync(false); return; }
+    window.claude.use('db').then(function (d) {
+      if (!d) { setSync(false); return; }
+      db = d; setSync(true);
+      KEYS.forEach(function (k) {
+        var first = true;
+        db.doc('app/' + k).onSnapshot(function (snap) {
+          if (dirty[k] || writing[k]) return;
+          if (!snap.exists) {
+            if (first) {
+              var hasLocal = k === 'settings' ? !!state.settings.handle : state[k].length > 0;
+              if (hasLocal) save(k);
+            }
+            first = false; return;
+          }
+          first = false;
+          var data = snap.data();
+          if (k === 'settings') state.settings = Object.assign(clone(DEFAULT_SETTINGS), clone(data));
+          else state[k] = Array.isArray(data.items) ? clone(data.items) : [];
+          saveLocal();
+          renderSoft();
+        }, function () { setSync(false); });
+      });
+    }, function () { setSync(false); });
+    window.claude.use('sample').then(function (s) { sample = s; if (s) renderSoft(); }, function () {});
+    window.claude.use('downloads').then(function (d) { downloads = d; if (d) renderSoft(); }, function () {});
+  }
+
+  // Re-render without destroying an open modal or focused input in the view.
+  function renderSoft() {
+    var a = document.activeElement;
+    if (a && document.getElementById('view').contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+    render();
+  }
+
+  // ---------- UI helpers ----------
+  function toast(msg) {
+    var r = document.getElementById('toastRoot');
+    r.innerHTML = '<div class="toast" role="status">' + esc(msg) + '</div>';
+    clearTimeout(toast.t); toast.t = setTimeout(function () { r.innerHTML = ''; }, 2800);
+  }
+  function opts(list, sel, empty) {
+    return (empty != null ? '<option value="">' + esc(empty) + '</option>' : '') + list.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
+  }
+  function armDelete(btn, fn) {
+    btn.addEventListener('click', function () {
+      if (btn.classList.contains('armed')) { fn(); return; }
+      btn.classList.add('armed'); btn.textContent = 'Conferma eliminazione';
+      setTimeout(function () { if (btn.isConnected) { btn.classList.remove('armed'); btn.textContent = 'Elimina'; } }, 4000);
+    });
+  }
+  function closeModal() { document.getElementById('modalRoot').innerHTML = ''; }
+  function openModal(html, bind) {
+    var root = document.getElementById('modalRoot');
+    root.innerHTML = '<div class="ov" id="ov"><div class="modal" role="dialog" aria-modal="true">' + html + '</div></div>';
+    var ov = root.querySelector('#ov');
+    ov.addEventListener('mousedown', function (e) { if (e.target === ov) closeModal(); });
+    root.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeModal); });
+    bind(root.querySelector('.modal'));
+    var f = root.querySelector('input, textarea, select'); if (f) f.focus();
+  }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+  function val(m, id) { var el = m.querySelector('#' + id); return el ? el.value.trim() : ''; }
+
+  function saveFile(filename, data, label) {
+    if (!downloads) { toast('Il salvataggio di file è disponibile aprendo l\'app su claude.ai.'); return; }
+    downloads.save({ filename: filename, data: data }).then(function (r) {
+      if (r && r.status === 'saved') toast(label + ' salvato');
+    }, function (e) { if (e && e.code !== 'cancelled') toast('File non salvato: ' + (e.message || e.code)); });
+  }
+
+  // ---------- tabs ----------
+  document.getElementById('tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-tab]'); if (!b) return;
+    setTab(b.dataset.tab);
+  });
+  function setTab(t) {
+    ui.tab = t;
+    document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === t); });
+    try { localStorage.setItem(LS_KEY + '-tab', t); } catch (e) {}
+    try { history.replaceState(null, '', '#' + t); } catch (e) {}
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  function render() {
+    var h = state.settings.handle;
+    document.getElementById('hdrHandle').textContent = h ? '@' + h.replace(/^@/, '') + ' · monitoraggio, idee e piano editoriale' : 'Monitoraggio, idee e piano editoriale';
+    var v = document.getElementById('view');
+    ({ panoramica: renderPanoramica, contenuti: renderContenuti, idee: renderIdee, calendario: renderCalendario, spunti: renderSpunti, impostazioni: renderImpostazioni }[ui.tab] || renderPanoramica)(v);
+  }
+
+  // =====================================================================
+  // PANORAMICA
+  // =====================================================================
+  function renderPanoramica(v) {
+    var P = ui.periodo;
+    var cur = postsIn(daysAgo(P - 1));
+    var prev = postsIn(daysAgo(2 * P - 1), daysAgo(P));
+    var cres = state.crescita.slice().sort(function (a, b) { return a.data < b.data ? -1 : 1; });
+    var last = cres[cres.length - 1];
+    var startF = null;
+    for (var i = cres.length - 1; i >= 0; i--) { if (cres[i].data <= daysAgo(P)) { startF = cres[i]; break; } }
+    if (!startF && cres.length > 1) startF = cres[0];
+    var dF = last && startF && startF !== last ? n(last.follower) - n(startF.follower) : null;
+
+    function kpi(label, valueHtml, curV, prevV, isPct) {
+      var d = '';
+      if (prev.length && prevV) {
+        var diff = (curV - prevV) / prevV;
+        if (Math.abs(diff) >= .005) d = '<span class="delta ' + (diff > 0 ? 'up' : 'down') + '">' + (diff > 0 ? '▲' : '▼') + ' ' + Math.abs(Math.round(diff * 100)) + '%</span>';
+      }
+      return '<div class="stat"><div class="n">' + valueHtml + d + '</div><div class="l">' + label + '</div></div>';
+    }
+    var reachC = avg(cur, base), reachP = avg(prev, base);
+    var erC = avg(cur, er), erP = avg(prev, er);
+    var savC = avg(cur, function (p) { return n(p.salvataggi); }), savP = avg(prev, function (p) { return n(p.salvataggi); });
+    var folPost = cur.reduce(function (s, p) { return s + n(p.follow); }, 0);
+
+    var html = '';
+    html += '<div class="bar"><div class="chips" id="periodo">' + [7, 30, 90, 365].map(function (d) {
+      return '<button class="chip' + (P === d ? ' on' : '') + '" data-p="' + d + '">' + (d === 365 ? '12 mesi' : d + ' giorni') + '</button>';
+    }).join('') + '</div><span class="grow"></span><button class="btn" id="addFol">Aggiorna follower</button><button class="btn primary" id="addPost">+ Registra contenuto</button></div>';
+
+    html += '<div class="stats">' +
+      '<div class="stat"><div class="n">' + (last ? fmtN(last.follower) : '—') + (dF != null ? '<span class="delta ' + (dF >= 0 ? 'up' : 'down') + '">' + (dF >= 0 ? '+' : '') + fmtN(dF) + '</span>' : '') + '</div><div class="l">Follower' + (last ? ' al ' + fmtDate(last.data) : ' · aggiungi il primo dato') + '</div></div>' +
+      kpi('Contenuti pubblicati', cur.length, cur.length, prev.length) +
+      kpi('Copertura media per contenuto', cur.length ? fmtN(reachC) : '—', reachC, reachP) +
+      kpi('Engagement medio (interazioni / copertura)', cur.length ? pct(erC) : '—', erC, erP) +
+      kpi('Salvataggi medi · ' + fmtN(folPost) + ' follower dai post', cur.length ? fmtN(savC) : '—', savC, savP) +
+      '</div>';
+
+    if (!state.posts.length && !state.crescita.length) {
+      html += '<div class="sec-title"><h2>Inizia da qui</h2></div><div class="empty"><strong>Nessun dato ancora</strong>' +
+        '<p>Importa il CSV dei contenuti da Meta Business Suite (Insights › Contenuti › Esporta) oppure registra a mano i numeri dei tuoi ultimi reel. I grafici e i consigli si riempiono da soli.</p>' +
+        '<div class="bar" style="margin:0;justify-content:center"><button class="btn primary" data-go="contenuti">Importa o aggiungi contenuti</button><button class="btn" data-go="idee">Vai alle idee</button></div></div>';
+    }
+
+    // insights
+    var pool = state.posts.filter(function (p) { return p.data >= daysAgo(Math.max(P, 90) - 1); });
+    if (pool.length >= 3) {
+      var ref = avg(pool, er);
+      var best = function (key, list) {
+        var g = {}; pool.forEach(function (p) { var k = key(p); if (k == null || k === '') return; (g[k] = g[k] || []).push(p); });
+        var rows = Object.keys(g).map(function (k) { return { k: k, er: avg(g[k], er), c: g[k].length }; }).filter(function (r) { return r.c >= (list ? 1 : 2); });
+        rows.sort(function (a, b) { return b.er - a.er; });
+        return rows;
+      };
+      var giorni = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
+      var bF = best(function (p) { return p.formato; })[0];
+      var bP = best(function (p) { return p.pilastro; })[0];
+      var bD = best(function (p) { return giorni[parseISO(p.data).getDay()]; })[0];
+      var topFol = pool.slice().sort(function (a, b) { return n(b.follow) - n(a.follow); })[0];
+      html += '<div class="sec-title"><h2>Cosa sta funzionando</h2><span class="muted">Ultimi ' + Math.max(P, 90) + ' giorni · ' + pool.length + ' contenuti</span></div><div class="insights">' +
+        (bF ? '<div class="insight"><div class="k">Formato migliore</div><div class="v">' + esc(bF.k) + '</div><div class="s">' + pct(bF.er) + ' di engagement su ' + bF.c + ' contenuti (media ' + pct(ref) + ')</div></div>' : '') +
+        (bP ? '<div class="insight"><div class="k">Pilastro migliore</div><div class="v">' + esc(bP.k) + '</div><div class="s">' + pct(bP.er) + ' di engagement su ' + bP.c + ' contenuti</div></div>' : '') +
+        (bD ? '<div class="insight"><div class="k">Giorno migliore</div><div class="v" style="text-transform:capitalize">' + esc(bD.k) + '</div><div class="s">' + pct(bD.er) + ' di engagement medio</div></div>' : '') +
+        (topFol && n(topFol.follow) ? '<div class="insight"><div class="k">Ha portato più follower</div><div class="v" style="font-size:15px;line-height:1.3">' + esc(topFol.titolo || 'Senza titolo') + '</div><div class="s">+' + fmtN(topFol.follow) + ' follower · ' + fmtDate(topFol.data) + '</div></div>' : '') +
+        '</div>';
+    }
+
+    // charts
+    html += '<div class="sec-title"><h2>Andamento</h2></div><div class="grid2">' +
+      '<div class="panel"><h3>Follower</h3><p class="hint">Un punto ogni volta che aggiorni il numero (basta una volta a settimana).</p>' + followerChart(cres) + '</div>' +
+      '<div class="panel"><h3>Costanza di pubblicazione</h3><p class="hint">Contenuti per settimana, ultime 8 settimane. La linea tratteggiata è il tuo obiettivo (' + n(state.settings.frequenza) + ' a settimana).</p>' + cadence() + '</div>' +
+      '</div>';
+
+    html += '<div class="grid2" style="margin-top:18px">' +
+      '<div class="panel"><h3>Migliori contenuti del periodo</h3><p class="hint">Ordinati per engagement. Tocca per aprire.</p>' + topList(cur) + '</div>' +
+      '<div class="panel"><h3>Engagement per pilastro</h3><p class="hint">Media del periodo selezionato.</p>' + groupBars(cur, function (p) { return p.pilastro; }) + '</div>' +
+      '</div>';
+
+    // prossimi
+    var next = state.ideas.filter(function (i) { return i.stato !== 'pubblicato' && i.data && i.data >= todayISO(); }).sort(function (a, b) { return a.data < b.data ? -1 : 1; }).slice(0, 5);
+    var late = state.ideas.filter(function (i) { return i.stato !== 'pubblicato' && i.data && i.data < todayISO(); });
+    html += '<div class="sec-title"><h2>In arrivo</h2><span class="muted">' + (late.length ? '<span style="color:var(--urgent);font-weight:600">' + late.length + ' in ritardo</span> · ' : '') + state.ideas.filter(function (i) { return i.stato === 'idea'; }).length + ' idee nel cassetto</span></div>';
+    if (next.length || late.length) {
+      html += '<div class="tablewrap"><table style="min-width:560px"><tbody>' + late.concat(next).map(function (i) {
+        var st = STATI.filter(function (s) { return s.id === i.stato; })[0];
+        return '<tr data-idea="' + esc(i.id) + '"><td class="num" style="width:110px' + (i.data < todayISO() ? ';color:var(--urgent);font-weight:600' : '') + '">' + fmtDate(i.data) + '</td><td class="ttl">' + esc(i.titolo) + '</td><td>' + fmtPill(i.formato) + '</td><td class="muted">' + esc(st ? st.nome : '') + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    } else {
+      html += '<div class="empty"><p>Nessun contenuto con data in programma. Dai una data alle idee nella sezione Idee per vederle qui e in calendario.</p></div>';
+    }
+
+    if (sample) {
+      html += '<div class="sec-title"><h2>Analisi di Claude</h2></div><div class="panel"><p class="hint">Claude legge i numeri del periodo e ti dice cosa ripetere, cosa cambiare e cosa provare la prossima settimana.</p>' +
+        '<button class="btn primary" id="aiAnalisi"' + (ui.aiTextBusy || !cur.length ? ' disabled' : '') + '>' + (ui.aiTextBusy ? 'Sto analizzando…' : 'Analizza gli ultimi ' + P + ' giorni') + '</button>' +
+        (ui.aiText ? '<div class="aitext" style="margin-top:14px" id="aiOut">' + esc(ui.aiText) + '</div>' : '') + '</div>';
+    }
+
+    v.innerHTML = html;
+    v.querySelectorAll('#periodo [data-p]').forEach(function (b) { b.addEventListener('click', function () { ui.periodo = +b.dataset.p; render(); }); });
+    v.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function () { setTab(b.dataset.go); }); });
+    v.querySelector('#addPost').addEventListener('click', function () { postModal(null); });
+    v.querySelector('#addFol').addEventListener('click', followerModal);
+    v.querySelectorAll('[data-post]').forEach(function (r) { r.addEventListener('click', function () { postModal(findPost(r.dataset.post)); }); });
+    v.querySelectorAll('[data-idea]').forEach(function (r) { r.addEventListener('click', function () { ideaModal(findIdea(r.dataset.idea)); }); });
+    var ab = v.querySelector('#aiAnalisi'); if (ab) ab.addEventListener('click', function () { aiAnalisi(cur, prev); });
+  }
+
+  function followerChart(cres) {
+    if (cres.length < 2) return '<div class="empty" style="padding:20px"><p>' + (cres.length ? 'Serve almeno un secondo dato per disegnare la curva.' : 'Aggiungi il numero di follower di oggi per iniziare la curva.') + '</p></div>';
+    var pts = cres.slice(-40);
+    var W = 560, H = 200, L = 46, R = 14, T = 14, B = 26;
+    var xs = pts.map(function (p) { return parseISO(p.data).getTime(); });
+    var ys = pts.map(function (p) { return n(p.follower); });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    var pad = Math.max(1, (y1 - y0) * .15); y0 = Math.max(0, Math.floor(y0 - pad)); y1 = Math.ceil(y1 + pad);
+    var X = function (t) { return L + (x1 === x0 ? 0 : (t - x0) / (x1 - x0)) * (W - L - R); };
+    var Y = function (v) { return T + (1 - (v - y0) / (y1 - y0)) * (H - T - B); };
+    var line = pts.map(function (p, i) { return (i ? 'L' : 'M') + X(xs[i]).toFixed(1) + ' ' + Y(ys[i]).toFixed(1); }).join(' ');
+    var area = line + ' L' + X(x1).toFixed(1) + ' ' + (H - B) + ' L' + X(x0).toFixed(1) + ' ' + (H - B) + ' Z';
+    var grid = '';
+    for (var g = 0; g <= 3; g++) {
+      var gv = y0 + (y1 - y0) * g / 3, gy = Y(gv);
+      grid += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + gy.toFixed(1) + '" y2="' + gy.toFixed(1) + '" stroke="var(--border)" stroke-width="1"/>' +
+        '<text x="' + (L - 8) + '" y="' + (gy + 4).toFixed(1) + '" text-anchor="end">' + fmtN(gv) + '</text>';
+    }
+    var lx = X(xs[xs.length - 1]), ly = Y(ys[ys.length - 1]);
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Andamento follower">' + grid +
+      '<path d="' + area + '" fill="var(--accent)" fill-opacity=".12"/>' +
+      '<path d="' + line + '" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>' +
+      '<text x="' + L + '" y="' + (H - 6) + '">' + esc(fmtDate(pts[0].data)) + '</text>' +
+      '<text x="' + (W - R) + '" y="' + (H - 6) + '" text-anchor="end">' + esc(fmtDate(pts[pts.length - 1].data)) + '</text></svg>';
+  }
+
+  function weekStart(d) { var x = new Date(d); var g = (x.getDay() + 6) % 7; x.setDate(x.getDate() - g); x.setHours(0, 0, 0, 0); return x; }
+  function cadence() {
+    var goal = Math.max(1, n(state.settings.frequenza));
+    var ws = weekStart(new Date());
+    var weeks = [];
+    for (var i = 7; i >= 0; i--) { var s = new Date(ws); s.setDate(s.getDate() - 7 * i); var e = new Date(s); e.setDate(e.getDate() + 6); weeks.push({ s: iso(s), e: iso(e), lab: s.getDate() + '/' + (s.getMonth() + 1) }); }
+    var counts = weeks.map(function (w) { return state.posts.filter(function (p) { return p.data >= w.s && p.data <= w.e && p.formato !== 'Storia'; }).length; });
+    var max = Math.max(goal * 1.5, Math.max.apply(null, counts), 1);
+    return '<div class="cadence">' + weeks.map(function (w, i) {
+      var c = counts[i], cur = i === weeks.length - 1;
+      return '<div class="wk"><span class="num" style="color:var(--ink);font-weight:600">' + c + '</span><div class="col' + (c < goal && !cur ? ' short' : '') + '"><b style="height:' + (c / max * 100).toFixed(0) + '%"></b><span class="goal" style="bottom:' + (goal / max * 100).toFixed(0) + '%"></span></div><span>' + (cur ? 'questa' : w.lab) + '</span></div>';
+    }).join('') + '</div><p class="hint" style="margin:12px 0 0">Le storie non contano. In arancione le settimane sotto obiettivo.</p>';
+  }
+
+  function topList(list) {
+    if (!list.length) return '<div class="empty" style="padding:20px"><p>Nessun contenuto in questo periodo.</p></div>';
+    var ref = avg(list, er);
+    return '<div style="display:grid;gap:2px">' + list.slice().sort(function (a, b) { return er(b) - er(a); }).slice(0, 5).map(function (p, i) {
+      return '<div data-post="' + esc(p.id) + '" style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 6px;border-radius:8px;cursor:pointer" onmouseover="this.style.background=\'var(--surface-2)\'" onmouseout="this.style.background=\'\'">' +
+        '<span class="muted num">' + (i + 1) + '</span><span style="min-width:0"><span class="ttl" style="display:block;max-width:none">' + esc(p.titolo || 'Senza titolo') + '</span><span class="muted" style="font-size:12px">' + fmtDate(p.data) + ' · ' + esc(p.formato || '') + ' · ' + fmtN(base(p)) + ' copertura</span></span>' +
+        '<span class="er ' + erClass(er(p), ref) + '">' + pct(er(p)) + '</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function groupBars(list, key) {
+    var g = {};
+    list.forEach(function (p) { var k = key(p) || 'Senza pilastro'; (g[k] = g[k] || []).push(p); });
+    var rows = Object.keys(g).map(function (k) { return { k: k, v: avg(g[k], er), c: g[k].length }; }).sort(function (a, b) { return b.v - a.v; });
+    if (!rows.length) return '<div class="empty" style="padding:20px"><p>Assegna un pilastro ai contenuti per confrontarli.</p></div>';
+    var max = Math.max.apply(null, rows.map(function (r) { return r.v; })) || 1;
+    return '<div class="hbars">' + rows.map(function (r) {
+      return '<div class="hbar"><span class="lab" title="' + esc(r.k) + '">' + esc(r.k) + ' <span class="muted">(' + r.c + ')</span></span><span class="track"><span class="fill" style="display:block;width:' + (r.v / max * 100).toFixed(0) + '%"></span></span><span class="v">' + pct(r.v) + '</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function followerModal() {
+    var last = state.crescita.slice().sort(function (a, b) { return a.data < b.data ? -1 : 1; }).pop();
+    openModal('<header><h2>Aggiorna follower</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
+      '<div class="form"><div class="two"><label>Data<input class="field" type="date" id="f_data" value="' + todayISO() + '"></label>' +
+      '<label>Follower<input class="field" type="number" min="0" inputmode="numeric" id="f_n" placeholder="' + (last ? esc(last.follower) : 'es. 4.250') + '"></label></div>' +
+      (state.crescita.length ? '<p class="note">Ultimi dati: ' + state.crescita.slice().sort(function (a, b) { return a.data < b.data ? 1 : -1; }).slice(0, 4).map(function (c) { return fmtDate(c.data) + ' · ' + fmtN(c.follower); }).join(' — ') + '</p>' : '') +
+      '</div><div class="actions"><div></div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="f_ok">Salva</button></div></div>', function (m) {
+      m.querySelector('#f_ok').addEventListener('click', function () {
+        var d = val(m, 'f_data'), v = n(val(m, 'f_n'));
+        if (!d || !v) { toast('Inserisci data e numero di follower.'); return; }
+        state.crescita = state.crescita.filter(function (c) { return c.data !== d; });
+        state.crescita.push({ data: d, follower: v });
+        save('crescita'); closeModal(); render(); toast('Follower aggiornati');
+      });
+    });
+  }
+
+  function aiAnalisi(cur, prev) {
+    if (!sample || ui.aiTextBusy) return;
+    ui.aiTextBusy = true; ui.aiText = ''; render();
+    var rows = cur.slice().sort(function (a, b) { return er(b) - er(a); }).slice(0, 40).map(function (p) {
+      return [p.data, p.formato, p.pilastro || '-', (p.titolo || '').slice(0, 90), 'copertura ' + base(p), 'like ' + n(p.like), 'commenti ' + n(p.commenti), 'condivisioni ' + n(p.condivisioni), 'salvataggi ' + n(p.salvataggi), 'follow ' + n(p.follow), 'ER ' + pct(er(p))].join(' | ');
+    }).join('\n');
+    var s = state.settings;
+    var prompt = 'Sei un content strategist esperto di Instagram per personal trainer e coach fitness. Rispondi in italiano, in modo diretto e pratico, senza markdown pesante (usa titoletti brevi in maiuscolo e trattini).\n\n' +
+      'Profilo: ' + (s.handle ? '@' + s.handle : 'studio ML LAB (personal training, postura, nutrizione)') + '\nPubblico: ' + (s.pubblico || 'non specificato') + '\nObiettivo: ' + (s.obiettivo || 'crescere e trovare nuovi clienti') + '\nPilastri: ' + s.pilastri.join(', ') + '\n\n' +
+      'Periodo: ultimi ' + ui.periodo + ' giorni, ' + cur.length + ' contenuti (periodo precedente: ' + prev.length + ' contenuti, ER medio ' + pct(avg(prev, er)) + '). ER medio attuale ' + pct(avg(cur, er)) + '.\n\nContenuti (ordinati per engagement):\n' + rows + '\n\n' +
+      'Dammi: 1) COSA FUNZIONA (pattern concreti di hook, formato, tema), 2) COSA NON FUNZIONA, 3) 3 AZIONI PER LA PROSSIMA SETTIMANA, 4) 3 IDEE DI CONTENUTO con hook già scritto. Massimo 350 parole.';
+    sample(prompt, { onText: function (e) { ui.aiText = e.text; var o = document.getElementById('aiOut'); if (o) o.textContent = e.text; else if (ui.tab === 'panoramica') render(); } }).then(function (r) {
+      ui.aiText = r.text; ui.aiTextBusy = false; render();
+    }, function (e) {
+      ui.aiTextBusy = false; ui.aiText = e && e.text ? e.text : '';
+      if (e && e.code !== 'cancelled') toast(e.code === 'rate_limited' ? 'Troppe richieste, riprova tra qualche minuto.' : 'Analisi non riuscita: ' + (e.message || e.code));
+      render();
+    });
+  }
+
+  // =====================================================================
+  // CONTENUTI (monitoraggio)
+  // =====================================================================
+  var COLS = [
+    { k: 'data', l: 'Data' }, { k: 'titolo', l: 'Contenuto' }, { k: 'formato', l: 'Formato' }, { k: 'pilastro', l: 'Pilastro' },
+    { k: 'views', l: 'Visual.', r: 1 }, { k: 'reach', l: 'Copertura', r: 1 }, { k: 'like', l: 'Like', r: 1 }, { k: 'commenti', l: 'Comm.', r: 1 },
+    { k: 'condivisioni', l: 'Condiv.', r: 1 }, { k: 'salvataggi', l: 'Salvat.', r: 1 }, { k: 'follow', l: 'Follow', r: 1 }, { k: 'er', l: 'Engag.', r: 1 }
+  ];
+  function findPost(id) { return state.posts.filter(function (p) { return p.id === id; })[0]; }
+  function filteredPosts() {
+    var q = ui.q.toLowerCase();
+    var list = state.posts.filter(function (p) {
+      if (ui.fFmt && p.formato !== ui.fFmt) return false;
+      if (ui.fPil && p.pilastro !== ui.fPil) return false;
+      if (q && ((p.titolo || '') + ' ' + (p.note || '')).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    var k = ui.sort, d = ui.dir;
+    list.sort(function (a, b) {
+      var x = k === 'er' ? er(a) : a[k], y = k === 'er' ? er(b) : b[k];
+      if (typeof x === 'string' || typeof y === 'string') { x = String(x || ''); y = String(y || ''); return x < y ? -d : x > y ? d : 0; }
+      return (n(x) - n(y)) * d;
+    });
+    return list;
+  }
+  function renderContenuti(v) {
+    var list = filteredPosts();
+    var ref = avg(state.posts, er);
+    var html = '<div class="bar"><input class="field grow" type="search" id="q" placeholder="Cerca nei contenuti…" value="' + esc(ui.q) + '">' +
+      '<select class="field" id="fFmt">' + opts(FORMATI, ui.fFmt, 'Tutti i formati') + '</select>' +
+      '<select class="field" id="fPil">' + opts(state.settings.pilastri, ui.fPil, 'Tutti i pilastri') + '</select>' +
+      '<label class="btn" style="cursor:pointer">Importa CSV<input type="file" id="csv" accept=".csv,text/csv" hidden></label>' +
+      '<button class="btn" id="exp"' + (state.posts.length ? '' : ' disabled') + '>Esporta CSV</button>' +
+      '<button class="btn primary" id="add">+ Registra contenuto</button></div>';
+
+    if (!state.posts.length) {
+      html += '<div class="empty"><strong>Qui monitori ogni contenuto pubblicato</strong><p>Il modo più veloce: da Meta Business Suite apri Insights › Contenuti, scegli il periodo ed esporta il CSV, poi tocca «Importa CSV». Riconosco le colonne in italiano e in inglese. Puoi anche registrare un contenuto a mano.</p></div>';
+    } else {
+      var tot = list.reduce(function (s, p) { s.v += n(p.views); s.r += n(p.reach); s.i += interazioni(p); s.f += n(p.follow); return s; }, { v: 0, r: 0, i: 0, f: 0 });
+      html += '<p class="muted" style="margin:0 0 12px;font-size:12.5px">' + list.length + ' contenuti · ' + fmtN(tot.v) + ' visualizzazioni · ' + fmtN(tot.i) + ' interazioni · ' + fmtN(tot.f) + ' nuovi follower · engagement medio ' + pct(avg(list, er)) + '. In verde i contenuti sopra la media del profilo, in rosso quelli sotto.</p>';
+      html += '<div class="tablewrap"><table><thead><tr>' + COLS.map(function (c) {
+        return '<th data-k="' + c.k + '" class="' + (c.r ? 'r ' : '') + (ui.sort === c.k ? 'sorted' : '') + '">' + c.l + (ui.sort === c.k ? (ui.dir < 0 ? ' ↓' : ' ↑') : '') + '</th>';
+      }).join('') + '</tr></thead><tbody>' + list.map(function (p) {
+        return '<tr data-id="' + esc(p.id) + '"><td class="num" style="white-space:nowrap">' + fmtDate(p.data) + '</td><td class="ttl" title="' + esc(p.titolo) + '">' + esc(p.titolo || 'Senza titolo') + '</td><td>' + fmtPill(p.formato) + '</td><td class="muted">' + esc(p.pilastro || '—') + '</td>' +
+          ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow'].map(function (k) { return '<td class="r">' + (p[k] === '' || p[k] == null ? '<span class="muted">—</span>' : fmtN(p[k])) + '</td>'; }).join('') +
+          '<td class="r"><span class="er ' + erClass(er(p), ref) + '">' + (base(p) ? pct(er(p)) : '—') + '</span></td></tr>';
+      }).join('') + '</tbody></table></div>';
+      if (!list.length) html += '<p class="muted" style="text-align:center">Nessun contenuto corrisponde ai filtri.</p>';
+    }
+    v.innerHTML = html;
+    var q = v.querySelector('#q');
+    q.addEventListener('input', function () { ui.q = q.value; clearTimeout(q.t); q.t = setTimeout(function () { var pos = q.selectionStart; render(); var nq = document.getElementById('q'); nq.focus(); try { nq.setSelectionRange(pos, pos); } catch (e) {} }, 250); });
+    v.querySelector('#fFmt').addEventListener('change', function (e) { ui.fFmt = e.target.value; render(); });
+    v.querySelector('#fPil').addEventListener('change', function (e) { ui.fPil = e.target.value; render(); });
+    v.querySelector('#add').addEventListener('click', function () { postModal(null); });
+    v.querySelector('#exp').addEventListener('click', exportCSV);
+    v.querySelector('#csv').addEventListener('change', function (e) { var f = e.target.files[0]; if (f) importCSV(f); e.target.value = ''; });
+    v.querySelectorAll('th[data-k]').forEach(function (th) { th.addEventListener('click', function () { var k = th.dataset.k; if (ui.sort === k) ui.dir *= -1; else { ui.sort = k; ui.dir = (k === 'titolo' || k === 'formato' || k === 'pilastro') ? 1 : -1; } render(); }); });
+    v.querySelectorAll('tbody tr[data-id]').forEach(function (r) { r.addEventListener('click', function () { postModal(findPost(r.dataset.id)); }); });
+  }
+
+  function postModal(p) {
+    var isNew = !p;
+    p = p || { id: uid(), data: todayISO(), formato: 'Reel', titolo: '', pilastro: '', link: '', views: '', reach: '', like: '', commenti: '', condivisioni: '', salvataggi: '', follow: '', note: '' };
+    var pil = state.settings.pilastri.slice(); if (p.pilastro && pil.indexOf(p.pilastro) < 0) pil.push(p.pilastro);
+    function numF(k, l) { return '<label>' + l + '<input class="field num" type="number" min="0" inputmode="numeric" id="p_' + k + '" value="' + esc(p[k]) + '"></label>'; }
+    openModal('<header><h2>' + (isNew ? 'Registra contenuto' : 'Contenuto') + '</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
+      '<div class="form">' +
+      '<label>Titolo o hook<input class="field" id="p_titolo" value="' + esc(p.titolo) + '" placeholder="es. Cosce gonfie dopo la palestra?"></label>' +
+      '<div class="three"><label>Data<input class="field" type="date" id="p_data" value="' + esc(p.data) + '"></label>' +
+      '<label>Formato<select class="field" id="p_formato">' + opts(FORMATI, p.formato) + '</select></label>' +
+      '<label>Pilastro<select class="field" id="p_pilastro">' + opts(pil, p.pilastro, '—') + '</select></label></div>' +
+      '<label>Link al post<input class="field" id="p_link" value="' + esc(p.link) + '" placeholder="https://www.instagram.com/reel/…"></label>' +
+      '<div class="three">' + numF('views', 'Visualizzazioni') + numF('reach', 'Copertura') + numF('like', 'Mi piace') + numF('commenti', 'Commenti') + numF('condivisioni', 'Condivisioni') + numF('salvataggi', 'Salvataggi') + numF('follow', 'Nuovi follower') + '</div>' +
+      '<label>Note (cosa ha funzionato, retention, commenti ricevuti)<textarea class="field" id="p_note">' + esc(p.note) + '</textarea></label>' +
+      (p.link ? '<a href="' + esc(p.link) + '" target="_blank" rel="noopener" style="color:var(--accent);font-size:13px">Apri su Instagram ↗</a>' : '') +
+      '</div><div class="actions"><div>' + (isNew ? '' : '<button class="btn danger" id="p_del">Elimina</button>') + '</div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="p_ok">Salva</button></div></div>', function (m) {
+      m.querySelector('#p_ok').addEventListener('click', function () {
+        var o = { id: p.id };
+        ['data', 'formato', 'titolo', 'pilastro', 'link', 'note'].forEach(function (k) { o[k] = val(m, 'p_' + k); });
+        ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow'].forEach(function (k) { var x = val(m, 'p_' + k); o[k] = x === '' ? '' : n(x); });
+        if (!o.data) { toast('Inserisci la data di pubblicazione.'); return; }
+        if (isNew) state.posts.push(o); else state.posts = state.posts.map(function (x) { return x.id === p.id ? o : x; });
+        save('posts'); closeModal(); render(); toast(isNew ? 'Contenuto registrato' : 'Modifiche salvate');
+      });
+      var del = m.querySelector('#p_del');
+      if (del) armDelete(del, function () { state.posts = state.posts.filter(function (x) { return x.id !== p.id; }); save('posts'); closeModal(); render(); toast('Contenuto eliminato'); });
+    });
+  }
+
+  // ---- CSV ----
+  function parseCSV(text) {
+    text = text.replace(/^﻿/, '');
+    var firstLine = text.split(/\r?\n/)[0] || '';
+    var delim = (firstLine.split(';').length > firstLine.split(',').length) ? ';' : (firstLine.split('\t').length > firstLine.split(',').length ? '\t' : ',');
+    var rows = [], row = [], f = '', q = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+      else if (c === '"') q = true;
+      else if (c === delim) { row.push(f); f = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+      else f += c;
+    }
+    if (f || row.length) { row.push(f); rows.push(row); }
+    return rows.filter(function (r) { return r.some(function (x) { return x.trim() !== ''; }); });
+  }
+  var SYN = {
+    data: ['publish time', 'ora di pubblicazione', 'data di pubblicazione', 'data', 'date', 'orario di pubblicazione'],
+    titolo: ['description', 'descrizione', 'titolo', 'caption', 'didascalia', 'title'],
+    formato: ['post type', 'tipo di post', 'tipo di contenuto', 'tipo', 'formato', 'type'],
+    link: ['permalink', 'link', 'url'],
+    views: ['views', 'visualizzazioni', 'plays', 'riproduzioni', 'impressions', 'impressioni'],
+    reach: ['reach', 'copertura', 'account raggiunti', 'accounts reached'],
+    like: ['likes', 'mi piace', 'like'],
+    commenti: ['comments', 'commenti'],
+    condivisioni: ['shares', 'condivisioni'],
+    salvataggi: ['saves', 'salvataggi', 'elementi salvati', 'salvati'],
+    follow: ['follows', 'follow', 'nuovi follower', 'follower acquisiti'],
+    pilastro: ['pilastro', 'categoria', 'rubrica']
+  };
+  function normH(h) { return h.toLowerCase().replace(/\s+/g, ' ').replace(/[^a-zà-ù ]/g, '').trim(); }
+  function mapHeaders(hdr) {
+    var map = {}, used = {};
+    var H = hdr.map(normH);
+    Object.keys(SYN).forEach(function (k) {
+      for (var s = 0; s < SYN[k].length; s++) {
+        var idx = H.indexOf(SYN[k][s]);
+        if (idx >= 0 && !used[idx]) { map[k] = idx; used[idx] = 1; return; }
+      }
+    });
+    return { map: map, italian: H.some(function (h) { return /pubblicazione|copertura|visualizzazioni|commenti/.test(h); }) };
+  }
+  function parseNum(s) { s = String(s || '').trim(); if (!s) return ''; s = s.replace(/\s/g, ''); if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ''); s = s.replace(/,(\d{3})(?!\d)/g, '$1').replace(',', '.'); var x = parseFloat(s); return isFinite(x) ? Math.round(x) : ''; }
+  function parseDate(s, italian) {
+    s = String(s || '').trim(); if (!s) return '';
+    var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) return m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0');
+    m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
+    if (m) {
+      var a = +m[1], b = +m[2], y = m[3].length === 2 ? '20' + m[3] : m[3];
+      var dd, mm;
+      if (a > 12) { dd = a; mm = b; } else if (b > 12) { dd = b; mm = a; } else if (italian) { dd = a; mm = b; } else { mm = a; dd = b; }
+      return y + '-' + String(mm).padStart(2, '0') + '-' + String(dd).padStart(2, '0');
+    }
+    var d = new Date(s); return isNaN(d) ? '' : iso(d);
+  }
+  function parseFmt(s) {
+    s = String(s || '').toLowerCase();
+    if (/reel|video/.test(s)) return 'Reel';
+    if (/carous|carosel|sequenza|album/.test(s)) return 'Carosello';
+    if (/stor/.test(s)) return 'Storia';
+    return s ? 'Post' : 'Reel';
+  }
+  function importCSV(file) {
+    var r = new FileReader();
+    r.onload = function () {
+      var rows = parseCSV(String(r.result || ''));
+      if (rows.length < 2) { toast('Il file non contiene righe da importare.'); return; }
+      var hi = 0;
+      for (var i = 0; i < Math.min(rows.length, 5); i++) { var mm = mapHeaders(rows[i]).map; if (mm.data != null && (mm.views != null || mm.reach != null || mm.like != null)) { hi = i; break; } }
+      var mh = mapHeaders(rows[hi]), map = mh.map;
+      if (map.data == null) { toast('Non trovo la colonna con la data di pubblicazione. Controlla che sia l\'export dei contenuti di Meta.'); return; }
+      var added = 0, updated = 0;
+      rows.slice(hi + 1).forEach(function (row) {
+        function g(k) { return map[k] != null ? row[map[k]] : ''; }
+        var d = parseDate(g('data'), mh.italian); if (!d) return;
+        var o = { data: d, formato: parseFmt(g('formato')), titolo: String(g('titolo') || '').replace(/\s+/g, ' ').trim().slice(0, 220), link: String(g('link') || '').trim(), pilastro: String(g('pilastro') || '').trim() };
+        ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow'].forEach(function (k) { o[k] = parseNum(g(k)); });
+        var ex = state.posts.filter(function (p) { return (o.link && p.link === o.link) || (!o.link && p.data === o.data && (p.titolo || '').slice(0, 60) === o.titolo.slice(0, 60)); })[0];
+        if (ex) {
+          ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow'].forEach(function (k) { if (o[k] !== '') ex[k] = o[k]; });
+          if (!ex.titolo && o.titolo) ex.titolo = o.titolo;
+          if (!ex.pilastro && o.pilastro) ex.pilastro = o.pilastro;
+          updated++;
+        } else { o.id = uid(); o.note = ''; state.posts.push(o); added++; }
+      });
+      if (!added && !updated) { toast('Nessuna riga valida trovata nel file.'); return; }
+      save('posts'); render();
+      toast(added + ' contenuti aggiunti' + (updated ? ', ' + updated + ' aggiornati' : ''));
+    };
+    r.onerror = function () { toast('Non riesco a leggere il file.'); };
+    r.readAsText(file);
+  }
+  function csvCell(v) { v = String(v == null ? '' : v); return /[";\n,]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  function exportCSV() {
+    var h = ['Data', 'Formato', 'Pilastro', 'Titolo', 'Link', 'Visualizzazioni', 'Copertura', 'Mi piace', 'Commenti', 'Condivisioni', 'Salvataggi', 'Nuovi follower', 'Engagement %', 'Note'];
+    var lines = [h.join(';')].concat(filteredPosts().map(function (p) {
+      return [p.data, p.formato, p.pilastro, p.titolo, p.link, p.views, p.reach, p.like, p.commenti, p.condivisioni, p.salvataggi, p.follow, base(p) ? (er(p) * 100).toFixed(2).replace('.', ',') : '', p.note].map(csvCell).join(';');
+    }));
+    saveFile('ML LAB contenuti ' + todayISO() + '.csv', '﻿' + lines.join('\n'), 'CSV');
+  }
+
+  // =====================================================================
+  // IDEE (pipeline)
+  // =====================================================================
+  function findIdea(id) { return state.ideas.filter(function (i) { return i.id === id; })[0]; }
+  function renderIdee(v) {
+    var html = '';
+    if (sample) {
+      html += '<div class="ai"><h3>Genera idee con Claude</h3><p class="note" style="margin:0">Claude parte dai tuoi pilastri, dai contenuti che hanno funzionato meglio e dagli spunti salvati.</p>' +
+        '<div class="row"><input class="field" id="aiTema" placeholder="Tema o richiesta (facoltativo): es. gonfiore alle gambe, donne 30-45 anni, errori in palestra"><select class="field" id="aiFmt" style="flex:0 1 170px">' + opts(FORMATI, '', 'Qualsiasi formato') + '</select>' +
+        '<button class="btn primary" id="aiGo"' + (ui.aiBusy ? ' disabled' : '') + '>' + (ui.aiBusy ? 'Sto pensando…' : 'Proponi 6 idee') + '</button></div>' +
+        (ui.aiIdeas.length ? '<div class="sugg">' + ui.aiIdeas.map(function (s, i) {
+          return '<div class="sg"><div class="meta" style="display:flex;gap:6px;flex-wrap:wrap">' + fmtPill(s.formato) + (s.pilastro ? '<span class="pill">' + esc(s.pilastro) + '</span>' : '') + '</div><div class="t">' + esc(s.titolo) + '</div><div class="h">«' + esc(s.hook) + '»</div><div class="w">' + esc(s.perche) + '</div>' +
+            '<div style="display:flex;gap:8px"><button class="btn small primary" data-take="' + i + '">Aggiungi alle idee</button><button class="btn small ghost" data-drop="' + i + '">Scarta</button></div></div>';
+        }).join('') + '</div>' : '') + '</div>';
+    }
+    html += '<div class="kanban" id="kanban">' + STATI.map(function (st) {
+      var items = state.ideas.filter(function (i) { return (i.stato || 'idea') === st.id; });
+      items.sort(function (a, b) { if (st.id === 'pubblicato') return (b.data || '') < (a.data || '') ? -1 : 1; return (a.data || '9999') < (b.data || '9999') ? -1 : 1; });
+      var shown = st.id === 'pubblicato' ? items.slice(0, 12) : items;
+      return '<section class="kcol" data-st="' + st.id + '"><h3>' + st.nome + ' <span>' + items.length + '</span></h3>' + shown.map(ideaCard).join('') +
+        (st.id === 'pubblicato' && items.length > 12 ? '<p class="muted" style="font-size:12px;margin:0">e altri ' + (items.length - 12) + '</p>' : '') +
+        (st.id !== 'pubblicato' ? '<button class="kadd" data-new="' + st.id + '">+ Aggiungi</button>' : '') + '</section>';
+    }).join('') + '</div>';
+    if (!state.ideas.length) html += '<p class="note" style="margin-top:14px">Ogni idea passa da sinistra a destra: la scrivi, la registri, la monti, la programmi e la pubblichi. Trascina le schede tra le colonne o usa le frecce. Quando la segni come pubblicata puoi registrarne subito i numeri.</p>';
+    v.innerHTML = html;
+
+    v.querySelectorAll('[data-new]').forEach(function (b) { b.addEventListener('click', function () { ideaModal(null, { stato: b.dataset.new }); }); });
+    v.querySelectorAll('.kcard').forEach(function (c) {
+      c.addEventListener('click', function (e) {
+        var mv = e.target.closest('[data-mv]');
+        if (mv) { e.stopPropagation(); moveIdea(c.dataset.id, +mv.dataset.mv); return; }
+        ideaModal(findIdea(c.dataset.id));
+      });
+      c.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', c.dataset.id); e.dataTransfer.effectAllowed = 'move'; });
+    });
+    v.querySelectorAll('.kcol').forEach(function (col) {
+      col.addEventListener('dragover', function (e) { e.preventDefault(); col.classList.add('drop'); });
+      col.addEventListener('dragleave', function () { col.classList.remove('drop'); });
+      col.addEventListener('drop', function (e) { e.preventDefault(); col.classList.remove('drop'); var id = e.dataTransfer.getData('text/plain'); setStato(id, col.dataset.st); });
+    });
+    var go = v.querySelector('#aiGo'); if (go) go.addEventListener('click', function () { aiIdee(val(v, 'aiTema'), val(v, 'aiFmt')); });
+    v.querySelectorAll('[data-take]').forEach(function (b) { b.addEventListener('click', function () {
+      var s = ui.aiIdeas[+b.dataset.take];
+      state.ideas.push({ id: uid(), titolo: s.titolo, hook: s.hook, formato: FORMATI.indexOf(s.formato) >= 0 ? s.formato : 'Reel', pilastro: s.pilastro || '', stato: 'idea', data: '', note: s.perche ? 'Perché funziona: ' + s.perche : '', creata: todayISO() });
+      ui.aiIdeas.splice(+b.dataset.take, 1); save('ideas'); render(); toast('Idea aggiunta');
+    }); });
+    v.querySelectorAll('[data-drop]').forEach(function (b) { b.addEventListener('click', function () { ui.aiIdeas.splice(+b.dataset.drop, 1); render(); }); });
+  }
+  function ideaCard(i) {
+    var idx = STATI.map(function (s) { return s.id; }).indexOf(i.stato || 'idea');
+    var late = i.data && i.data < todayISO() && i.stato !== 'pubblicato';
+    return '<article class="kcard" draggable="true" data-id="' + esc(i.id) + '"><div class="t">' + esc(i.titolo || 'Senza titolo') + '</div>' +
+      (i.hook ? '<div class="h">«' + esc(i.hook) + '»</div>' : '') +
+      '<div class="meta">' + fmtPill(i.formato) + (i.pilastro ? '<span class="pill">' + esc(i.pilastro) + '</span>' : '') + '</div>' +
+      '<div class="moves"><button class="iconbtn" data-mv="-1" aria-label="Sposta indietro"' + (idx === 0 ? ' disabled style="visibility:hidden"' : '') + '>←</button>' +
+      '<span class="date' + (late ? ' late' : '') + '">' + (i.data ? (late ? 'In ritardo · ' : '') + fmtDate(i.data) : 'Senza data') + '</span>' +
+      '<button class="iconbtn" data-mv="1" aria-label="Sposta avanti"' + (idx === STATI.length - 1 ? ' disabled style="visibility:hidden"' : '') + '>→</button></div></article>';
+  }
+  function moveIdea(id, d) {
+    var i = findIdea(id); if (!i) return;
+    var ids = STATI.map(function (s) { return s.id; });
+    var k = Math.max(0, Math.min(ids.length - 1, ids.indexOf(i.stato || 'idea') + d));
+    setStato(id, ids[k]);
+  }
+  function setStato(id, st) {
+    var i = findIdea(id); if (!i || i.stato === st) return;
+    i.stato = st;
+    if (st === 'pubblicato') {
+      if (!i.data || i.data > todayISO()) i.data = todayISO();
+      save('ideas'); render();
+      var exists = state.posts.some(function (p) { return p.ideaId === i.id; });
+      if (!exists) toastAction('Pubblicato. Registrane i numeri quando li hai.', 'Registra ora', function () { postFromIdea(i); });
+      return;
+    }
+    save('ideas'); render();
+  }
+  function toastAction(msg, label, fn) {
+    var r = document.getElementById('toastRoot');
+    r.innerHTML = '<div class="toast" role="status" style="display:flex;gap:12px;align-items:center">' + esc(msg) + ' <button class="btn small primary" id="tAct">' + esc(label) + '</button></div>';
+    r.querySelector('#tAct').addEventListener('click', function () { r.innerHTML = ''; fn(); });
+    clearTimeout(toast.t); toast.t = setTimeout(function () { r.innerHTML = ''; }, 7000);
+  }
+  function postFromIdea(i) {
+    var p = { id: uid(), ideaId: i.id, data: i.data || todayISO(), formato: i.formato === 'Storia' ? 'Storia' : (i.formato || 'Reel'), titolo: i.hook || i.titolo, pilastro: i.pilastro || '', link: '', views: '', reach: '', like: '', commenti: '', condivisioni: '', salvataggi: '', follow: '', note: '' };
+    state.posts.push(p); save('posts'); postModal(p);
+  }
+
+  function ideaModal(i, preset) {
+    var isNew = !i;
+    i = i || Object.assign({ id: uid(), titolo: '', hook: '', formato: 'Reel', pilastro: '', stato: 'idea', data: '', note: '', creata: todayISO() }, preset || {});
+    var pil = state.settings.pilastri.slice(); if (i.pilastro && pil.indexOf(i.pilastro) < 0) pil.push(i.pilastro);
+    openModal('<header><h2>' + (isNew ? 'Nuova idea' : 'Idea') + '</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
+      '<div class="form">' +
+      '<label>Titolo (di cosa parla)<input class="field" id="i_titolo" value="' + esc(i.titolo) + '" placeholder="es. Perché le cosce si gonfiano dopo l\'allenamento"></label>' +
+      '<label>Hook (la prima frase che dici o scrivi)<input class="field" id="i_hook" value="' + esc(i.hook) + '" placeholder="es. Cosce gonfie dopo la palestra? Non è muscolo."></label>' +
+      '<div class="three"><label>Formato<select class="field" id="i_formato">' + opts(FORMATI, i.formato) + '</select></label>' +
+      '<label>Pilastro<select class="field" id="i_pilastro">' + opts(pil, i.pilastro, '—') + '</select></label>' +
+      '<label>Data di pubblicazione<input class="field" type="date" id="i_data" value="' + esc(i.data) + '"></label></div>' +
+      '<label>Fase<select class="field" id="i_stato">' + STATI.map(function (s) { return '<option value="' + s.id + '"' + (s.id === i.stato ? ' selected' : '') + '>' + s.nome + '</option>'; }).join('') + '</select></label>' +
+      '<label>Script, scaletta e caption<textarea class="field" id="i_note" style="min-height:180px">' + esc(i.note) + '</textarea></label>' +
+      (sample ? '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn small" id="i_ai">Scrivi lo script con Claude</button><span class="muted" id="i_aist" style="font-size:12.5px"></span></div>' : '') +
+      '</div><div class="actions"><div>' + (isNew ? '' : '<button class="btn danger" id="i_del">Elimina</button>') + '</div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="i_ok">Salva</button></div></div>', function (m) {
+      m.querySelector('#i_ok').addEventListener('click', function () {
+        var o = Object.assign({}, i);
+        ['titolo', 'hook', 'formato', 'pilastro', 'data', 'stato'].forEach(function (k) { o[k] = val(m, 'i_' + k); });
+        o.note = m.querySelector('#i_note').value;
+        if (!o.titolo && !o.hook) { toast('Scrivi almeno il titolo o l\'hook.'); return; }
+        var wasPub = !isNew && i.stato === 'pubblicato';
+        if (isNew) state.ideas.push(o); else state.ideas = state.ideas.map(function (x) { return x.id === i.id ? o : x; });
+        save('ideas'); closeModal(); render(); toast(isNew ? 'Idea salvata' : 'Modifiche salvate');
+        if (o.stato === 'pubblicato' && !wasPub && !state.posts.some(function (p) { return p.ideaId === o.id; })) toastAction('Pubblicato. Registrane i numeri quando li hai.', 'Registra ora', function () { postFromIdea(o); });
+      });
+      var del = m.querySelector('#i_del');
+      if (del) armDelete(del, function () { state.ideas = state.ideas.filter(function (x) { return x.id !== i.id; }); save('ideas'); closeModal(); render(); toast('Idea eliminata'); });
+      var ai = m.querySelector('#i_ai');
+      if (ai) ai.addEventListener('click', function () { aiScript(m, ai); });
+    });
+  }
+
+  function profiloCtx() {
+    var s = state.settings;
+    return 'Profilo Instagram: ' + (s.handle ? '@' + s.handle.replace(/^@/, '') : 'ML LAB, studio di personal training, postura e nutrizione') + '\nPubblico: ' + (s.pubblico || 'persone che si allenano e vogliono risultati, soprattutto donne') + '\nObiettivo: ' + (s.obiettivo || 'crescere e trovare nuovi clienti per il coaching') + '\nPilastri: ' + s.pilastri.join(', ');
+  }
+  function topCtx(k) {
+    var pool = state.posts.filter(function (p) { return base(p) && p.titolo; }).sort(function (a, b) { return er(b) - er(a); });
+    if (!pool.length) return 'Nessun dato di performance ancora.';
+    return 'Contenuti migliori:\n' + pool.slice(0, k).map(function (p) { return '- [' + p.formato + ', ER ' + pct(er(p)) + ', ' + n(p.follow) + ' follow] ' + p.titolo.slice(0, 110); }).join('\n') +
+      (pool.length > 6 ? '\nContenuti peggiori:\n' + pool.slice(-3).map(function (p) { return '- [' + p.formato + ', ER ' + pct(er(p)) + '] ' + p.titolo.slice(0, 110); }).join('\n') : '');
+  }
+  function aiIdee(tema, fmt) {
+    if (!sample || ui.aiBusy) return;
+    ui.aiBusy = true; render();
+    var gia = state.ideas.slice(-30).map(function (i) { return '- ' + (i.titolo || i.hook); }).join('\n');
+    var sp = state.spunti.slice(-15).map(function (s) { return '- [' + s.tipo + '] ' + s.testo.slice(0, 140); }).join('\n');
+    var prompt = 'Sei un content strategist per Instagram nel fitness. Proponi 6 idee di contenuto originali e specifiche, in italiano.\n\n' + profiloCtx() + '\n\n' + topCtx(8) +
+      (sp ? '\n\nSpunti salvati:\n' + sp : '') + (gia ? '\n\nIdee già in lista (non ripeterle):\n' + gia : '') +
+      (tema ? '\n\nRichiesta: ' + tema : '') + (fmt ? '\nFormato richiesto: ' + fmt : '') +
+      '\n\nRispondi SOLO con JSON: {"idee":[{"titolo":"...","hook":"prima frase, max 12 parole, che ferma lo scroll","formato":"Reel|Carosello|Post|Storia","pilastro":"uno dei pilastri","perche":"una frase su perché funzionerà per questo pubblico"}]}';
+    sample.json(prompt, { modelTier: 'default' }).then(function (r) {
+      var list = (r && (r.idee || r.ideas)) || (Array.isArray(r) ? r : []);
+      ui.aiIdeas = list.filter(function (x) { return x && (x.titolo || x.hook); }).map(function (x) { return { titolo: String(x.titolo || ''), hook: String(x.hook || ''), formato: String(x.formato || 'Reel'), pilastro: String(x.pilastro || ''), perche: String(x.perche || '') }; });
+      ui.aiBusy = false; render();
+      if (!ui.aiIdeas.length) toast('Nessuna idea ricevuta, riprova.');
+    }, function (e) {
+      ui.aiBusy = false; render();
+      if (e && e.code !== 'cancelled') toast(e.code === 'rate_limited' ? 'Troppe richieste, riprova tra qualche minuto.' : 'Non riesco a generare idee: ' + (e.message || e.code));
+    });
+  }
+  function aiScript(m, btn) {
+    var ta = m.querySelector('#i_note'), st = m.querySelector('#i_aist');
+    var t = val(m, 'i_titolo'), h = val(m, 'i_hook'), f = val(m, 'i_formato'), p = val(m, 'i_pilastro');
+    if (!t && !h) { toast('Scrivi prima titolo o hook.'); return; }
+    btn.disabled = true; st.textContent = 'Claude sta scrivendo…';
+    var prev = ta.value.trim();
+    var prompt = 'Scrivi lo script completo di un ' + f + ' Instagram in italiano, tono diretto e professionale da personal trainer.\n\n' + profiloCtx() + '\n\nTitolo: ' + t + '\nHook: ' + (h || 'proponilo tu') + '\nPilastro: ' + (p || '-') + (prev ? '\nAppunti esistenti da rispettare:\n' + prev : '') + '\n\n' + topCtx(4) + '\n\n' +
+      (f === 'Carosello' ? 'Struttura: SLIDE 1 (hook), slide 2-7 (una idea per slide, testo breve), ultima slide CTA. ' : f === 'Storia' ? 'Struttura: 3-5 storie con testo, sticker interattivo (sondaggio/domanda) e CTA. ' : 'Struttura con tempi: HOOK (0-3s), SVILUPPO a battute con indicazione di inquadratura e testo a schermo, CTA finale. Durata 30-45 secondi. ') +
+      'Poi CAPTION (max 120 parole, con domanda finale per i commenti) e 5 HASHTAG mirati. Niente markdown, usa titoletti in maiuscolo.';
+    ta.value = (prev ? prev + '\n\n— — —\n\n' : '');
+    var startLen = ta.value.length;
+    sample(prompt, { onText: function (e) { ta.value = ta.value.slice(0, startLen) + e.text; ta.scrollTop = ta.scrollHeight; } }).then(function (r) {
+      ta.value = ta.value.slice(0, startLen) + r.text; btn.disabled = false; st.textContent = 'Fatto. Rivedi e salva.';
+    }, function (e) {
+      btn.disabled = false; st.textContent = e && e.code === 'rate_limited' ? 'Troppe richieste, riprova tra poco.' : 'Non riuscito: ' + ((e && (e.message || e.code)) || 'errore');
+    });
+  }
+
+  // =====================================================================
+  // CALENDARIO
+  // =====================================================================
+  function renderCalendario(v) {
+    if (!ui.calY) { var t = new Date(); ui.calY = t.getFullYear(); ui.calM = t.getMonth(); }
+    var first = new Date(ui.calY, ui.calM, 1);
+    var start = weekStart(first);
+    var title = first.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+    var today = todayISO();
+    var byDay = {};
+    state.ideas.forEach(function (i) { if (i.data) (byDay[i.data] = byDay[i.data] || []).push({ t: i.titolo || i.hook, f: i.formato, done: i.stato === 'pubblicato', id: i.id, kind: 'idea' }); });
+    state.posts.forEach(function (p) { if (p.data && !p.ideaId) (byDay[p.data] = byDay[p.data] || []).push({ t: p.titolo || 'Contenuto', f: p.formato, done: true, id: p.id, kind: 'post' }); });
+    var monthIdeas = state.ideas.filter(function (i) { return i.data && i.data.slice(0, 7) === iso(first).slice(0, 7); });
+    var monthPosts = state.posts.filter(function (p) { return p.data && p.data.slice(0, 7) === iso(first).slice(0, 7); });
+    var cells = '';
+    for (var k = 0; k < 42; k++) {
+      var d = new Date(start); d.setDate(start.getDate() + k);
+      if (k >= 35 && d.getMonth() !== ui.calM) break;
+      var ds = iso(d), evs = byDay[ds] || [];
+      cells += '<div class="day' + (d.getMonth() !== ui.calM ? ' out' : '') + (ds === today ? ' today' : '') + '" data-day="' + ds + '"><span class="d">' + d.getDate() + '</span>' +
+        evs.slice(0, 4).map(function (e) { return '<div class="ev' + (e.done ? ' done' : '') + '" style="--fmt:' + (FMT_VAR[e.f] || 'var(--ink-muted)') + '" data-' + e.kind + '="' + esc(e.id) + '" title="' + esc(e.t) + '">' + esc(e.t) + '</div>'; }).join('') +
+        (evs.length > 4 ? '<span class="muted" style="font-size:11px">+' + (evs.length - 4) + '</span>' : '') + '</div>';
+    }
+    var goal = n(state.settings.frequenza);
+    var planned = monthIdeas.filter(function (i) { return i.formato !== 'Storia'; }).length + monthPosts.filter(function (p) { return !p.ideaId && p.formato !== 'Storia'; }).length;
+    v.innerHTML = '<div class="calhead"><button class="btn small" id="cPrev" aria-label="Mese precedente">←</button><h2>' + esc(title) + '</h2><button class="btn small" id="cNext" aria-label="Mese successivo">→</button><button class="btn small ghost" id="cToday">Oggi</button>' +
+      '<span class="grow" style="flex:1"></span><span class="muted" style="font-size:12.5px">' + planned + ' contenuti nel mese' + (goal ? ' · obiettivo circa ' + Math.round(goal * 4.3) : '') + '</span></div>' +
+      '<div class="cal">' + ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map(function (d) { return '<div class="dow">' + d + '</div>'; }).join('') + cells + '</div>' +
+      '<div class="legend">' + FORMATI.map(function (f) { return '<span style="--fmt:' + FMT_VAR[f] + '"><i></i>' + f + '</span>'; }).join('') + '<span>Barrato = pubblicato</span><span>Tocca un giorno vuoto per programmare un\'idea</span></div>';
+    v.querySelector('#cPrev').addEventListener('click', function () { ui.calM--; if (ui.calM < 0) { ui.calM = 11; ui.calY--; } render(); });
+    v.querySelector('#cNext').addEventListener('click', function () { ui.calM++; if (ui.calM > 11) { ui.calM = 0; ui.calY++; } render(); });
+    v.querySelector('#cToday').addEventListener('click', function () { ui.calY = 0; render(); });
+    v.querySelectorAll('.day').forEach(function (c) { c.addEventListener('click', function (e) {
+      var ev = e.target.closest('.ev');
+      if (ev && ev.dataset.idea) { ideaModal(findIdea(ev.dataset.idea)); return; }
+      if (ev && ev.dataset.post) { postModal(findPost(ev.dataset.post)); return; }
+      scheduleModal(c.dataset.day);
+    }); });
+  }
+  function scheduleModal(day) {
+    var free = state.ideas.filter(function (i) { return i.stato !== 'pubblicato' && !i.data; });
+    if (!free.length) { ideaModal(null, { data: day, stato: 'programmato' }); return; }
+    openModal('<header><h2>' + esc(parseISO(day).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })) + '</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
+      '<p class="note" style="margin:0">Scegli un\'idea senza data da programmare in questo giorno, oppure creane una nuova.</p>' +
+      '<div style="display:grid;gap:8px">' + free.map(function (i) { return '<button class="btn" style="text-align:left;white-space:normal;border-radius:12px;display:flex;gap:10px;align-items:center" data-pick="' + esc(i.id) + '">' + fmtPill(i.formato) + '<span>' + esc(i.titolo || i.hook) + '</span></button>'; }).join('') + '</div>' +
+      '<div class="actions"><div></div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="s_new">Nuova idea</button></div></div>', function (m) {
+      m.querySelectorAll('[data-pick]').forEach(function (b) { b.addEventListener('click', function () {
+        var i = findIdea(b.dataset.pick); i.data = day; if (i.stato === 'idea') i.stato = 'registrare';
+        save('ideas'); closeModal(); render(); toast('Programmata per il ' + fmtDate(day));
+      }); });
+      m.querySelector('#s_new').addEventListener('click', function () { ideaModal(null, { data: day, stato: 'programmato' }); });
+    });
+  }
+
+  // =====================================================================
+  // SPUNTI
+  // =====================================================================
+  function renderSpunti(v) {
+    var list = state.spunti.filter(function (s) { return !ui.spTipo || s.tipo === ui.spTipo; }).sort(function (a, b) { return (b.creato || '') < (a.creato || '') ? -1 : 1; });
+    var html = '<div class="panel" style="margin-bottom:20px"><h3>Salva uno spunto</h3><p class="hint">Un hook sentito in giro, la domanda che ti ha fatto un cliente in sala, un reel di un altro profilo da cui prendere ispirazione.</p>' +
+      '<div class="form" style="max-width:none"><textarea class="field" id="s_testo" placeholder="es. Una cliente mi ha chiesto se gli squat fanno venire le gambe grosse"></textarea>' +
+      '<div class="bar" style="margin:0"><select class="field" id="s_tipo">' + opts(TIPI_SPUNTO, TIPI_SPUNTO[1]) + '</select><input class="field grow" id="s_link" placeholder="Link (facoltativo)"><button class="btn primary" id="s_add">Salva spunto</button></div></div></div>';
+    html += '<div class="bar"><div class="chips" id="spf"><button class="chip' + (!ui.spTipo ? ' on' : '') + '" data-t="">Tutti · ' + state.spunti.length + '</button>' + TIPI_SPUNTO.map(function (t) {
+      var c = state.spunti.filter(function (s) { return s.tipo === t; }).length;
+      return '<button class="chip' + (ui.spTipo === t ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + ' · ' + c + '</button>';
+    }).join('') + '</div></div>';
+    if (!list.length) html += '<div class="empty"><strong>Nessuno spunto ' + (ui.spTipo ? 'di questo tipo' : 'salvato') + '</strong><p>Le domande dei clienti sono la miglior fonte di idee: annotale qui appena le senti. Con «Trasforma in idea» finiscono nella pipeline, e Claude le usa quando genera nuove idee.</p></div>';
+    else html += '<div class="spunti">' + list.map(function (s) {
+      return '<article class="sp"><div class="foot"><span class="pill">' + esc(s.tipo) + '</span><span class="muted" style="font-size:12px">' + fmtDate(s.creato) + '</span></div><div class="txt">' + esc(s.testo) + '</div>' +
+        (s.link && /^https?:\/\//.test(s.link) ? '<a href="' + esc(s.link) + '" target="_blank" rel="noopener">' + esc(s.link.replace(/^https?:\/\/(www\.)?/, '').slice(0, 60)) + ' ↗</a>' : '') +
+        '<div class="foot"><button class="btn small" data-toidea="' + esc(s.id) + '">Trasforma in idea</button><button class="iconbtn" data-rm="' + esc(s.id) + '" aria-label="Elimina spunto">✕</button></div></article>';
+    }).join('') + '</div>';
+    v.innerHTML = html;
+    v.querySelector('#s_add').addEventListener('click', function () {
+      var t = v.querySelector('#s_testo').value.trim(); if (!t) { toast('Scrivi lo spunto.'); return; }
+      state.spunti.push({ id: uid(), tipo: v.querySelector('#s_tipo').value, testo: t, link: v.querySelector('#s_link').value.trim(), creato: todayISO() });
+      save('spunti'); render(); toast('Spunto salvato');
+    });
+    v.querySelectorAll('#spf [data-t]').forEach(function (b) { b.addEventListener('click', function () { ui.spTipo = b.dataset.t; render(); }); });
+    v.querySelectorAll('[data-toidea]').forEach(function (b) { b.addEventListener('click', function () {
+      var s = state.spunti.filter(function (x) { return x.id === b.dataset.toidea; })[0];
+      var isHook = s.tipo === 'Hook';
+      ideaModal(null, { titolo: isHook ? '' : s.testo.slice(0, 120), hook: isHook ? s.testo.slice(0, 160) : '', note: 'Spunto (' + s.tipo + '): ' + s.testo + (s.link ? '\n' + s.link : '') });
+    }); });
+    v.querySelectorAll('[data-rm]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Elimina?'; b.style.color = 'var(--urgent)'; b.style.fontSize = '12.5px'; b.style.fontWeight = '600'; return; }
+        state.spunti = state.spunti.filter(function (x) { return x.id !== b.dataset.rm; }); save('spunti'); render();
+      });
+    });
+  }
+
+  // =====================================================================
+  // IMPOSTAZIONI
+  // =====================================================================
+  function renderImpostazioni(v) {
+    var s = state.settings;
+    v.innerHTML = '<div class="form">' +
+      '<div class="two"><label>Profilo Instagram<input class="field" id="st_handle" value="' + esc(s.handle) + '" placeholder="es. mllab.studio"></label>' +
+      '<label>Obiettivo di pubblicazione (contenuti a settimana)<input class="field" type="number" min="1" max="21" id="st_freq" value="' + esc(s.frequenza) + '"></label></div>' +
+      '<label>Pilastri di contenuto (uno per riga)<textarea class="field" id="st_pil">' + esc(s.pilastri.join('\n')) + '</textarea></label>' +
+      '<label>Pubblico (a chi parli)<input class="field" id="st_pub" value="' + esc(s.pubblico) + '" placeholder="es. donne 25-45 che si allenano in palestra e vogliono gambe più toniche"></label>' +
+      '<label>Obiettivo del profilo<input class="field" id="st_obi" value="' + esc(s.obiettivo) + '" placeholder="es. portare richieste di coaching in DM"></label>' +
+      '<div><button class="btn primary" id="st_save">Salva impostazioni</button></div>' +
+      '<p class="note">Pubblico, obiettivo e pilastri servono a Claude per proporre idee e script su misura. Il formato e il pilastro di ogni contenuto alimentano i confronti in Panoramica.</p>' +
+      '<div class="sec-title" style="margin-top:14px"><h2>Collegamento a Instagram</h2></div>' +
+      '<p class="note">I numeri arrivano dall\'export di Meta Business Suite: Insights › Contenuti › scegli il periodo › Esporta dati (CSV). Importa lo stesso file anche più volte: i contenuti già presenti vengono aggiornati con i numeri nuovi, senza doppioni. Per un collegamento automatico serve un connettore Instagram in claude.ai: quando sarà disponibile, l\'app potrà leggere i dati direttamente.</p>' +
+      '<div class="sec-title" style="margin-top:14px"><h2>Backup</h2></div>' +
+      '<p class="note">I dati si sincronizzano da soli tra i tuoi dispositivi quando apri l\'app su claude.ai. Il backup è una copia completa da conservare (non va messo nel repository).</p>' +
+      '<div class="bar"><button class="btn" id="bk_exp">Salva backup</button><label class="btn" style="cursor:pointer">Ripristina backup<input type="file" id="bk_imp" accept=".json,application/json" hidden></label></div>' +
+      '<p class="note num">' + state.posts.length + ' contenuti · ' + state.ideas.length + ' idee · ' + state.spunti.length + ' spunti · ' + state.crescita.length + ' rilevazioni follower</p>' +
+      '</div>';
+    v.querySelector('#st_save').addEventListener('click', function () {
+      state.settings = {
+        handle: val(v, 'st_handle').replace(/^@/, ''),
+        frequenza: Math.max(1, n(val(v, 'st_freq')) || 4),
+        pilastri: v.querySelector('#st_pil').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean),
+        pubblico: val(v, 'st_pub'), obiettivo: val(v, 'st_obi')
+      };
+      if (!state.settings.pilastri.length) state.settings.pilastri = DEFAULT_SETTINGS.pilastri.slice();
+      save('settings'); render(); toast('Impostazioni salvate');
+    });
+    v.querySelector('#bk_exp').addEventListener('click', function () { saveFile('ML LAB contenuti backup ' + todayISO() + '.json', JSON.stringify(Object.assign({ app: 'mllab-contenuti', versione: 1 }, state), null, 2), 'Backup'); });
+    v.querySelector('#bk_imp').addEventListener('change', function (e) {
+      var f = e.target.files[0]; e.target.value = ''; if (!f) return;
+      var r = new FileReader();
+      r.onload = function () {
+        try {
+          var d = JSON.parse(String(r.result));
+          if (d.app !== 'mllab-contenuti') throw new Error('x');
+          KEYS.forEach(function (k) { if (d[k]) { state[k] = d[k]; save(k); } });
+          state.settings = Object.assign(clone(DEFAULT_SETTINGS), state.settings);
+          render(); toast('Backup ripristinato');
+        } catch (err) { toast('Questo file non è un backup di ML LAB Contenuti.'); }
+      };
+      r.readAsText(f);
+    });
+  }
+
+  // ---------- avvio ----------
+  loadLocal();
+  var startTab = (location.hash || '').slice(1);
+  if (!startTab) { try { startTab = localStorage.getItem(LS_KEY + '-tab') || ''; } catch (e) {} }
+  if (['panoramica', 'contenuti', 'idee', 'calendario', 'spunti', 'impostazioni'].indexOf(startTab) >= 0) {
+    ui.tab = startTab;
+    document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === startTab); });
+  }
+  render();
+  connect();
+})();
+</script>
