@@ -2483,7 +2483,8 @@
       nutriCartelle: JSON.parse(JSON.stringify(state.nutriCartelle || [])),
       wa: JSON.parse(JSON.stringify(state.wa || {})),
       anag: JSON.parse(JSON.stringify(state.anag || { people: [], rejected: {} })),
-      train: JSON.parse(JSON.stringify(state.train || []))
+      train: JSON.parse(JSON.stringify(state.train || [])),
+      trainCartelle: JSON.parse(JSON.stringify(state.trainCartelle || []))
     };
   }
   function pushUndoCheckpoint() {
@@ -2503,6 +2504,7 @@
     if (prev.nutriCartelle) state.nutriCartelle = prev.nutriCartelle;
     if (prev.wa) state.wa = prev.wa;
     if (prev.train) { state.train = trNorm(prev.train); try { localStorage.setItem(STORAGE_KEY_TR, JSON.stringify(state.train)); } catch (e) { /* ignore */ } }
+    if (prev.trainCartelle) { state.trainCartelle = prev.trainCartelle; try { localStorage.setItem(STORAGE_KEY_TRC, JSON.stringify(state.trainCartelle)); } catch (e) { /* ignore */ } }
     if (prev.anag) { state.anag = prev.anag; try { localStorage.setItem(STORAGE_KEY_AN, JSON.stringify(state.anag)); } catch (e) { /* ignore */ } }
     undoBaseline = cloneUndoState();
     try {
@@ -2556,7 +2558,7 @@
     dbWriteInFlight = true;
     setSyncStatus('Sincronizzazione…');
     lastSentAt = new Date().toISOString();
-    stateDocRef.set({ clients: state.clients, consulenze: state.consulenze, promemoria: state.promemoria, wa: state.wa, sp: state.sp, nutri: state.nutri, nutriCartelle: state.nutriCartelle, anag: state.anag, train: state.train, updatedAt: lastSentAt })
+    stateDocRef.set({ clients: state.clients, consulenze: state.consulenze, promemoria: state.promemoria, wa: state.wa, sp: state.sp, nutri: state.nutri, nutriCartelle: state.nutriCartelle, anag: state.anag, train: state.train, trainCartelle: state.trainCartelle || [], updatedAt: lastSentAt })
       .then(function () { setSyncStatus('Sincronizzato tra dispositivi'); })
       .catch(function () { setSyncStatus('Sincronizzazione non riuscita — salvato solo su questo dispositivo'); })
       .then(function () {
@@ -2584,6 +2586,7 @@
     if (Array.isArray(cloned.consulenze)) state.consulenze = cloned.consulenze;
     if (Array.isArray(cloned.promemoria)) state.promemoria = cloned.promemoria;
     if (Array.isArray(cloned.train) && !trOpenId) { state.train = trNorm(cloned.train); try { localStorage.setItem(STORAGE_KEY_TR, JSON.stringify(state.train)); } catch (e) { /* ignore */ } }
+    if (Array.isArray(cloned.trainCartelle)) { state.trainCartelle = cloned.trainCartelle; try { localStorage.setItem(STORAGE_KEY_TRC, JSON.stringify(state.trainCartelle)); } catch (e) { /* ignore */ } }
     if (cloned.anag && Array.isArray(cloned.anag.people) && !anOpenId) { state.anag = { people: cloned.anag.people, rejected: cloned.anag.rejected || {}, noAuto: cloned.anag.noAuto || {}, purged: cloned.anag.purged || {} }; try { localStorage.setItem(STORAGE_KEY_AN, JSON.stringify(state.anag)); } catch (e) { /* ignore */ } }
     if (Array.isArray(cloned.nutriCartelle)) { state.nutriCartelle = cloned.nutriCartelle; try { localStorage.setItem(STORAGE_KEY_NUC, JSON.stringify(state.nutriCartelle)); } catch (e) { /* ignore */ } }
     if (Array.isArray(cloned.nutri) && !nuOpenId) { state.nutri = cloned.nutri; try { localStorage.setItem(STORAGE_KEY_NU, JSON.stringify(state.nutri)); } catch (e) { /* ignore */ } }
@@ -7861,6 +7864,11 @@
 
   // ================= ALLENAMENTO: protocolli (macrociclo › mesocicli › workout) come il file "Test Volume" =================
   var STORAGE_KEY_TR = 'mllab_allenamento_v1';
+  var STORAGE_KEY_TRC = 'mllab_allenamento_cartelle_v1';
+  function trcLoad() { try { var o = JSON.parse(localStorage.getItem(STORAGE_KEY_TRC) || 'null'); if (Array.isArray(o)) return o; } catch (e) { /* ignore */ } return []; }
+  function saveTrc() { pushUndoCheckpoint(); try { localStorage.setItem(STORAGE_KEY_TRC, JSON.stringify(state.trainCartelle)); } catch (e) { /* ignore */ } scheduleDbSave(); }
+  function trcGet(id) { return (state.trainCartelle || []).filter(function (x) { return x.id === id; })[0]; }
+  var trFolderOpen = null;
   var TR_MUSCLES = [['Q', 'Quadricipiti'], ['P', 'Petto'], ['G', 'Glutei'], ['D', 'Dorsali'], ['T', 'Centro schiena'], ['B', 'Bicipiti'], ['TR', 'Tricipiti'], ['PO', 'Polpacci'], ['IC', 'Coscia posteriore'], ['A', 'Addome'], ['C', 'Cardio'], ['S', 'Spalle']];
   var TR_NOTE_FIELDS = [['nome', 'Nome e Cognome'], ['eta', 'Età'], ['obiettivo', 'Obiettivo della persona'], ['voto', 'Voto sull\'allenamento della persona'], ['punti', '3 punti su cui lavorare'], ['infortuni', 'Infortuni'], ['noteFinali', 'Note finali']];
   // le note devono essere un oggetto: su una lista ([]) i campi scritti si perdono al salvataggio
@@ -7967,28 +7975,94 @@
   function renderTrainStats() {
     var list = state.train || [];
     var ass = list.filter(function (p) { return p.personId && anPerson(p.personId); }).length;
-    var defs = [{ n: list.length, l: 'Protocolli di allenamento' }, { n: ass, l: 'Assegnati a un cliente' }, { n: list.length - ass, l: 'Da assegnare' }];
+    var defs = [{ n: list.length, l: 'Protocolli di allenamento' }, { n: ass, l: 'Assegnati a un cliente' }, { n: list.length - ass, l: 'Da assegnare' }, { n: (state.trainCartelle || []).length, l: 'Cartelle' }];
     statsEl.innerHTML = defs.map(function (d) { return '<div class="stat"><div class="n">' + d.n + '</div><div class="l">' + d.l + '</div></div>'; }).join('');
+  }
+  function trMoveFile(id, folderId) {
+    var p = trGet(id); if (!p) return;
+    p.cartella = folderId || ''; trTouch(p); trSave(true); pushUndoCheckpoint();
+    var g = trcGet(folderId);
+    toast(g ? '📁 "' + p.nome + '" spostato in ' + g.nome : '"' + p.nome + '" tolto dalla cartella');
+    renderTrainStats(); renderTrainList();
+  }
+  function trCard(p) {
+    var pn = trPersonName(p.personId), ex = 0; p.mesocicli.forEach(function (m) { m.workouts.forEach(function (w) { w.esercizi.forEach(function (e) { if (e.nome) ex++; }); }); });
+    var opts = '<option value="">— fuori dalle cartelle —</option>' + (state.trainCartelle || []).slice().sort(function (a, b) { return a.nome.localeCompare(b.nome); }).map(function (g) { return '<option value="' + g.id + '"' + (p.cartella === g.id ? ' selected' : '') + '>📁 ' + escapeHtml(g.nome) + '</option>'; }).join('');
+    return '<div class="nu-card" draggable="true" data-tropen="' + p.id + '"><div class="nu-card-top"><div class="nu-icon">🏋️</div><div style="flex:1;min-width:0;"><div class="nu-name">' + escapeHtml(p.nome) + '</div><div class="sp-meta">' + (pn ? '<span class="nu-client">' + escapeHtml(pn) + '</span>' : '<span class="nu-unassigned">da assegnare</span>') + '</div></div></div>' +
+      '<div class="sp-meta" style="margin:4px 0 2px;">' + escapeHtml(trStatusText(p)) + '</div>' +
+      '<div class="sp-folder-dates"><div><span>Mesocicli</span><strong>' + p.mesocicli.length + '</strong></div><div><span>Esercizi</span><strong>' + ex + '</strong></div><div><span>Aggiornato</span><strong>' + new Date(p.aggiornato).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + '</strong></div></div>' +
+      '<div class="nu-card-actions">' + ((state.trainCartelle || []).length ? '<select class="form-input nu-move" data-trmove="' + p.id + '" title="Sposta in una cartella">' + opts + '</select>' : '') + '<button class="btn small" data-trdup="' + p.id + '">⧉ Duplica</button><button class="btn small ghost nu-del" data-trdel="' + p.id + '">🗑</button></div></div>';
   }
   function renderTrainList() {
     emptyEl.style.display = 'none';
     if (state.anag) anSync();
+    if (trFolderOpen && !trcGet(trFolderOpen)) trFolderOpen = null;
     var q = trView.search.trim().toLowerCase();
-    var list = (state.train || []).filter(function (p) { return !q || (p.nome + ' ' + trPersonName(p.personId)).toLowerCase().indexOf(q) !== -1; }).sort(function (a, b) { return (b.aggiornato || '').localeCompare(a.aggiornato || ''); });
-    var head = '<div class="ap-toolbar"><div class="search-wrap" style="flex:1 1 260px;max-width:420px;"><input type="search" id="trSearch" class="nu-search" placeholder="Cerca protocollo o cliente…" value="' + escapeHtml(trView.search) + '"></div><div class="ap-actions"><button class="btn small nu-new" id="trNewBtn">+ Nuovo protocollo</button></div></div>';
-    var cards = list.map(function (p) {
-      var pn = trPersonName(p.personId), ex = 0; p.mesocicli.forEach(function (m) { m.workouts.forEach(function (w) { w.esercizi.forEach(function (e) { if (e.nome) ex++; }); }); });
-      return '<div class="nu-card" data-tropen="' + p.id + '"><div class="nu-card-top"><div class="nu-icon">🏋️</div><div style="flex:1;min-width:0;"><div class="nu-name">' + escapeHtml(p.nome) + '</div><div class="sp-meta">' + (pn ? '<span class="nu-client">' + escapeHtml(pn) + '</span>' : '<span class="nu-unassigned">da assegnare</span>') + '</div></div></div>' +
-        '<div class="sp-meta" style="margin:4px 0 2px;">' + escapeHtml(trStatusText(p)) + '</div>' +
-        '<div class="sp-folder-dates"><div><span>Mesocicli</span><strong>' + p.mesocicli.length + '</strong></div><div><span>Esercizi</span><strong>' + ex + '</strong></div><div><span>Aggiornato</span><strong>' + new Date(p.aggiornato).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + '</strong></div></div>' +
-        '<div class="nu-card-actions"><button class="btn small" data-trdup="' + p.id + '">⧉ Duplica</button><button class="btn small ghost nu-del" data-trdel="' + p.id + '">🗑</button></div></div>';
-    }).join('');
-    if (!list.length) cards = '<div class="no-items">' + ((state.train || []).length ? 'Nessun protocollo trovato.' : 'Nessun protocollo ancora: creane uno, poi duplicalo e assegnalo ai clienti.') + '</div>';
-    listEl.innerHTML = head + '<div class="nu-grid">' + cards + '</div>';
+    var match = function (p) { return !q || (p.nome + ' ' + trPersonName(p.personId)).toLowerCase().indexOf(q) !== -1; };
+    var byUpd = function (a, b) { return (b.aggiornato || '').localeCompare(a.aggiornato || ''); };
+    var folder = trFolderOpen ? trcGet(trFolderOpen) : null;
+    var head = '<div class="ap-toolbar"><div class="search-wrap" style="flex:1 1 260px;max-width:420px;"><input type="search" id="trSearch" class="nu-search" placeholder="Cerca protocollo o cliente in tutte le cartelle…" value="' + escapeHtml(trView.search) + '"></div>' +
+      '<div class="ap-actions">' + (folder ? '' : '<button class="btn small" id="trcNewBtn">📁 + Nuova cartella</button>') + '<button class="btn small nu-new" id="trNewBtn">+ Nuovo protocollo' + (folder ? ' in ' + escapeHtml(folder.nome) : '') + '</button></div></div>';
+    var html = head, all = state.train || [];
+    if (folder) {
+      var inside = all.filter(function (p) { return p.cartella === folder.id && match(p); }).sort(byUpd);
+      html += '<div class="nu-crumb"><button class="sp-set-tariff" id="trcBack">← Tutte le cartelle</button><span>📁 <strong>' + escapeHtml(folder.nome) + '</strong> · ' + inside.length + (inside.length === 1 ? ' protocollo' : ' protocolli') + '</span>' +
+        '<span class="nu-crumb-actions"><button class="btn small ghost" id="trcRename">✎ Rinomina</button><button class="btn small ghost nu-del" id="trcDelete">🗑 Elimina cartella</button></span></div>';
+      html += '<div class="nu-grid" data-trcdrop="' + folder.id + '">' + (inside.length ? inside.map(trCard).join('') : '<div class="no-items">Cartella vuota: crea un nuovo protocollo qui oppure spostaci dentro un protocollo dalla pagina principale.</div>') + '</div>';
+    } else {
+      var groups = (state.trainCartelle || []).slice().sort(function (a, b) { return a.nome.localeCompare(b.nome); });
+      if (q) groups = groups.filter(function (g) { return g.nome.toLowerCase().indexOf(q) !== -1 || all.some(function (p) { return p.cartella === g.id && match(p); }); });
+      var loose = all.filter(function (p) { return (!p.cartella || !trcGet(p.cartella)) && match(p); }).sort(byUpd);
+      if (groups.length) html += '<div class="nu-sec-title" style="margin-top:4px;">Cartelle</div><div class="nuc-grid">' + groups.map(function (g) {
+        var files = all.filter(function (p) { return p.cartella === g.id; });
+        var last = files.map(function (p) { return p.aggiornato || ''; }).sort().pop();
+        return '<div class="nuc-tile" data-trcopen="' + g.id + '" data-trcdrop="' + g.id + '"><div class="nuc-icon">📁</div><div style="min-width:0;"><div class="nu-name">' + escapeHtml(g.nome) + '</div><div class="sp-meta">' + files.length + (files.length === 1 ? ' protocollo' : ' protocolli') + (last ? ' · agg. ' + new Date(last).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) : '') + '</div></div></div>';
+      }).join('') + '</div>';
+      if (groups.length) html += '<div class="nu-sec-title" style="margin-top:16px;">Protocolli fuori dalle cartelle</div>';
+      html += '<div class="nu-grid" data-trcdrop="">' + (loose.length ? loose.map(trCard).join('') : '<div class="no-items">' + (all.length ? (q ? 'Nessun protocollo trovato.' : 'Tutti i protocolli sono dentro le cartelle.') : 'Nessun protocollo ancora: creane uno, poi duplicalo e assegnalo ai clienti.') + '</div>') + '</div>';
+      if ((state.trainCartelle || []).length) html += '<div class="ap-hint" style="margin-top:8px;">Per spostare un protocollo usa il menù "Sposta in" sulla card, oppure trascinalo sopra una cartella.</div>';
+    }
+    listEl.innerHTML = html;
     var si = document.getElementById('trSearch');
     si.addEventListener('input', function () { trView.search = si.value; var pos = si.selectionStart; renderTrainList(); var n = document.getElementById('trSearch'); n.focus(); n.setSelectionRange(pos, pos); });
-    document.getElementById('trNewBtn').addEventListener('click', function () { var p = trNew(); state.train.push(p); trSave(true); renderTrainStats(); trOpen(p.id); setTimeout(function () { var n = document.getElementById('trNome'); if (n) { n.focus(); n.select(); } }, 60); });
-    Array.prototype.forEach.call(listEl.querySelectorAll('[data-tropen]'), function (el) { el.addEventListener('click', function (e) { if (e.target.closest('[data-trdup],[data-trdel]')) return; trOpen(el.getAttribute('data-tropen')); }); });
+    document.getElementById('trNewBtn').addEventListener('click', function () {
+      var p = trNew();
+      if (folder) {
+        p.cartella = folder.id;
+        // cartella con il nome di un cliente: il protocollo nasce già assegnato a lui
+        var per = ((state.anag && state.anag.people) || []).filter(function (x) { return !x.eliminato && asNorm(x.nome) === asNorm(folder.nome); })[0];
+        if (per) { p.personId = per.id; p.nome = 'Protocollo ' + per.nome; p.note = p.note || {}; p.note.nome = per.nome; }
+      }
+      state.train.push(p); trSave(true); renderTrainStats(); trOpen(p.id); setTimeout(function () { var n = document.getElementById('trNome'); if (n) { n.focus(); n.select(); } }, 60);
+    });
+    var nb = document.getElementById('trcNewBtn');
+    if (nb) nb.addEventListener('click', function () {
+      nuAskFolderName('Nuova cartella', '', function (name) {
+        state.trainCartelle = state.trainCartelle || [];
+        state.trainCartelle.push({ id: uid(), nome: name, creato: new Date().toISOString() }); saveTrc(); toast('📁 Cartella "' + name + '" creata'); renderTrainStats(); renderTrainList();
+      });
+    });
+    var back = document.getElementById('trcBack'); if (back) back.addEventListener('click', function () { trFolderOpen = null; renderTrainList(); });
+    var rn = document.getElementById('trcRename'); if (rn) rn.addEventListener('click', function () { nuAskFolderName('Rinomina cartella', folder.nome, function (name) { folder.nome = name; saveTrc(); renderTrainList(); }); });
+    var dl = document.getElementById('trcDelete'); if (dl) dl.addEventListener('click', function () {
+      showConfirm('Eliminare la cartella "' + folder.nome + '"? I protocolli al suo interno NON vengono cancellati: tornano fuori dalle cartelle.', function () {
+        all.forEach(function (p) { if (p.cartella === folder.id) p.cartella = ''; }); trSave(true);
+        state.trainCartelle = state.trainCartelle.filter(function (x) { return x.id !== folder.id; }); saveTrc();
+        trFolderOpen = null; toast('Cartella eliminata, i protocolli sono salvi'); renderTrainStats(); renderTrainList();
+      });
+    });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-trcopen]'), function (t) { t.addEventListener('click', function () { trFolderOpen = t.getAttribute('data-trcopen'); renderTrainList(); }); });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-tropen]'), function (el) {
+      el.addEventListener('click', function (e) { if (e.target.closest('[data-trdup],[data-trdel],[data-trmove]')) return; trOpen(el.getAttribute('data-tropen')); });
+      el.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', el.getAttribute('data-tropen')); e.dataTransfer.effectAllowed = 'move'; el.classList.add('dragging'); });
+      el.addEventListener('dragend', function () { el.classList.remove('dragging'); });
+    });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-trcdrop]'), function (z) {
+      z.addEventListener('dragover', function (e) { e.preventDefault(); z.classList.add('drop-on'); });
+      z.addEventListener('dragleave', function () { z.classList.remove('drop-on'); });
+      z.addEventListener('drop', function (e) { e.preventDefault(); z.classList.remove('drop-on'); var id = e.dataTransfer.getData('text/plain'); if (id && trGet(id)) trMoveFile(id, z.getAttribute('data-trcdrop')); });
+    });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-trmove]'), function (sel) { sel.addEventListener('change', function () { trMoveFile(sel.getAttribute('data-trmove'), sel.value); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-trdup]'), function (b) { b.addEventListener('click', function () { trDuplicate(b.getAttribute('data-trdup')); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-trdel]'), function (b) { b.addEventListener('click', function () { trDelete(b.getAttribute('data-trdel')); }); });
   }
@@ -9731,7 +9805,7 @@
     if (!mcp) { if (!silent) toast('Google Drive non disponibile qui — riprova dal link pubblicato'); return; }
 
     if (!silent) toast('Backup in corso…');
-    var payload = { clients: state.clients, consulenze: state.consulenze, promemoria: state.promemoria, wa: state.wa, sp: state.sp, nutri: state.nutri, nutriCartelle: state.nutriCartelle, anag: state.anag, train: state.train, esportatoIl: new Date().toISOString() };
+    var payload = { clients: state.clients, consulenze: state.consulenze, promemoria: state.promemoria, wa: state.wa, sp: state.sp, nutri: state.nutri, nutriCartelle: state.nutriCartelle, anag: state.anag, train: state.train, trainCartelle: state.trainCartelle || [], esportatoIl: new Date().toISOString() };
     var content = JSON.stringify(payload, null, 2);
 
     try {
@@ -10071,6 +10145,7 @@
   state.nutriCartelle = loadNuc();
   state.anag = loadAn();
   state.train = trLoad();
+  state.trainCartelle = trcLoad();
   try { state.consIgnore = JSON.parse(localStorage.getItem('mllab_cons_ignore_v1') || '{}'); } catch (e) { state.consIgnore = {}; }
   undoBaseline = cloneUndoState();
   try {
