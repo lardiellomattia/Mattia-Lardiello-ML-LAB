@@ -1065,6 +1065,7 @@
       '<div class="seg" id="vista"><button data-v="schede" class="' + (ui.vista === 'schede' ? 'on' : '') + '">Schede</button><button data-v="tabella" class="' + (ui.vista === 'tabella' ? 'on' : '') + '">Tabella</button></div>' +
       '<label class="btn" style="cursor:pointer">Importa CSV<input type="file" id="csv" accept=".csv,text/csv" hidden></label>' +
       '<button class="btn" id="exp"' + (state.contenuti.length ? '' : ' disabled') + '>Esporta</button>' +
+      '<button class="btn" id="drv" title="' + esc(backupLabel()) + '"' + (driveBusy || !state.contenuti.length ? ' disabled' : '') + '>' + (driveBusy ? 'Backup in corso…' : 'Backup su Drive') + '</button>' +
       '<button class="btn primary" id="add">+ Contenuto</button></div>' +
       '<div class="bar" style="margin-top:-8px">' +
       '<select class="field" id="fArg">' + opts(argNomi(), ui.fArg, 'Tutti gli argomenti') + '</select>' +
@@ -1099,6 +1100,7 @@
     v.querySelectorAll('#vista [data-v]').forEach(function (b) { b.addEventListener('click', function () { ui.vista = b.dataset.v; try { localStorage.setItem(LS_KEY + '-vista', ui.vista); } catch (e) {} render(); }); });
     v.querySelector('#add').addEventListener('click', function () { contentModal(blank({ fase: 'pubblicato', data: todayISO() })); });
     v.querySelector('#exp').addEventListener('click', exportCSV);
+    v.querySelector('#drv').addEventListener('click', backupDrive);
     v.querySelector('#csv').addEventListener('change', function (e) { var f = e.target.files[0]; if (f) importCSV(f); e.target.value = ''; });
     v.querySelectorAll('th[data-k]').forEach(function (th) { th.addEventListener('click', function () { var k = th.dataset.k; if (ui.sort === k) ui.dir *= -1; else { ui.sort = k; ui.dir = ['views', 'salvataggi', 'clienti', 'sem', 'data'].indexOf(k) >= 0 ? -1 : 1; } render(); }); });
     bindOpen(v);
@@ -1156,7 +1158,7 @@
 
   // ---------- import / export ----------
   function parseCSV(text) {
-    text = text.replace(/^﻿/, '');
+    text = text.replace(/^\uFEFF/, '');
     var firstLine = text.split(/\r?\n/)[0] || '';
     var delim = (firstLine.split(';').length > firstLine.split(',').length) ? ';' : (firstLine.split('\t').length > firstLine.split(',').length ? '\t' : ',');
     var rows = [], row = [], f = '', q = false;
@@ -1318,12 +1320,64 @@
     r.readAsText(file);
   }
   function csvCell(v) { v = String(v == null ? '' : v); return /[";\n,]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-  function exportCSV() {
+  function csvContenuti() {
     var h = ['Titolo', 'Hook', 'Argomento', 'Formato', 'Tipo di video', 'Ospite', 'CTA', 'Fase', 'Esito', 'Data', 'Link', 'Visualizzazioni', 'Copertura', 'Mi piace', 'Commenti', 'Condivisioni', 'Salvataggi', 'Nuovi follower', 'Clienti', 'Testo', 'Note'];
     var lines = [h.join(';')].concat(state.contenuti.map(function (c) {
       return [c.titolo, c.hook, c.argomento, c.formato, c.tipo, c.ospite, c.cta, (FASI.filter(function (f) { return f.id === c.fase; })[0] || {}).nome, sem(c).l, c.data, c.link, c.views, c.reach, c.like, c.commenti, c.condivisioni, c.salvataggi, c.follow, c.clienti, c.testo, c.note].map(csvCell).join(';');
     }));
-    saveFile('ML LAB contenuti ' + todayISO() + '.csv', '﻿' + lines.join('\n'), 'CSV');
+    return '\uFEFF' + lines.join('\n');
+  }
+  function exportCSV() { saveFile('ML LAB contenuti ' + todayISO() + '.csv', csvContenuti(), 'CSV'); }
+
+  // ---------- backup CSV su Google Drive, cartella «App social backup» ----------
+  // un file al giorno: lo stesso giorno sovrascrive, i giorni precedenti restano come storico
+  var DRIVE = 'Google Drive', DRIVE_FOLDER = 'App social backup', driveFolderId = '', driveBusy = false;
+  function drivePayload(r) { return (r && r.payload) || {}; }
+  function driveFolder(mcp) {
+    if (driveFolderId) return Promise.resolve(driveFolderId);
+    return mcp.callTool(DRIVE, 'search_files', { query: "title = '" + DRIVE_FOLDER + "' and mimeType = 'application/vnd.google-apps.folder'", excludeContentSnippets: true }, { cache: false }).then(function (r) {
+      var f = (drivePayload(r).files || [])[0];
+      if (f) return (driveFolderId = f.id);
+      return mcp.callTool(DRIVE, 'create_file', { title: DRIVE_FOLDER, contentMimeType: 'application/vnd.google-apps.folder' }).then(function (c) { return (driveFolderId = drivePayload(c).id); });
+    });
+  }
+  function backupDrive() {
+    if (driveBusy) return;
+    if (!state.contenuti.length) { toast('Non ci sono contenuti da salvare.'); return; }
+    if (!window.claude || typeof window.claude.use !== 'function') { toast('Il backup su Drive funziona aprendo l\'app su claude.ai.'); return; }
+    driveBusy = true; renderSoftForce(); toast('Backup su Drive in corso…');
+    var name = 'ML LAB Contenuti - ' + todayISO() + '.csv', mcp;
+    window.claude.use('mcp').then(function (m) {
+      if (!m) throw { code: 'unavailable' };
+      mcp = m; return driveFolder(mcp);
+    }).then(function (folderId) {
+      return mcp.callTool(DRIVE, 'search_files', { query: "title = '" + name + "' and parentId = '" + folderId + "'", excludeContentSnippets: true }, { cache: false }).then(function (r) {
+        var old = drivePayload(r).files || [];
+        // prima il file nuovo, poi il cestino dei vecchi: se la creazione fallisce il backup precedente resta
+        return mcp.callTool(DRIVE, 'create_file', { title: name, textContent: csvContenuti(), contentMimeType: 'text/csv', disableConversionToGoogleType: true, parentId: folderId }).then(function () {
+          return Promise.all(old.map(function (f) { return mcp.callTool(DRIVE, 'trash_file', { fileId: f.id }).catch(function () {}); }));
+        });
+      });
+    }).then(function () {
+      driveBusy = false;
+      state.settings.ultimoBackup = new Date().toISOString(); save('settings');
+      renderSoftForce(); toast('Backup salvato in «' + DRIVE_FOLDER + '» su Drive: ' + state.contenuti.length + ' contenuti');
+    }, function (e) {
+      driveBusy = false; renderSoftForce();
+      var c = e && e.code;
+      if (c === 'needs_reauth' || c === 'server_not_connected' || c === 'consent_required' || c === 'server_not_found') toast('Collega Google Drive in claude.ai › Impostazioni › Connettori, poi riprova.');
+      else if (c === 'selection_required') toast('Hai più account Google Drive collegati: scegline uno nelle impostazioni del connettore.');
+      else if (c === 'cancelled' || c === 'not_granted') toast('Backup annullato: serve il permesso di usare Google Drive.');
+      else if (c === 'unavailable') toast('Il backup su Drive funziona aprendo l\'app su claude.ai.');
+      else toast('Backup non riuscito (' + (c || 'errore') + '). Riprova tra poco.');
+    });
+  }
+  function renderSoftForce() { if (!document.getElementById('modalRoot').firstChild) render(); }
+  function backupLabel() {
+    var d = state.settings.ultimoBackup ? new Date(state.settings.ultimoBackup) : null;
+    if (!d || isNaN(d)) return 'Nessun backup su Drive ancora';
+    var days = Math.round((parseISO(todayISO()) - parseISO(iso(d))) / 86400000);
+    return 'Ultimo backup su Drive: ' + (days <= 0 ? 'oggi alle ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') : days === 1 ? 'ieri' : 'da ' + days + ' giorni');
   }
 
   // =====================================================================
@@ -1597,8 +1651,9 @@
       '<div class="sec-title" style="margin-top:14px"><h2>Importare i dati</h2></div>' +
       '<p class="note">Dall\'Archivio, «Importa CSV» accetta l\'export del database Notion dei contenuti (Title, Argomento, Ospite, Stato post, Testo, Visualizzazioni, Note) e quello di Meta Business Suite (Insights › Contenuti › Esporta). Puoi importare lo stesso file più volte: i contenuti già presenti vengono aggiornati, senza doppioni.</p>' +
       '<div class="sec-title" style="margin-top:14px"><h2>Backup</h2></div>' +
-      '<p class="note">I dati si sincronizzano da soli tra i tuoi dispositivi su claude.ai. Il backup è una copia completa da conservare (non va messa nel repository).</p>' +
-      '<div class="bar"><button class="btn" id="bk_exp">Salva backup</button><label class="btn" style="cursor:pointer">Ripristina backup<input type="file" id="bk_imp" accept=".json,application/json" hidden></label></div>' +
+      '<p class="note">I dati si sincronizzano da soli tra i tuoi dispositivi su claude.ai. «Backup su Drive» salva tutti i contenuti in CSV nella cartella «App social backup» del tuo Google Drive: un file al giorno, chiamato con la data, così hai anche lo storico. Il backup completo (con spunti, follower e playbook) è un file da tenere sul computer, da non mettere nel repository.</p>' +
+      '<div class="bar"><button class="btn primary" id="bk_drv"' + (driveBusy || !state.contenuti.length ? ' disabled' : '') + '>' + (driveBusy ? 'Backup in corso…' : 'Backup su Drive') + '</button><span class="muted" style="font-size:12.5px">' + esc(backupLabel()) + '</span></div>' +
+      '<div class="bar"><button class="btn" id="bk_exp">Salva backup completo</button><label class="btn" style="cursor:pointer">Ripristina backup<input type="file" id="bk_imp" accept=".json,application/json" hidden></label></div>' +
       '<p class="note num">' + state.contenuti.length + ' contenuti · ' + state.spunti.length + ' spunti · ' + state.crescita.length + ' rilevazioni follower</p></div>';
     function L(id) { return v.querySelector('#' + id).value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean); }
     v.querySelector('#st_save').addEventListener('click', function () {
@@ -1607,11 +1662,12 @@
       if (s1 <= s0) { toast('La soglia Top deve essere più alta di quella Sotto.'); return; }
       state.settings = fixSettings({
         nome: val(v, 'st_nome') || 'Mattia', handle: val(v, 'st_handle').replace(/^@/, ''), frequenza: Math.max(1, n(val(v, 'st_freq')) || 4),
-        soglie: [s0, s1], argomenti: argomenti, ospiti: L('st_osp'), tipi: L('st_tipi'), cta: L('st_cta'), pubblico: val(v, 'st_pub'), obiettivo: val(v, 'st_obi')
+        soglie: [s0, s1], ultimoBackup: s.ultimoBackup || '', argomenti: argomenti, ospiti: L('st_osp'), tipi: L('st_tipi'), cta: L('st_cta'), pubblico: val(v, 'st_pub'), obiettivo: val(v, 'st_obi')
       });
       if (state.settings.ospiti.indexOf('Nessuno') < 0) state.settings.ospiti.unshift('Nessuno');
       save('settings'); render(); toast('Impostazioni salvate');
     });
+    v.querySelector('#bk_drv').addEventListener('click', backupDrive);
     v.querySelector('#bk_exp').addEventListener('click', function () { saveFile('ML LAB contenuti backup ' + todayISO() + '.json', JSON.stringify(Object.assign({ app: 'mllab-contenuti', versione: 2 }, state), null, 2), 'Backup'); });
     v.querySelector('#bk_imp').addEventListener('change', function (e) {
       var f = e.target.files[0]; e.target.value = ''; if (!f) return;
