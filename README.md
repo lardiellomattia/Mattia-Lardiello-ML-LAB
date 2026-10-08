@@ -34,9 +34,10 @@ visualizzazioni e altre metriche, clienti portati, contenuto collegato e «cosa 
 
 Semaforo automatico dalle visualizzazioni: 🔴 sotto 1.000, 🟢 da 1.000, 🟣 da 3.500 (soglie in Impostazioni).
 
-Backup: «Backup su Drive» (Archivio o Impostazioni) salva i contenuti nel Foglio Google «ML LAB Contenuti - backup»
-nella cartella «App social backup» su Google Drive. Il connettore non modifica file esistenti: ogni backup crea il
-foglio aggiornato e mette il precedente nel cestino.
+Backup: «Backup su Drive» (Archivio o Impostazioni) salva nella cartella «App social backup» su Google Drive
+`ML LAB Contenuti - ripristino.json` (tutto: contenuti, spunti, follower, playbook, impostazioni) e il Foglio Google
+«ML LAB Contenuti - backup» da consultare. Il connettore non modifica file esistenti: ogni backup crea i file
+aggiornati e mette i precedenti nel cestino. «Ripristina da Drive» rilegge il JSON e ricrea tutti i dati.
 
-Capacità usate: `mcp` (Google Drive: search_files, create_file, trash_file), `db` (un documento per contenuto in `contenuti/`, più `app/settings`, `app/playbook`,
+Capacità usate: `mcp` (Google Drive: search_files, create_file, trash_file, download_file_content), `db` (un documento per contenuto in `contenuti/`, più `app/settings`, `app/playbook`,
 `app/spunti`, `app/crescita`), `sample`, `downloads`.

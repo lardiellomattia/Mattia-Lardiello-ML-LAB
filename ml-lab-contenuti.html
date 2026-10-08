@@ -1333,7 +1333,59 @@
 
   // ---------- backup su Google Drive: un Foglio Google nella cartella «App social backup» ----------
   // il connettore non modifica file esistenti: a ogni backup crea il foglio aggiornato e cestina il precedente
-  var DRIVE = 'Google Drive', DRIVE_FOLDER = 'App social backup', DRIVE_SHEET = 'ML LAB Contenuti - backup', driveFolderId = '', driveBusy = false;
+  var DRIVE = 'Google Drive', DRIVE_FOLDER = 'App social backup', DRIVE_SHEET = 'ML LAB Contenuti - backup', DRIVE_JSON = 'ML LAB Contenuti - ripristino.json', driveFolderId = '', driveBusy = false;
+  // il file di ripristino: tutto quello che serve per ricreare l'app da zero
+  function fullBackup() { return JSON.stringify({ app: 'mllab-contenuti', versione: 2, esportatoIl: new Date().toISOString(), contenuti: state.contenuti, spunti: state.spunti, crescita: state.crescita, playbook: state.playbook, settings: state.settings }, null, 1); }
+  function driveReplace(mcp, folderId, title, args) {
+    return mcp.callTool(DRIVE, 'search_files', { query: "title = '" + title + "' and parentId = '" + folderId + "'", excludeContentSnippets: true }, { cache: false }).then(function (r) {
+      var old = drivePayload(r).files || [];
+      // prima il file nuovo, poi il cestino dei vecchi: se la creazione fallisce il backup precedente resta
+      return mcp.callTool(DRIVE, 'create_file', Object.assign({ title: title, parentId: folderId }, args)).then(function (c) {
+        var nf = drivePayload(c);
+        return Promise.all(old.filter(function (f) { return f.id !== nf.id; }).map(function (f) { return mcp.callTool(DRIVE, 'trash_file', { fileId: f.id }).catch(function () {}); })).then(function () { return nf; });
+      });
+    });
+  }
+  function restoreData(d) {
+    if (!d || d.app !== 'mllab-contenuti') throw new Error('formato');
+    var cont = (d.contenuti || fromLegacy(d)).map(function (c) { return Object.assign(blank(), c); });
+    var keep = {}; cont.forEach(function (c) { keep[c.id] = 1; });
+    state.contenuti.filter(function (c) { return !keep[c.id]; }).map(function (c) { return c.id; }).forEach(removeItem);
+    cont.forEach(saveItem);
+    ['spunti', 'crescita'].forEach(function (k) { state[k] = Array.isArray(d[k]) ? d[k] : []; save(k); });
+    if (d.playbook) { state.playbook = Object.assign({ funziona: [], evitare: [], prova: [], aggiornato: '' }, d.playbook); save('playbook'); }
+    if (d.settings) { var ub = state.settings.ultimoBackup, bu = state.settings.backupUrl; state.settings = fixSettings(d.settings); state.settings.ultimoBackup = ub || state.settings.ultimoBackup; state.settings.backupUrl = bu || state.settings.backupUrl; save('settings'); }
+    return cont.length;
+  }
+  function b64utf8(b64) { var bin = atob(String(b64 || '').replace(/\s/g, '')), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new TextDecoder('utf-8').decode(u); }
+  function restoreDrive() {
+    if (driveBusy) return;
+    if (!window.claude || typeof window.claude.use !== 'function') { toast('Il ripristino da Drive funziona aprendo l\'app su claude.ai.'); return; }
+    driveBusy = true; renderSoftForce(); toast('Leggo il file di ripristino da Drive…');
+    var mcp;
+    window.claude.use('mcp').then(function (m) {
+      if (!m) throw { code: 'unavailable' };
+      mcp = m; return driveFolder(mcp);
+    }).then(function (folderId) {
+      return mcp.callTool(DRIVE, 'search_files', { query: "title = '" + DRIVE_JSON + "' and parentId = '" + folderId + "'", excludeContentSnippets: true }, { cache: false });
+    }).then(function (r) {
+      var files = (drivePayload(r).files || []).sort(function (a, b) { return (b.modifiedTime || '') < (a.modifiedTime || '') ? -1 : 1; });
+      if (!files.length) throw { code: 'no_file' };
+      return mcp.callTool(DRIVE, 'download_file_content', { fileId: files[0].id }, { cache: false });
+    }).then(function (r) {
+      var n = restoreData(JSON.parse(b64utf8(drivePayload(r).content)));
+      driveBusy = false; render(); toast('Ripristino completato: ' + n + ' contenuti, spunti, follower, playbook e impostazioni');
+    }, function (e) {
+      driveBusy = false; renderSoftForce();
+      var c = e && e.code;
+      if (c === 'no_file') toast('Non trovo «' + DRIVE_JSON + '» nella cartella «' + DRIVE_FOLDER + '». Fai prima un backup su Drive.');
+      else if (e instanceof SyntaxError || (e && e.message === 'formato')) toast('Il file di ripristino su Drive non è leggibile.');
+      else if (c === 'needs_reauth' || c === 'server_not_connected' || c === 'consent_required' || c === 'server_not_found') toast('Collega Google Drive in claude.ai › Impostazioni › Connettori, poi riprova.');
+      else if (c === 'cancelled' || c === 'not_granted') toast('Ripristino annullato: serve il permesso di usare Google Drive.');
+      else if (c === 'unavailable') toast('Il ripristino da Drive funziona aprendo l\'app su claude.ai.');
+      else toast('Ripristino non riuscito (' + (c || 'errore') + '). Riprova tra poco.');
+    });
+  }
   function drivePayload(r) { return (r && r.payload) || {}; }
   function driveFolder(mcp) {
     if (driveFolderId) return Promise.resolve(driveFolderId);
@@ -1353,20 +1405,16 @@
       if (!m) throw { code: 'unavailable' };
       mcp = m; return driveFolder(mcp);
     }).then(function (folderId) {
-      return mcp.callTool(DRIVE, 'search_files', { query: "title = '" + name + "' and parentId = '" + folderId + "'", excludeContentSnippets: true }, { cache: false }).then(function (r) {
-        var old = drivePayload(r).files || [];
-        // prima il foglio nuovo (il CSV viene convertito in Foglio Google), poi il cestino dei vecchi:
-        // se la creazione fallisce il backup precedente resta
-        return mcp.callTool(DRIVE, 'create_file', { title: name, textContent: csvContenuti(',', false), contentMimeType: 'text/csv', parentId: folderId }).then(function (c) {
-          var nf = drivePayload(c);
-          state.settings.backupUrl = nf.viewUrl || (nf.id ? 'https://docs.google.com/spreadsheets/d/' + nf.id + '/edit' : '');
-          return Promise.all(old.filter(function (f) { return f.id !== nf.id; }).map(function (f) { return mcp.callTool(DRIVE, 'trash_file', { fileId: f.id }).catch(function () {}); }));
-        });
+      // 1) il file di ripristino completo, 2) il Foglio Google da consultare (il CSV viene convertito)
+      return driveReplace(mcp, folderId, DRIVE_JSON, { textContent: fullBackup(), contentMimeType: 'application/json', disableConversionToGoogleType: true }).then(function () {
+        return driveReplace(mcp, folderId, name, { textContent: csvContenuti(',', false), contentMimeType: 'text/csv' });
+      }).then(function (nf) {
+        state.settings.backupUrl = nf.viewUrl || (nf.id ? 'https://docs.google.com/spreadsheets/d/' + nf.id + '/edit' : '');
       });
     }).then(function () {
       driveBusy = false;
       state.settings.ultimoBackup = new Date().toISOString(); save('settings');
-      renderSoftForce(); toast('Foglio «' + DRIVE_SHEET + '» aggiornato su Drive: ' + state.contenuti.length + ' contenuti');
+      renderSoftForce(); toast('Backup su Drive fatto: ' + state.contenuti.length + ' contenuti, più spunti, follower e playbook');
     }, function (e) {
       driveBusy = false; renderSoftForce();
       var c = e && e.code;
@@ -1656,8 +1704,9 @@
       '<div class="sec-title" style="margin-top:14px"><h2>Importare i dati</h2></div>' +
       '<p class="note">Dall\'Archivio, «Importa CSV» accetta l\'export del database Notion dei contenuti (Title, Argomento, Ospite, Stato post, Testo, Visualizzazioni, Note) e quello di Meta Business Suite (Insights › Contenuti › Esporta). Puoi importare lo stesso file più volte: i contenuti già presenti vengono aggiornati, senza doppioni.</p>' +
       '<div class="sec-title" style="margin-top:14px"><h2>Backup</h2></div>' +
-      '<p class="note">I dati si sincronizzano da soli tra i tuoi dispositivi su claude.ai. «Backup su Drive» salva tutti i contenuti nel Foglio Google «' + DRIVE_SHEET + '», nella cartella «App social backup» del tuo Drive. Ogni backup lo sostituisce con la versione aggiornata (il precedente va nel cestino di Drive). Il backup completo (con spunti, follower e playbook) è un file da tenere sul computer, da non mettere nel repository.</p>' +
+      '<p class="note">I dati si sincronizzano da soli tra i tuoi dispositivi su claude.ai. «Backup su Drive» salva due file nella cartella «App social backup» del tuo Drive: «' + DRIVE_JSON + '», con tutto (contenuti, spunti, follower, playbook e impostazioni), e il Foglio Google «' + DRIVE_SHEET + '» da consultare. Ogni backup sostituisce i precedenti, che vanno nel cestino di Drive. Se un giorno dovessi ricreare l\'app, «Ripristina da Drive» rilegge il file di ripristino e rimette tutto com\'era.</p>' +
       '<div class="bar"><button class="btn primary" id="bk_drv"' + (driveBusy || !state.contenuti.length ? ' disabled' : '') + '>' + (driveBusy ? 'Backup in corso…' : 'Backup su Drive') + '</button><span class="muted" style="font-size:12.5px">' + esc(backupLabel()) + '</span>' + (state.settings.backupUrl && /^https:\/\//.test(state.settings.backupUrl) ? '<a href="' + esc(state.settings.backupUrl) + '" target="_blank" rel="noopener" style="color:var(--ink);font-size:12.5px;font-weight:500">Apri il foglio ↗</a>' : '') + '</div>' +
+      '<div class="bar"><button class="btn danger" id="bk_rdrv"' + (driveBusy ? ' disabled' : '') + '>Ripristina da Drive</button><span class="muted" style="font-size:12.5px">Sostituisce i dati attuali con quelli dell\'ultimo backup.</span></div>' +
       '<div class="bar"><button class="btn" id="bk_exp">Salva backup completo</button><label class="btn" style="cursor:pointer">Ripristina backup<input type="file" id="bk_imp" accept=".json,application/json" hidden></label></div>' +
       '<p class="note num">' + state.contenuti.length + ' contenuti · ' + state.spunti.length + ' spunti · ' + state.crescita.length + ' rilevazioni follower</p></div>';
     function L(id) { return v.querySelector('#' + id).value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean); }
@@ -1673,20 +1722,19 @@
       save('settings'); render(); toast('Impostazioni salvate');
     });
     v.querySelector('#bk_drv').addEventListener('click', backupDrive);
+    var rd = v.querySelector('#bk_rdrv');
+    rd.addEventListener('click', function () {
+      if (!rd.classList.contains('armed')) { rd.classList.add('armed'); rd.textContent = 'Conferma: sostituisci i dati'; setTimeout(function () { if (rd.isConnected) { rd.classList.remove('armed'); rd.textContent = 'Ripristina da Drive'; } }, 5000); return; }
+      restoreDrive();
+    });
     v.querySelector('#bk_exp').addEventListener('click', function () { saveFile('ML LAB contenuti backup ' + todayISO() + '.json', JSON.stringify(Object.assign({ app: 'mllab-contenuti', versione: 2 }, state), null, 2), 'Backup'); });
     v.querySelector('#bk_imp').addEventListener('change', function (e) {
       var f = e.target.files[0]; e.target.value = ''; if (!f) return;
       var r = new FileReader();
       r.onload = function () {
         try {
-          var d = JSON.parse(String(r.result));
-          if (d.app !== 'mllab-contenuti') throw new Error('x');
-          var cont = d.contenuti || fromLegacy(d);
-          cont.forEach(function (c) { saveItem(Object.assign(blank(), c)); });
-          ['spunti', 'crescita'].forEach(function (k) { if (d[k]) { state[k] = d[k]; save(k); } });
-          if (d.playbook) { state.playbook = d.playbook; save('playbook'); }
-          if (d.settings) { state.settings = fixSettings(d.settings); save('settings'); }
-          render(); toast('Backup ripristinato');
+          var nC = restoreData(JSON.parse(String(r.result)));
+          render(); toast('Backup ripristinato: ' + nC + ' contenuti');
         } catch (err) { toast('Questo file non è un backup di ML LAB Contenuti.'); }
       };
       r.readAsText(f);
