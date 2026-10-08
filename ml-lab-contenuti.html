@@ -1320,18 +1320,20 @@
     r.readAsText(file);
   }
   function csvCell(v) { v = String(v == null ? '' : v); return /[";\n,]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-  function csvContenuti() {
+  function csvContenuti(delim, bom) {
+    delim = delim || ';';
     var h = ['Titolo', 'Hook', 'Argomento', 'Formato', 'Tipo di video', 'Ospite', 'CTA', 'Fase', 'Esito', 'Data', 'Link', 'Visualizzazioni', 'Copertura', 'Mi piace', 'Commenti', 'Condivisioni', 'Salvataggi', 'Nuovi follower', 'Clienti', 'Testo', 'Note'];
-    var lines = [h.join(';')].concat(state.contenuti.map(function (c) {
-      return [c.titolo, c.hook, c.argomento, c.formato, c.tipo, c.ospite, c.cta, (FASI.filter(function (f) { return f.id === c.fase; })[0] || {}).nome, sem(c).l, c.data, c.link, c.views, c.reach, c.like, c.commenti, c.condivisioni, c.salvataggi, c.follow, c.clienti, c.testo, c.note].map(csvCell).join(';');
+    var list = state.contenuti.slice().sort(function (a, b) { var x = a.data || a.creato || '', y = b.data || b.creato || ''; return x < y ? 1 : x > y ? -1 : 0; });
+    var lines = [h.join(delim)].concat(list.map(function (c) {
+      return [c.titolo, c.hook, c.argomento, c.formato, c.tipo, c.ospite, c.cta, (FASI.filter(function (f) { return f.id === c.fase; })[0] || {}).nome, sem(c).l, c.data, c.link, c.views, c.reach, c.like, c.commenti, c.condivisioni, c.salvataggi, c.follow, c.clienti, c.testo, c.note].map(csvCell).join(delim);
     }));
-    return '\uFEFF' + lines.join('\n');
+    return (bom === false ? '' : '\uFEFF') + lines.join('\n');
   }
-  function exportCSV() { saveFile('ML LAB contenuti ' + todayISO() + '.csv', csvContenuti(), 'CSV'); }
+  function exportCSV() { saveFile('ML LAB contenuti ' + todayISO() + '.csv', csvContenuti(';'), 'CSV'); }
 
-  // ---------- backup CSV su Google Drive, cartella «App social backup» ----------
-  // un file al giorno: lo stesso giorno sovrascrive, i giorni precedenti restano come storico
-  var DRIVE = 'Google Drive', DRIVE_FOLDER = 'App social backup', driveFolderId = '', driveBusy = false;
+  // ---------- backup su Google Drive: un Foglio Google nella cartella «App social backup» ----------
+  // il connettore non modifica file esistenti: a ogni backup crea il foglio aggiornato e cestina il precedente
+  var DRIVE = 'Google Drive', DRIVE_FOLDER = 'App social backup', DRIVE_SHEET = 'ML LAB Contenuti - backup', driveFolderId = '', driveBusy = false;
   function drivePayload(r) { return (r && r.payload) || {}; }
   function driveFolder(mcp) {
     if (driveFolderId) return Promise.resolve(driveFolderId);
@@ -1346,22 +1348,25 @@
     if (!state.contenuti.length) { toast('Non ci sono contenuti da salvare.'); return; }
     if (!window.claude || typeof window.claude.use !== 'function') { toast('Il backup su Drive funziona aprendo l\'app su claude.ai.'); return; }
     driveBusy = true; renderSoftForce(); toast('Backup su Drive in corso…');
-    var name = 'ML LAB Contenuti - ' + todayISO() + '.csv', mcp;
+    var name = DRIVE_SHEET, mcp;
     window.claude.use('mcp').then(function (m) {
       if (!m) throw { code: 'unavailable' };
       mcp = m; return driveFolder(mcp);
     }).then(function (folderId) {
       return mcp.callTool(DRIVE, 'search_files', { query: "title = '" + name + "' and parentId = '" + folderId + "'", excludeContentSnippets: true }, { cache: false }).then(function (r) {
         var old = drivePayload(r).files || [];
-        // prima il file nuovo, poi il cestino dei vecchi: se la creazione fallisce il backup precedente resta
-        return mcp.callTool(DRIVE, 'create_file', { title: name, textContent: csvContenuti(), contentMimeType: 'text/csv', disableConversionToGoogleType: true, parentId: folderId }).then(function () {
-          return Promise.all(old.map(function (f) { return mcp.callTool(DRIVE, 'trash_file', { fileId: f.id }).catch(function () {}); }));
+        // prima il foglio nuovo (il CSV viene convertito in Foglio Google), poi il cestino dei vecchi:
+        // se la creazione fallisce il backup precedente resta
+        return mcp.callTool(DRIVE, 'create_file', { title: name, textContent: csvContenuti(',', false), contentMimeType: 'text/csv', parentId: folderId }).then(function (c) {
+          var nf = drivePayload(c);
+          state.settings.backupUrl = nf.viewUrl || (nf.id ? 'https://docs.google.com/spreadsheets/d/' + nf.id + '/edit' : '');
+          return Promise.all(old.filter(function (f) { return f.id !== nf.id; }).map(function (f) { return mcp.callTool(DRIVE, 'trash_file', { fileId: f.id }).catch(function () {}); }));
         });
       });
     }).then(function () {
       driveBusy = false;
       state.settings.ultimoBackup = new Date().toISOString(); save('settings');
-      renderSoftForce(); toast('Backup salvato in «' + DRIVE_FOLDER + '» su Drive: ' + state.contenuti.length + ' contenuti');
+      renderSoftForce(); toast('Foglio «' + DRIVE_SHEET + '» aggiornato su Drive: ' + state.contenuti.length + ' contenuti');
     }, function (e) {
       driveBusy = false; renderSoftForce();
       var c = e && e.code;
@@ -1651,8 +1656,8 @@
       '<div class="sec-title" style="margin-top:14px"><h2>Importare i dati</h2></div>' +
       '<p class="note">Dall\'Archivio, «Importa CSV» accetta l\'export del database Notion dei contenuti (Title, Argomento, Ospite, Stato post, Testo, Visualizzazioni, Note) e quello di Meta Business Suite (Insights › Contenuti › Esporta). Puoi importare lo stesso file più volte: i contenuti già presenti vengono aggiornati, senza doppioni.</p>' +
       '<div class="sec-title" style="margin-top:14px"><h2>Backup</h2></div>' +
-      '<p class="note">I dati si sincronizzano da soli tra i tuoi dispositivi su claude.ai. «Backup su Drive» salva tutti i contenuti in CSV nella cartella «App social backup» del tuo Google Drive: un file al giorno, chiamato con la data, così hai anche lo storico. Il backup completo (con spunti, follower e playbook) è un file da tenere sul computer, da non mettere nel repository.</p>' +
-      '<div class="bar"><button class="btn primary" id="bk_drv"' + (driveBusy || !state.contenuti.length ? ' disabled' : '') + '>' + (driveBusy ? 'Backup in corso…' : 'Backup su Drive') + '</button><span class="muted" style="font-size:12.5px">' + esc(backupLabel()) + '</span></div>' +
+      '<p class="note">I dati si sincronizzano da soli tra i tuoi dispositivi su claude.ai. «Backup su Drive» salva tutti i contenuti nel Foglio Google «' + DRIVE_SHEET + '», nella cartella «App social backup» del tuo Drive. Ogni backup lo sostituisce con la versione aggiornata (il precedente va nel cestino di Drive). Il backup completo (con spunti, follower e playbook) è un file da tenere sul computer, da non mettere nel repository.</p>' +
+      '<div class="bar"><button class="btn primary" id="bk_drv"' + (driveBusy || !state.contenuti.length ? ' disabled' : '') + '>' + (driveBusy ? 'Backup in corso…' : 'Backup su Drive') + '</button><span class="muted" style="font-size:12.5px">' + esc(backupLabel()) + '</span>' + (state.settings.backupUrl && /^https:\/\//.test(state.settings.backupUrl) ? '<a href="' + esc(state.settings.backupUrl) + '" target="_blank" rel="noopener" style="color:var(--ink);font-size:12.5px;font-weight:500">Apri il foglio ↗</a>' : '') + '</div>' +
       '<div class="bar"><button class="btn" id="bk_exp">Salva backup completo</button><label class="btn" style="cursor:pointer">Ripristina backup<input type="file" id="bk_imp" accept=".json,application/json" hidden></label></div>' +
       '<p class="note num">' + state.contenuti.length + ' contenuti · ' + state.spunti.length + ' spunti · ' + state.crescita.length + ' rilevazioni follower</p></div>';
     function L(id) { return v.querySelector('#' + id).value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean); }
@@ -1662,7 +1667,7 @@
       if (s1 <= s0) { toast('La soglia Top deve essere più alta di quella Sotto.'); return; }
       state.settings = fixSettings({
         nome: val(v, 'st_nome') || 'Mattia', handle: val(v, 'st_handle').replace(/^@/, ''), frequenza: Math.max(1, n(val(v, 'st_freq')) || 4),
-        soglie: [s0, s1], ultimoBackup: s.ultimoBackup || '', argomenti: argomenti, ospiti: L('st_osp'), tipi: L('st_tipi'), cta: L('st_cta'), pubblico: val(v, 'st_pub'), obiettivo: val(v, 'st_obi')
+        soglie: [s0, s1], ultimoBackup: s.ultimoBackup || '', backupUrl: s.backupUrl || '', argomenti: argomenti, ospiti: L('st_osp'), tipi: L('st_tipi'), cta: L('st_cta'), pubblico: val(v, 'st_pub'), obiettivo: val(v, 'st_obi')
       });
       if (state.settings.ospiti.indexOf('Nessuno') < 0) state.settings.ospiti.unshift('Nessuno');
       save('settings'); render(); toast('Impostazioni salvate');
