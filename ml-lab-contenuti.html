@@ -32,6 +32,10 @@
     --c-car: #6E6E78;
     --c-post: #A6A6B0;
     --c-story: #CDCDD6;
+    --s-top: #8A55D6;
+    --s-ok: #2E9E6B;
+    --s-low: #D0463B;
+    --s-wip: #D9A400;
     --display: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
     --body: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
   }
@@ -42,7 +46,7 @@
       --dark: #ECECEF; --on-dark: #151517; --dark-2: #3A3A40; --on-dark-2: #F1F1F4; --wave: rgba(0, 0, 0, .10);
       --accent: #ECECEF; --accent-ink: #151517; --accent-soft: #26262A;
       --urgent: #FF7A6E; --urgent-soft: #3A1714; --warning: #4A4A52; --ok: #4FD08F; --ok-soft: #12301F;
-      --c-reel: #F1F1F4; --c-car: #A9A9B3; --c-post: #6E6E78; --c-story: #48484F;
+      --c-reel: #F1F1F4; --c-car: #A9A9B3; --c-post: #6E6E78; --c-story: #48484F; --s-top: #B48CFF; --s-ok: #4FD08F; --s-low: #FF7A6E; --s-wip: #F2C43D;
       color-scheme: dark;
     }
   }
@@ -52,7 +56,7 @@
     --dark: #ECECEF; --on-dark: #151517; --dark-2: #3A3A40; --on-dark-2: #F1F1F4; --wave: rgba(0, 0, 0, .10);
     --accent: #ECECEF; --accent-ink: #151517; --accent-soft: #26262A;
     --urgent: #FF7A6E; --urgent-soft: #3A1714; --warning: #4A4A52; --ok: #4FD08F; --ok-soft: #12301F;
-    --c-reel: #F1F1F4; --c-car: #A9A9B3; --c-post: #6E6E78; --c-story: #48484F;
+    --c-reel: #F1F1F4; --c-car: #A9A9B3; --c-post: #6E6E78; --c-story: #48484F; --s-top: #B48CFF; --s-ok: #4FD08F; --s-low: #FF7A6E; --s-wip: #F2C43D;
     color-scheme: dark;
   }
 
@@ -350,6 +354,38 @@
   .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--dark); color: var(--on-dark); padding: 11px 18px; border-radius: 14px; font-weight: 500; font-size: 13px; z-index: 60; max-width: calc(100% - 32px); text-align: center; box-shadow: var(--shadow); }
   .toast .btn.primary { background: var(--on-dark); color: var(--dark); }
 
+
+  /* ---------- scheda contenuto: semaforo, tag, galleria, playbook ---------- */
+  .sem { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; background: var(--soft); }
+  .sem i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-muted); }
+  .sem.top i { background: var(--s-top); } .sem.ok i { background: var(--s-ok); } .sem.basso i { background: var(--s-low); } .sem.giallo i { background: var(--s-wip); }
+  .tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: var(--soft); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: var(--c, var(--ink-muted)); flex: none; }
+  .seg { display: inline-flex; background: var(--soft); border-radius: 12px; padding: 3px; }
+  .seg button { border: none; background: none; padding: 7px 12px; border-radius: 9px; font-size: 12px; font-weight: 500; color: var(--ink-muted); cursor: pointer; }
+  .seg button.on { background: var(--surface); color: var(--ink); box-shadow: 0 2px 8px -4px rgba(0,0,0,.35); }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+  .gc { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 16px; box-shadow: var(--shadow); display: grid; gap: 10px; align-content: start; cursor: pointer; text-align: left; min-width: 0; }
+  .gc:hover { border-color: var(--ink-muted); }
+  .gc .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .gc .v { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .gc .v small { font-size: 11px; color: var(--ink-muted); font-weight: 500; margin-left: 4px; }
+  .gc .t { font-weight: 600; line-height: 1.35; }
+  .gc .h { font-size: 12.5px; color: var(--ink-muted); font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .gc .n { font-size: 12px; line-height: 1.5; background: var(--soft); border-radius: 12px; padding: 10px 12px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .gc .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .modal.wide { width: min(800px, 100%); }
+  .msec { display: grid; gap: 12px; padding-top: 4px; }
+  .msec h4 { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-muted); font-weight: 600; }
+  .pb { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 960px) { .pb { grid-template-columns: minmax(0, 1fr); } }
+  .pb .panel h3 { display: flex; align-items: center; gap: 8px; }
+  .pb ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 13px; line-height: 1.5; }
+  .lessons { display: grid; gap: 10px; }
+  .lesson { display: grid; gap: 6px; padding: 12px 14px; border-radius: 14px; background: var(--soft); cursor: pointer; border: none; text-align: left; width: 100%; }
+  .lesson:hover { background: var(--soft-2); }
+  .lesson .t { font-weight: 600; font-size: 13px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .lesson .x { font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; color: var(--ink); }
   @media (prefers-reduced-motion: no-preference) { .act, .kcard, nav.tabs button, .chip { transition: background-color .15s ease, box-shadow .15s ease, color .15s ease; } }
 </style>
 
@@ -359,9 +395,10 @@
       <div class="logo" aria-label="ML LAB"><i></i><i></i><i></i><b>ML LAB</b></div>
       <nav class="tabs" id="tabs" aria-label="Sezioni">
         <button data-tab="panoramica" class="on"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v5h-8zM3 13h8v8H3zm10-3h8v11h-8z"/></svg>Panoramica</button>
-        <button data-tab="contenuti"><svg viewBox="0 0 24 24"><path d="M4 20h16v2H4zM5 10h3v8H5zm5.5-6h3v14h-3zM16 13h3v5h-3z"/></svg>Contenuti</button>
+        <button data-tab="archivio"><svg viewBox="0 0 24 24"><path d="M4 20h16v2H4zM5 10h3v8H5zm5.5-6h3v14h-3zM16 13h3v5h-3z"/></svg>Archivio</button>
         <button data-tab="idee"><svg viewBox="0 0 24 24"><path d="M9 21h6v-1.5H9zm3-19a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2z"/></svg>Idee</button>
         <button data-tab="calendario"><svg viewBox="0 0 24 24"><path d="M7 2h2v3H7zm8 0h2v3h-2zM3 5h18v16H3zm2 5v9h14v-9zm2 2h3v3H7z"/></svg>Calendario</button>
+        <button data-tab="playbook"><svg viewBox="0 0 24 24"><path d="M5 3h11a3 3 0 0 1 3 3v15H8a3 3 0 0 1-3-3zm2 15a1 1 0 0 0 1 1h9v-2H8a1 1 0 0 0-1 1zM9 7v2h7V7z"/></svg>Playbook</button>
         <button data-tab="spunti"><svg viewBox="0 0 24 24"><path d="M6 2h12a1 1 0 0 1 1 1v19l-7-4-7 4V3a1 1 0 0 1 1-1z"/></svg>Spunti</button>
         <button data-tab="impostazioni"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7 7 0 0 0-1.7-1L15 3h-4l-.4 2.7a7 7 0 0 0-1.7 1l-2.5-1-2 3.5L6.5 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7 7 0 0 0 1.7 1L11 21h4l.4-2.7a7 7 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>Impostazioni</button>
       </nav>
@@ -399,53 +436,105 @@
   'use strict';
 
   // ---------- costanti ----------
-  var FORMATI = ['Reel', 'Carosello', 'Post', 'Storia'];
-  var FMT_VAR = { Reel: 'var(--c-reel)', Carosello: 'var(--c-car)', Post: 'var(--c-post)', Storia: 'var(--c-story)' };
-  var STATI = [
+  var FASI = [
     { id: 'idea', nome: 'Idea' },
     { id: 'registrare', nome: 'Da registrare' },
     { id: 'montaggio', nome: 'In montaggio' },
     { id: 'programmato', nome: 'Programmato' },
     { id: 'pubblicato', nome: 'Pubblicato' }
   ];
+  var FORMATI = ['Reel', 'Carosello', 'Foto', 'Storia'];
+  var FMT_VAR = { Reel: 'var(--c-reel)', Carosello: 'var(--c-car)', Foto: 'var(--c-post)', Storia: 'var(--c-story)' };
+  var COLORI = { blu: '#3B7BE0', verde: '#2E9E6B', nero: 'var(--ink)', viola: '#8A55D6', arancio: '#E08A2E', rosso: '#D0463B', giallo: '#D9A400', grigio: '#9B9BA6' };
+  var EMOJI_COL = { '🔵': 'blu', '🟢': 'verde', '⚫': 'nero', '⚫️': 'nero', '🟣': 'viola', '🟠': 'arancio', '🔴': 'rosso', '🟡': 'giallo', '⚪': 'grigio', '⚪️': 'grigio' };
+  var COL_EMOJI = { blu: '🔵', verde: '🟢', nero: '⚫️', viola: '🟣', arancio: '🟠', rosso: '🔴', giallo: '🟡', grigio: '⚪️' };
   var TIPI_SPUNTO = ['Hook', 'Domanda di un cliente', 'Trend', 'Da un altro profilo', 'Ispirazione'];
   var DEFAULT_SETTINGS = {
     nome: 'Mattia',
     handle: '',
-    pilastri: ['Allenamento', 'Postura', 'Nutrizione', 'Risultati clienti', 'Mindset', 'Dietro le quinte'],
+    frequenza: 4,
+    argomenti: [{ nome: 'Allenamento', colore: 'blu' }, { nome: 'Alimentazione', colore: 'verde' }, { nome: 'ML LAB', colore: 'nero' }],
+    ospiti: ['Nessuno', 'Sofia', 'Cliente'],
+    tipi: ['Frontale', 'Green screen', 'Correzione dal vivo', 'Dialogo', 'Tutorial a punti', 'Prima e dopo', 'Dentro la seduta', 'Dietro le quinte', 'Grafica'],
+    cta: ['Commenta', 'Scrivimi in DM', 'Seguimi', 'Link in bio', 'Salva il post', 'Nessuna'],
+    soglie: [1000, 3500],
     pubblico: '',
-    obiettivo: '',
-    frequenza: 4
+    obiettivo: ''
   };
-  var KEYS = ['posts', 'ideas', 'spunti', 'crescita', 'settings'];
+  var DOC_KEYS = ['spunti', 'crescita', 'settings', 'playbook'];
   var LS_KEY = 'mllab-contenuti-v1';
+  var TABS = ['panoramica', 'archivio', 'idee', 'calendario', 'playbook', 'spunti', 'impostazioni'];
+  var METRICHE = [['views', 'Visualizzazioni'], ['reach', 'Copertura'], ['like', 'Mi piace'], ['commenti', 'Commenti'], ['condivisioni', 'Condivisioni'], ['salvataggi', 'Salvataggi'], ['follow', 'Nuovi follower'], ['clienti', 'Clienti / DM portati']];
 
   // ---------- stato ----------
-  var state = { posts: [], ideas: [], spunti: [], crescita: [], settings: clone(DEFAULT_SETTINGS) };
-  var ui = { tab: 'panoramica', periodo: 30, q: '', fFmt: '', fPil: '', sort: 'data', dir: -1, calY: 0, calM: 0, spTipo: '', aiIdeas: [], aiBusy: false, aiText: '', aiTextBusy: false, fRange: 180 };
+  var state = { contenuti: [], spunti: [], crescita: [], settings: clone(DEFAULT_SETTINGS), playbook: { funziona: [], evitare: [], prova: [], aggiornato: '' } };
+  var ui = {
+    tab: 'panoramica', periodo: 'tutto', dim: 'argomento', fRange: 180,
+    q: '', fArg: '', fOsp: '', fTipo: '', fFmt: '', fSem: '', vista: 'schede', sort: 'views', dir: -1,
+    calY: 0, calM: 0, spTipo: '', aiIdeas: [], aiBusy: false, aiText: '', aiTextBusy: false, pbBusy: false
+  };
   var db = null, sample = null, downloads = null;
-  var dirty = {}, writing = {}, timers = {};
+  var dirty = {}, writing = {}, timers = {}, pend = {};
 
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function n(v) { var x = Number(v); return isFinite(x) ? x : 0; }
+  function has(v) { return v !== '' && v != null && isFinite(Number(v)); }
   function fmtN(v) { v = n(v); if (Math.abs(v) >= 10000) return (v / 1000).toLocaleString('it-IT', { maximumFractionDigits: 1 }) + 'k'; return Math.round(v).toLocaleString('it-IT'); }
+  function kfmt(v) { v = n(v); return v >= 1000 ? (v / 1000).toLocaleString('it-IT', { maximumFractionDigits: 1 }) + 'k' : String(Math.round(v)); }
   function pct(v) { return (v * 100).toLocaleString('it-IT', { maximumFractionDigits: 1, minimumFractionDigits: 1 }) + '%'; }
-  function todayISO() { var d = new Date(); return iso(d); }
+  function todayISO() { return iso(new Date()); }
   function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function parseISO(s) { var p = String(s || '').split('-'); return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1); }
   function fmtDate(s) { if (!s) return '—'; return parseISO(s).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: '2-digit' }); }
   function daysAgo(k) { var d = new Date(); d.setDate(d.getDate() - k); return iso(d); }
-  function fmtPill(f) { return '<span class="pill" style="--fmt:' + (FMT_VAR[f] || 'var(--ink-muted)') + '"><i></i>' + esc(f || '—') + '</span>'; }
-
-  // ---------- metriche ----------
-  function interazioni(p) { return n(p.like) + n(p.commenti) + n(p.condivisioni) + n(p.salvataggi); }
-  function base(p) { return n(p.reach) || n(p.views); }
-  function er(p) { var b = base(p); return b ? interazioni(p) / b : 0; }
   function avg(arr, f) { if (!arr.length) return 0; var s = 0; arr.forEach(function (x) { s += f(x); }); return s / arr.length; }
-  function postsIn(from, to) { return state.posts.filter(function (p) { return p.data >= from && (!to || p.data <= to); }); }
-  function erClass(v, ref) { if (!ref) return ''; return v >= ref * 1.25 ? 'hi' : v <= ref * .7 ? 'lo' : ''; }
+  function sum(arr, f) { var s = 0; arr.forEach(function (x) { s += f(x); }); return s; }
+  function normTxt(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9à-ù]+/g, ' ').trim(); }
+
+  // ---------- modello contenuto ----------
+  function blank(o) {
+    return Object.assign({
+      id: uid(), titolo: '', hook: '', testo: '', argomento: '', formato: 'Reel', tipo: '', ospite: 'Nessuno', cta: '',
+      fase: 'idea', data: '', link: '', views: '', reach: '', like: '', commenti: '', condivisioni: '', salvataggi: '', follow: '', clienti: '',
+      collegato: '', note: '', creato: new Date().toISOString()
+    }, o || {});
+  }
+  function findC(id) { return state.contenuti.filter(function (c) { return c.id === id; })[0]; }
+  function pubblicati() { return state.contenuti.filter(function (c) { return c.fase === 'pubblicato'; }); }
+  function conViews(list) { return list.filter(function (c) { return c.fase === 'pubblicato' && has(c.views); }); }
+  function interazioni(c) { return n(c.like) + n(c.commenti) + n(c.condivisioni) + n(c.salvataggi); }
+  function hasEng(c) { return (has(c.like) || has(c.salvataggi) || has(c.commenti)) && (n(c.reach) || n(c.views)) > 0; }
+  function er(c) { var b = n(c.reach) || n(c.views); return b ? interazioni(c) / b : 0; }
+  function sem(c) {
+    if (c.fase !== 'pubblicato') return { k: 'giallo', l: (FASI.filter(function (f) { return f.id === c.fase; })[0] || FASI[0]).nome };
+    if (!has(c.views)) return { k: 'giallo', l: 'Senza dati' };
+    var s = state.settings.soglie || [1000, 3500], v = n(c.views);
+    return v >= s[1] ? { k: 'top', l: 'Top' } : v >= s[0] ? { k: 'ok', l: 'Buono' } : { k: 'basso', l: 'Sotto' };
+  }
+  function semPill(c) { var s = sem(c); return '<span class="sem ' + s.k + '"><i></i>' + esc(s.l) + '</span>'; }
+  function argCol(nome) { var a = state.settings.argomenti.filter(function (x) { return x.nome === nome; })[0]; return a ? (COLORI[a.colore] || COLORI.grigio) : COLORI.grigio; }
+  function argTag(nome) { return nome ? '<span class="tag"><span class="dot" style="--c:' + argCol(nome) + '"></span>' + esc(nome) + '</span>' : ''; }
+  function fmtTag(f) { return f ? '<span class="tag"><span class="dot" style="--c:' + (FMT_VAR[f] || 'var(--ink-muted)') + '"></span>' + esc(f) + '</span>' : ''; }
+  function ospTag(o) { return o && o !== 'Nessuno' ? '<span class="tag">con ' + esc(o) + '</span>' : ''; }
+  function titoloDi(c) { return c.titolo || c.hook || 'Senza titolo'; }
+  function inPeriodo(c, P) { if (P === 'tutto') return true; return !!c.data && c.data >= daysAgo(P - 1); }
+  function fromLegacy(d) {
+    var out = [];
+    (d.ideas || []).forEach(function (i) {
+      out.push(blank({ id: i.id, titolo: i.titolo || '', hook: i.hook || '', testo: i.note || '', argomento: i.pilastro || '', formato: i.formato === 'Post' ? 'Foto' : (i.formato || 'Reel'), fase: i.stato || 'idea', data: i.data || '', creato: (i.creata || todayISO()) + 'T12:00:00.000Z' }));
+    });
+    (d.posts || []).forEach(function (p) {
+      if (p.ideaId && out.some(function (c) { return c.id === p.ideaId; })) {
+        var c = out.filter(function (x) { return x.id === p.ideaId; })[0];
+        ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow', 'link'].forEach(function (k) { if (has(p[k]) || (k === 'link' && p.link)) c[k] = p[k]; });
+        c.fase = 'pubblicato'; c.data = p.data || c.data; c.note = p.note || ''; return;
+      }
+      out.push(blank({ id: p.id, titolo: p.titolo || '', hook: p.titolo || '', argomento: p.pilastro || '', formato: p.formato === 'Post' ? 'Foto' : (p.formato || 'Reel'), fase: 'pubblicato', data: p.data || '', link: p.link || '', views: p.views, reach: p.reach, like: p.like, commenti: p.commenti, condivisioni: p.condivisioni, salvataggi: p.salvataggi, follow: p.follow, note: p.note || '', creato: (p.data || todayISO()) + 'T12:00:00.000Z' }));
+    });
+    return out;
+  }
 
   // ---------- persistenza ----------
   function loadLocal() {
@@ -453,12 +542,21 @@
       var raw = localStorage.getItem(LS_KEY);
       if (!raw) return;
       var d = JSON.parse(raw);
-      KEYS.forEach(function (k) { if (d[k]) state[k] = d[k]; });
-      state.settings = Object.assign(clone(DEFAULT_SETTINGS), state.settings);
+      ['contenuti', 'spunti', 'crescita', 'playbook'].forEach(function (k) { if (d[k]) state[k] = d[k]; });
+      if (!d.contenuti && (d.posts || d.ideas)) state.contenuti = fromLegacy(d);
+      if (d.settings) state.settings = fixSettings(d.settings);
     } catch (e) {}
   }
+  function fixSettings(s) {
+    var o = Object.assign(clone(DEFAULT_SETTINGS), clone(s || {}));
+    if (!Array.isArray(o.argomenti) || !o.argomenti.length) o.argomenti = clone(DEFAULT_SETTINGS.argomenti);
+    ['ospiti', 'tipi', 'cta'].forEach(function (k) { if (!Array.isArray(o[k]) || !o[k].length) o[k] = clone(DEFAULT_SETTINGS[k]); });
+    if (!Array.isArray(o.soglie) || o.soglie.length !== 2) o.soglie = [1000, 3500];
+    delete o.pilastri;
+    return o;
+  }
   function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
-  function docBody(k) { return k === 'settings' ? clone(state.settings) : { items: state[k] }; }
+  function docBody(k) { return k === 'settings' || k === 'playbook' ? clone(state[k]) : { items: state[k] }; }
 
   function save(k) {
     saveLocal();
@@ -470,14 +568,48 @@
   function flush(k) {
     if (writing[k]) { timers[k] = setTimeout(function () { flush(k); }, 400); return; }
     writing[k] = true;
-    var body = docBody(k);
-    db.doc('app/' + k).set(body).then(function () {
+    db.doc('app/' + k).set(docBody(k)).then(function () {
       writing[k] = false; dirty[k] = false; setSync(true);
     }, function (e) {
       writing[k] = false;
-      if (e && e.code === 'quota_exceeded') toast('Spazio pieno: esporta un backup ed elimina i contenuti più vecchi.');
-      else if (e && e.code === 'invalid_argument') { toast('Non hai i permessi per modificare questi dati.'); dirty[k] = false; }
+      if (writeError(e)) dirty[k] = false;
       else setTimeout(function () { flush(k); }, 1500 + Math.random() * 1000);
+    });
+  }
+  function writeError(e) {
+    if (e && e.code === 'quota_exceeded') { toast('Spazio pieno: salva un backup ed elimina i contenuti più vecchi.'); return true; }
+    if (e && (e.code === 'invalid_argument' || e.code === 'revoked')) { toast('Non riesco a salvare: non hai i permessi per modificare questi dati.'); return true; }
+    return false;
+  }
+  // contenuti: un documento per contenuto, per non avere limiti di dimensione
+  function saveItem(c) {
+    var i = state.contenuti.map(function (x) { return x.id; }).indexOf(c.id);
+    if (i >= 0) state.contenuti[i] = c; else state.contenuti.push(c);
+    saveLocal(); queueItem(c.id, false);
+  }
+  function removeItem(id) {
+    state.contenuti = state.contenuti.filter(function (c) { return c.id !== id; });
+    state.contenuti.forEach(function (c) { if (c.collegato === id) { c.collegato = ''; queueItem(c.id, false); } });
+    saveLocal(); queueItem(id, true);
+  }
+  function queueItem(id, del) {
+    if (!db) return;
+    var p = pend[id] || (pend[id] = {});
+    p.del = !!del; p.dirty = true;
+    clearTimeout(p.t); p.t = setTimeout(function () { flushItem(id); }, 500);
+  }
+  function flushItem(id) {
+    var p = pend[id]; if (!p) return;
+    if (p.writing) { p.t = setTimeout(function () { flushItem(id); }, 400); return; }
+    p.writing = true; p.dirty = false;
+    var ref = db.collection('contenuti').doc(id), c = findC(id);
+    var op = p.del || !c ? ref.delete() : ref.set(clone(c));
+    op.then(function () {
+      p.writing = false; if (!p.dirty) delete pend[id]; setSync(true);
+    }, function (e) {
+      p.writing = false;
+      if (writeError(e)) { delete pend[id]; return; }
+      p.dirty = true; p.t = setTimeout(function () { flushItem(id); }, 1500 + Math.random() * 1000);
     });
   }
   function setSync(on) {
@@ -491,34 +623,52 @@
     window.claude.use('db').then(function (d) {
       if (!d) { setSync(false); return; }
       db = d; setSync(true);
-      KEYS.forEach(function (k) {
+      DOC_KEYS.forEach(function (k) {
         var first = true;
         db.doc('app/' + k).onSnapshot(function (snap) {
           if (dirty[k] || writing[k]) return;
           if (!snap.exists) {
             if (first) {
-              var hasLocal = k === 'settings' ? !!state.settings.handle : state[k].length > 0;
+              var hasLocal = k === 'settings' ? !!(state.settings.handle || state.settings.pubblico) : k === 'playbook' ? !!state.playbook.aggiornato : state[k].length > 0;
               if (hasLocal) save(k);
             }
             first = false; return;
           }
           first = false;
-          var data = snap.data();
-          if (k === 'settings') state.settings = Object.assign(clone(DEFAULT_SETTINGS), clone(data));
-          else state[k] = Array.isArray(data.items) ? clone(data.items) : [];
-          saveLocal();
-          renderSoft();
+          var data = clone(snap.data());
+          if (k === 'settings') state.settings = fixSettings(data);
+          else if (k === 'playbook') state.playbook = Object.assign({ funziona: [], evitare: [], prova: [], aggiornato: '' }, data);
+          else state[k] = Array.isArray(data.items) ? data.items : [];
+          saveLocal(); renderSoft();
         }, function () { setSync(false); });
       });
+      var firstC = true;
+      db.collection('contenuti').onSnapshot(function (snap) {
+        if (firstC) {
+          firstC = false;
+          if (snap.empty && state.contenuti.length) { state.contenuti.forEach(function (c) { queueItem(c.id, false); }); return; }
+        }
+        var ids = {}, merged = [];
+        snap.docs.forEach(function (d) {
+          ids[d.id] = 1;
+          var p = pend[d.id];
+          if (p && p.del) return;
+          if (p) { var loc = findC(d.id); if (loc) { merged.push(loc); return; } }
+          merged.push(Object.assign(blank(), clone(d.data()), { id: d.id }));
+        });
+        state.contenuti.forEach(function (c) { if (!ids[c.id] && pend[c.id] && !pend[c.id].del) merged.push(c); });
+        state.contenuti = merged;
+        saveLocal(); renderSoft();
+      }, function () { setSync(false); });
     }, function () { setSync(false); });
     window.claude.use('sample').then(function (s) { sample = s; if (s) renderSoft(); }, function () {});
     window.claude.use('downloads').then(function (d) { downloads = d; if (d) renderSoft(); }, function () {});
   }
 
-  // Re-render without destroying an open modal or focused input in the view.
   function renderSoft() {
+    if (document.getElementById('modalRoot').firstChild) return;
     var a = document.activeElement;
-    if (a && document.getElementById('view').contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+    if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
     render();
   }
 
@@ -526,11 +676,13 @@
   function toast(msg) {
     var r = document.getElementById('toastRoot');
     r.innerHTML = '<div class="toast" role="status">' + esc(msg) + '</div>';
-    clearTimeout(toast.t); toast.t = setTimeout(function () { r.innerHTML = ''; }, 2800);
+    clearTimeout(toast.t); toast.t = setTimeout(function () { r.innerHTML = ''; }, 3200);
   }
   function opts(list, sel, empty) {
-    return (empty != null ? '<option value="">' + esc(empty) + '</option>' : '') + list.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
+    var l = list.slice(); if (sel && l.indexOf(sel) < 0) l.push(sel);
+    return (empty != null ? '<option value="">' + esc(empty) + '</option>' : '') + l.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
   }
+  function argNomi() { return state.settings.argomenti.map(function (a) { return a.nome; }); }
   function armDelete(btn, fn) {
     btn.addEventListener('click', function () {
       if (btn.classList.contains('armed')) { fn(); return; }
@@ -539,23 +691,25 @@
     });
   }
   function closeModal() { document.getElementById('modalRoot').innerHTML = ''; }
-  function openModal(html, bind) {
+  function openModal(html, bind, wide) {
     var root = document.getElementById('modalRoot');
-    root.innerHTML = '<div class="ov" id="ov"><div class="modal" role="dialog" aria-modal="true">' + html + '</div></div>';
+    root.innerHTML = '<div class="ov" id="ov"><div class="modal' + (wide ? ' wide' : '') + '" role="dialog" aria-modal="true">' + html + '</div></div>';
     var ov = root.querySelector('#ov');
     ov.addEventListener('mousedown', function (e) { if (e.target === ov) closeModal(); });
     root.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeModal); });
     bind(root.querySelector('.modal'));
-    var f = root.querySelector('input, textarea, select'); if (f) f.focus();
   }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
   function val(m, id) { var el = m.querySelector('#' + id); return el ? el.value.trim() : ''; }
-
   function saveFile(filename, data, label) {
-    if (!downloads) { toast('Il salvataggio di file è disponibile aprendo l\'app su claude.ai.'); return; }
+    if (!downloads) { toast('Il salvataggio di file funziona aprendo l\'app su claude.ai.'); return; }
     downloads.save({ filename: filename, data: data }).then(function (r) {
       if (r && r.status === 'saved') toast(label + ' salvato');
     }, function (e) { if (e && e.code !== 'cancelled') toast('File non salvato: ' + (e.message || e.code)); });
+  }
+  function aiErr(e, what) {
+    if (!e || e.code === 'cancelled') return;
+    toast(e.code === 'rate_limited' ? 'Troppe richieste a Claude, riprova tra qualche minuto.' : what + ': ' + (e.message || e.code));
   }
 
   // ---------- tabs ----------
@@ -564,6 +718,7 @@
     setTab(b.dataset.tab);
   });
   function setTab(t) {
+    if (TABS.indexOf(t) < 0) t = 'panoramica';
     ui.tab = t;
     document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === t); });
     try { localStorage.setItem(LS_KEY + '-tab', t); } catch (e) {}
@@ -573,11 +728,12 @@
   }
 
   var TAB_INFO = {
-    contenuti: ['Contenuti', 'Monitoraggio di ogni post e reel pubblicato'],
+    archivio: ['Archivio', 'Tutti i contenuti pubblicati, con numeri e lezioni'],
     idee: ['Idee', 'Dalla prima idea al contenuto pubblicato'],
     calendario: ['Calendario', 'Il piano editoriale del mese'],
+    playbook: ['Playbook', 'Cosa funziona sul tuo profilo, cosa evitare, cosa provare'],
     spunti: ['Spunti', 'Hook, domande dei clienti e ispirazioni da non perdere'],
-    impostazioni: ['Impostazioni', 'Profilo, pilastri e backup']
+    impostazioni: ['Impostazioni', 'Profilo, categorie, soglie e backup']
   };
   function render() {
     var h = state.settings.handle, nome = state.settings.nome || 'Mattia';
@@ -586,7 +742,7 @@
     document.getElementById('hdrHandle').textContent = info ? info[1] : 'Bentornato' + (h ? ' · @' + h.replace(/^@/, '') : '');
     document.querySelector('.avatar').textContent = (nome.trim()[0] || 'M').toUpperCase() + (h ? (h.replace(/^@/, '')[0] || '').toUpperCase() : 'L');
     var v = document.getElementById('view');
-    ({ panoramica: renderPanoramica, contenuti: renderContenuti, idee: renderIdee, calendario: renderCalendario, spunti: renderSpunti, impostazioni: renderImpostazioni }[ui.tab] || renderPanoramica)(v);
+    ({ panoramica: renderPanoramica, archivio: renderArchivio, idee: renderIdee, calendario: renderCalendario, playbook: renderPlaybook, spunti: renderSpunti, impostazioni: renderImpostazioni }[ui.tab] || renderPanoramica)(v);
   }
 
   // =====================================================================
@@ -601,122 +757,135 @@
       (alt ? '<path d="M300 0 H190 C215 50 250 90 300 96 Z"/><path d="M0 170 V120 C70 95 150 120 200 170 Z"/>'
            : '<path d="M300 0 H150 C190 70 240 110 300 120 Z"/><path d="M300 170 V150 C260 130 230 140 205 170 Z"/>') + '</svg>';
   }
-  function deltaTxt(curV, prevV, hasPrev) {
-    if (!hasPrev || !prevV) return '';
+  function deltaTxt(curV, prevV) {
+    if (!prevV) return '';
     var diff = (curV - prevV) / prevV;
     if (Math.abs(diff) < .005) return '';
-    return '<span class="delta ' + (diff > 0 ? 'up' : 'down') + '">' + (diff > 0 ? '▲' : '▼') + ' ' + Math.abs(Math.round(diff * 100)) + '%</span>';
+    return '<span class="delta ' + (diff > 0 ? 'up' : 'down') + '">' + (diff > 0 ? '▲' : '▼') + ' ' + Math.abs(Math.round(diff * 100)) + '%</span> sul periodo prima';
   }
+  var DIMS = [
+    { k: 'argomento', l: 'Argomento' }, { k: 'ospite', l: 'Ospite' }, { k: 'tipo', l: 'Tipo di video' }, { k: 'formato', l: 'Formato' }, { k: 'cta', l: 'CTA' }
+  ];
+  function groupBy(list, k) {
+    var g = {};
+    list.forEach(function (c) { var key = c[k] || 'Non indicato'; (g[key] = g[key] || []).push(c); });
+    return Object.keys(g).map(function (key) {
+      var L = g[key];
+      return { k: key, c: L.length, v: avg(L, function (c) { return n(c.views); }), top: L.filter(function (c) { return sem(c).k === 'top'; }).length, low: L.filter(function (c) { return sem(c).k === 'basso'; }).length };
+    }).sort(function (a, b) { return b.v - a.v; });
+  }
+  function periodoLabel(P) { return P === 'tutto' ? 'da sempre' : P === 365 ? 'ultimi 12 mesi' : 'ultimi ' + P + ' giorni'; }
 
   function renderPanoramica(v) {
     var P = ui.periodo;
-    var cur = postsIn(daysAgo(P - 1));
-    var prev = postsIn(daysAgo(2 * P - 1), daysAgo(P));
+    var pubs = conViews(state.contenuti).filter(function (c) { return inPeriodo(c, P); });
+    var prev = P === 'tutto' ? [] : conViews(state.contenuti).filter(function (c) { return c.data && c.data >= daysAgo(2 * P - 1) && c.data <= daysAgo(P); });
+    var undated = conViews(state.contenuti).filter(function (c) { return !c.data; }).length;
     var cres = state.crescita.slice().sort(function (a, b) { return a.data < b.data ? -1 : 1; });
     var last = cres[cres.length - 1];
-    var startF = null;
-    for (var i = cres.length - 1; i >= 0; i--) { if (cres[i].data <= daysAgo(P)) { startF = cres[i]; break; } }
-    if (!startF && cres.length > 1) startF = cres[0];
-    var dF = last && startF && startF !== last ? n(last.follower) - n(startF.follower) : null;
-    var sum = function (k) { return cur.reduce(function (s, p) { return s + n(p[k]); }, 0); };
+    var avgV = avg(pubs, function (c) { return n(c.views); });
+    var engList = pubs.filter(hasEng);
 
-    var lav = state.ideas.filter(function (i) { return ['registrare', 'montaggio', 'programmato'].indexOf(i.stato) >= 0; });
-    var cassetto = state.ideas.filter(function (i) { return (i.stato || 'idea') === 'idea'; }).length;
-    var upcoming = state.ideas.filter(function (i) { return i.stato !== 'pubblicato' && i.data && i.data >= todayISO(); }).sort(function (a, b) { return a.data < b.data ? -1 : 1; });
-    var late = state.ideas.filter(function (i) { return i.stato !== 'pubblicato' && i.data && i.data < todayISO(); });
-    var nx = upcoming[0];
+    var lav = state.contenuti.filter(function (c) { return ['registrare', 'montaggio', 'programmato'].indexOf(c.fase) >= 0; });
+    var cassetto = state.contenuti.filter(function (c) { return c.fase === 'idea'; }).length;
+    var upcoming = state.contenuti.filter(function (c) { return c.fase !== 'pubblicato' && c.data && c.data >= todayISO(); }).sort(function (a, b) { return a.data < b.data ? -1 : 1; });
+    var late = state.contenuti.filter(function (c) { return c.fase !== 'pubblicato' && c.data && c.data < todayISO(); });
+    var nx = upcoming[0] || lav[0];
 
     var main = '';
-    // banner
-    main += '<section class="banner"><div><h2>' + (nx ? 'Prossimo contenuto: ' + esc(nx.titolo || nx.hook) : lav.length ? lav.length + ' contenuti in lavorazione' : 'Pianifica il prossimo contenuto') + '</h2>' +
-      '<p>' + (nx ? esc(fmtDate(nx.data)) + ' · ' + esc(nx.formato || '') + ' · ' + lav.length + ' in lavorazione, ' + cassetto + ' idee nel cassetto' : cassetto ? cassetto + ' idee aspettano una data. Programmale dal calendario.' : 'Scrivi un\'idea o fatti proporre qualcosa da Claude.') + '</p>' +
+    main += '<section class="banner"><div><h2>' + (nx ? 'Prossimo contenuto: ' + esc(titoloDi(nx)) : 'Pianifica il prossimo contenuto') + '</h2>' +
+      '<p>' + (nx ? (nx.data ? esc(fmtDate(nx.data)) + ' · ' : '') + esc(sem(nx).l) + ' · ' + lav.length + ' in lavorazione, ' + cassetto + ' idee nel cassetto' : cassetto ? cassetto + ' idee aspettano una data. Programmale dal calendario.' : 'Scrivi un\'idea o fatti proporre qualcosa da Claude.') + '</p>' +
       '<div class="acts"><button class="rb" id="bNew" aria-label="Nuova idea">' + ICON.plus + '</button><button class="rb" id="bCal" aria-label="Apri il calendario">' + ICON.cal + '</button></div></div>' +
       '<div class="deco" aria-hidden="true"><span class="o3"></span><span class="o1"></span><span class="ph"></span><span class="o2"></span></div></section>';
 
-    // periodo + azioni
-    main += '<div class="periods"><div class="chips" id="periodo">' + [7, 30, 90, 365].map(function (d) {
-      return '<button class="chip' + (P === d ? ' on' : '') + '" data-p="' + d + '">' + (d === 365 ? '12 mesi' : d + ' giorni') + '</button>';
-    }).join('') + '</div><span class="grow"></span><button class="btn primary" id="addPost">+ Registra contenuto</button></div>';
+    main += '<div class="periods"><div class="chips" id="periodo">' + [[30, '30 giorni'], [90, '90 giorni'], [365, '12 mesi'], ['tutto', 'Tutto']].map(function (d) {
+      return '<button class="chip' + (P === d[0] ? ' on' : '') + '" data-p="' + d[0] + '">' + d[1] + '</button>';
+    }).join('') + '</div><span class="grow"></span><button class="btn primary" id="addC">+ Nuovo contenuto</button></div>';
+    if (P !== 'tutto' && undated) main += '<p class="hint" style="margin:-8px 0 16px;font-size:12px;color:var(--ink-muted)">' + undated + ' contenuti senza data compaiono solo in «Tutto». Aggiungi la data dalla scheda per vederli qui.</p>';
 
-    // migliori + card KPI
-    var ref = avg(cur, er);
-    var tops = cur.slice().sort(function (a, b) { return er(b) - er(a); }).slice(0, 4);
-    main += '<div class="pair"><section class="panel"><h3>Migliori contenuti</h3><p class="hint">Engagement nel periodo · tocca per aprire</p>' +
-      (tops.length ? '<div class="acts-list">' + tops.map(function (p) {
-        return '<div class="act" data-post="' + esc(p.id) + '"><div style="min-width:0"><div class="t">' + esc(p.titolo || 'Senza titolo') + '</div><div class="s">' + fmtDate(p.data) + ' · ' + esc(p.formato || '') + ' · ' + fmtN(base(p)) + ' copertura</div></div><span class="ring">' + (er(p) * 100).toLocaleString('it-IT', { maximumFractionDigits: 1 }) + '%</span></div>';
-      }).join('') + '</div>' : '<div class="empty" style="padding:20px"><p>Nessun contenuto in questo periodo. Importa il CSV di Meta dalla sezione Contenuti.</p></div>') +
+    var tops = pubs.slice().sort(function (a, b) { return n(b.views) - n(a.views); }).slice(0, 4);
+    main += '<div class="pair"><section class="panel"><h3>Migliori contenuti</h3><p class="hint">Per visualizzazioni, ' + periodoLabel(P) + ' · tocca per aprire</p>' +
+      (tops.length ? '<div class="acts-list">' + tops.map(function (c) {
+        return '<div class="act" data-c="' + esc(c.id) + '"><div style="min-width:0"><div class="t">' + esc(titoloDi(c)) + '</div><div class="s">' + [c.argomento, c.ospite && c.ospite !== 'Nessuno' ? 'con ' + c.ospite : '', c.tipo || c.formato].filter(Boolean).map(esc).join(' · ') + '</div></div><span class="ring">' + kfmt(c.views) + '</span></div>';
+      }).join('') + '</div>' : '<div class="empty" style="padding:20px"><p>Nessun contenuto con visualizzazioni in questo periodo.</p></div>') +
       '</section><div class="cards">' +
-      '<section class="kc">' + waveSvg(false) + '<div><div class="l">Follower</div><div class="big">' + (last ? fmtN(last.follower) : '—') +
-        '<small>' + (dF != null ? (dF >= 0 ? '+' : '') + fmtN(dF) + ' in ' + (P === 365 ? '12 mesi' : P + ' giorni') : last ? 'al ' + fmtDate(last.data) : 'aggiungi il primo dato') + '</small></div></div>' +
-        '<div class="digits"><div><b>' + cur.length + '</b><span>contenuti</span></div><div><b>' + (cur.length ? fmtN(avg(cur, base)) : '—') + '</b><span>copertura media</span></div><div><b>' + (cur.length ? fmtN(sum('salvataggi') / cur.length) : '—') + '</b><span>salvataggi medi</span></div><div><b>' + fmtN(sum('follow')) + '</b><span>follow dai post</span></div></div></section>' +
-      '<section class="kc alt">' + waveSvg(true) + '<div><div class="l">Engagement medio</div><div class="big">' + (cur.length ? pct(ref) : '—') +
-        '<small>' + (deltaTxt(ref, avg(prev, er), prev.length) ? deltaTxt(ref, avg(prev, er), prev.length) + ' sul periodo prima' : 'interazioni / copertura') + '</small></div></div>' +
-        '<div class="digits"><div><b>' + fmtN(sum('like')) + '</b><span>mi piace</span></div><div><b>' + fmtN(sum('commenti')) + '</b><span>commenti</span></div><div><b>' + fmtN(sum('condivisioni')) + '</b><span>condivisioni</span></div><div><b>' + fmtN(sum('salvataggi')) + '</b><span>salvataggi</span></div></div></section>' +
+      '<section class="kc">' + waveSvg(false) + '<div><div class="l">Visualizzazioni medie</div><div class="big">' + (pubs.length ? fmtN(avgV) : '—') +
+        '<small>' + (prev.length ? deltaTxt(avgV, avg(prev, function (c) { return n(c.views); })) || periodoLabel(P) : periodoLabel(P)) + '</small></div></div>' +
+        '<div class="digits"><div><b>' + pubs.length + '</b><span>pubblicati</span></div><div><b>' + pubs.filter(function (c) { return sem(c).k === 'top'; }).length + '</b><span>top 🟣</span></div><div><b>' + pubs.filter(function (c) { return sem(c).k === 'basso'; }).length + '</b><span>sotto 🔴</span></div><div><b>' + fmtN(sum(pubs, function (c) { return n(c.clienti); })) + '</b><span>clienti portati</span></div></div></section>' +
+      '<section class="kc alt">' + waveSvg(true) + '<div><div class="l">Follower</div><div class="big">' + (last ? fmtN(last.follower) : '—') +
+        '<small>' + (last ? 'al ' + fmtDate(last.data) : 'aggiorna il numero dal grafico') + '</small></div></div>' +
+        '<div class="digits"><div><b>' + (engList.length ? pct(avg(engList, er)) : '—') + '</b><span>engagement</span></div><div><b>' + (engList.length ? fmtN(avg(engList, function (c) { return n(c.salvataggi); })) : '—') + '</b><span>salvataggi medi</span></div><div><b>' + (engList.length ? fmtN(avg(engList, function (c) { return n(c.condivisioni); })) : '—') + '</b><span>condivisioni medie</span></div><div><b>' + fmtN(sum(pubs, function (c) { return n(c.follow); })) + '</b><span>follow dai post</span></div></div></section>' +
       '</div></div>';
 
-    if (!state.posts.length && !state.crescita.length) {
-      main += '<div class="sec-title"><h2>Inizia da qui</h2></div><div class="empty"><strong>Nessun dato ancora</strong>' +
-        '<p>Importa il CSV dei contenuti da Meta Business Suite (Insights › Contenuti › Esporta) oppure registra a mano i numeri dei tuoi ultimi reel. Grafici e consigli si riempiono da soli.</p>' +
-        '<div class="bar" style="margin:0;justify-content:center"><button class="btn primary" data-go="contenuti">Importa o aggiungi contenuti</button><button class="btn" data-go="idee">Vai alle idee</button></div></div>';
+    if (!state.contenuti.length) {
+      main += '<div class="sec-title"><h2>Inizia da qui</h2></div><div class="empty"><strong>Nessun contenuto ancora</strong>' +
+        '<p>Importa il CSV esportato da Notion o da Meta Business Suite dall\'Archivio, oppure aggiungi a mano i tuoi ultimi contenuti.</p>' +
+        '<div class="bar" style="margin:0;justify-content:center"><button class="btn primary" data-go="archivio">Vai all\'archivio</button></div></div>';
     }
 
     // insights
-    var pool = state.posts.filter(function (p) { return p.data >= daysAgo(Math.max(P, 90) - 1); });
-    if (pool.length >= 3) {
-      var pref = avg(pool, er);
-      var best = function (key) {
-        var g = {}; pool.forEach(function (p) { var k = key(p); if (k == null || k === '') return; (g[k] = g[k] || []).push(p); });
-        return Object.keys(g).map(function (k) { return { k: k, er: avg(g[k], er), c: g[k].length }; }).filter(function (r) { return r.c >= 2; }).sort(function (a, b) { return b.er - a.er; })[0];
-      };
-      var giorni = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
-      var bF = best(function (p) { return p.formato; }), bP = best(function (p) { return p.pilastro; }), bD = best(function (p) { return giorni[parseISO(p.data).getDay()]; });
-      var topFol = pool.slice().sort(function (a, b) { return n(b.follow) - n(a.follow); })[0];
-      main += '<div class="sec-title"><h2>Cosa sta funzionando</h2><span class="muted">Ultimi ' + Math.max(P, 90) + ' giorni · ' + pool.length + ' contenuti</span></div><div class="insights">' +
-        (bF ? '<div class="insight"><div class="k">Formato migliore</div><div class="v">' + esc(bF.k) + '</div><div class="s">' + pct(bF.er) + ' su ' + bF.c + ' contenuti (media ' + pct(pref) + ')</div></div>' : '') +
-        (bP ? '<div class="insight"><div class="k">Pilastro migliore</div><div class="v">' + esc(bP.k) + '</div><div class="s">' + pct(bP.er) + ' su ' + bP.c + ' contenuti</div></div>' : '') +
-        (bD ? '<div class="insight"><div class="k">Giorno migliore</div><div class="v" style="text-transform:capitalize">' + esc(bD.k) + '</div><div class="s">' + pct(bD.er) + ' di engagement medio</div></div>' : '') +
-        (topFol && n(topFol.follow) ? '<div class="insight"><div class="k">Ha portato più follower</div><div class="v" style="font-size:14px">' + esc(topFol.titolo || 'Senza titolo') + '</div><div class="s">+' + fmtN(topFol.follow) + ' follower · ' + fmtDate(topFol.data) + '</div></div>' : '') +
-        '</div>';
+    if (pubs.length >= 4) {
+      var ins = [];
+      var gA = groupBy(pubs, 'argomento').filter(function (r) { return r.c >= 2; });
+      if (gA.length >= 2) ins.push(['Argomento più forte', gA[0].k, fmtN(gA[0].v) + ' visualizzazioni medie contro ' + fmtN(gA[gA.length - 1].v) + ' di ' + gA[gA.length - 1].k]);
+      var conO = pubs.filter(function (c) { return c.ospite && c.ospite !== 'Nessuno'; }), senza = pubs.filter(function (c) { return !c.ospite || c.ospite === 'Nessuno'; });
+      if (conO.length >= 2 && senza.length >= 2) {
+        var r = avg(conO, function (c) { return n(c.views); }) / (avg(senza, function (c) { return n(c.views); }) || 1);
+        ins.push(['Effetto ospite', r >= 1 ? '×' + r.toLocaleString('it-IT', { maximumFractionDigits: 1 }) + ' con un ospite' : 'Meglio da solo', conO.length + ' contenuti con ospite, ' + conO.filter(function (c) { return sem(c).k === 'top'; }).length + ' top']);
+      }
+      var gT = groupBy(pubs.filter(function (c) { return c.tipo; }), 'tipo').filter(function (r) { return r.c >= 2; });
+      if (gT.length) ins.push(['Tipo di video migliore', gT[0].k, fmtN(gT[0].v) + ' visualizzazioni medie su ' + gT[0].c + ' contenuti']);
+      var cl = pubs.filter(function (c) { return n(c.clienti) > 0; }).sort(function (a, b) { return n(b.clienti) - n(a.clienti); });
+      if (cl.length) ins.push(['Ha portato clienti', titoloDi(cl[0]), '+' + n(cl[0].clienti) + ' clienti' + (cl.length > 1 ? ' · ' + cl.length + ' contenuti con clienti' : '')]);
+      if (ins.length) main += '<div class="sec-title"><h2>Cosa sta funzionando</h2><span class="muted">' + pubs.length + ' contenuti, ' + periodoLabel(P) + '</span></div><div class="insights">' +
+        ins.map(function (i) { return '<div class="insight"><div class="k">' + esc(i[0]) + '</div><div class="v"' + (i[1].length > 24 ? ' style="font-size:14px"' : '') + '>' + esc(i[1]) + '</div><div class="s">' + esc(i[2]) + '</div></div>'; }).join('') + '</div>';
     }
+
+    // cosa fa la differenza
+    var rows = groupBy(pubs, ui.dim);
+    var maxV = Math.max.apply(null, rows.map(function (r) { return r.v; }).concat([1]));
+    main += '<section class="panel" style="margin-top:22px"><div class="rhead" style="flex-wrap:wrap"><h3>Cosa fa la differenza</h3><div class="chips" id="dims">' + DIMS.map(function (d) {
+      return '<button class="chip' + (ui.dim === d.k ? ' on' : '') + '" data-d="' + d.k + '">' + d.l + '</button>';
+    }).join('') + '</div></div><p class="hint">Visualizzazioni medie per ' + DIMS.filter(function (d) { return d.k === ui.dim; })[0].l.toLowerCase() + '. Media del profilo: ' + (pubs.length ? fmtN(avgV) : '—') + '.</p>' +
+      (rows.length ? '<div class="hbars">' + rows.map(function (r) {
+        return '<div class="hbar" style="grid-template-columns:minmax(0,150px) minmax(0,1fr) 62px"><span class="lab" title="' + esc(r.k) + '">' + esc(r.k) + ' <span class="muted">(' + r.c + (r.top ? ' · ' + r.top + ' 🟣' : '') + ')</span></span><span class="track"><span class="fill" style="display:block;width:' + (r.v / maxV * 100).toFixed(0) + '%' + (ui.dim === 'argomento' ? ';background:' + argCol(r.k) : '') + '"></span></span><span class="v">' + fmtN(r.v) + '</span></div>';
+      }).join('') + '</div>' : '<div class="empty" style="padding:20px"><p>Servono contenuti pubblicati con le visualizzazioni.</p></div>') + '</section>';
 
     main += '<div class="grid2" style="margin-top:22px">' +
-      '<section class="panel"><h3>Costanza</h3><p class="hint">Contenuti a settimana, ultime 8 settimane. Tratteggio = obiettivo di ' + n(state.settings.frequenza) + '. Le storie non contano.</p>' + cadence() + '</section>' +
-      '<section class="panel"><h3>Engagement per pilastro</h3><p class="hint">Media del periodo selezionato.</p>' + groupBars(cur, function (p) { return p.pilastro; }) + '</section></div>';
-
-    main += '<div class="sec-title"><h2>In arrivo</h2><span class="muted">' + (late.length ? '<span style="color:var(--urgent);font-weight:600">' + late.length + ' in ritardo</span> · ' : '') + cassetto + ' idee nel cassetto</span></div>';
-    var rows = late.concat(upcoming.slice(0, 5));
-    if (rows.length) {
-      main += '<div class="tablewrap"><table style="min-width:540px"><tbody>' + rows.map(function (i) {
-        var st = STATI.filter(function (s) { return s.id === i.stato; })[0];
-        return '<tr data-idea="' + esc(i.id) + '"><td class="num" style="width:110px' + (i.data < todayISO() ? ';color:var(--urgent);font-weight:600' : '') + '">' + fmtDate(i.data) + '</td><td class="ttl">' + esc(i.titolo || i.hook) + '</td><td>' + fmtPill(i.formato) + '</td><td class="muted">' + esc(st ? st.nome : '') + '</td></tr>';
-      }).join('') + '</tbody></table></div>';
-    } else {
-      main += '<div class="empty"><p>Nessun contenuto con una data. Dai una data alle idee per vederle qui e in calendario.</p></div>';
-    }
+      '<section class="panel"><h3>Costanza</h3><p class="hint">Contenuti a settimana, ultime 8 settimane. Tratteggio = obiettivo di ' + n(state.settings.frequenza) + '. Solo contenuti con data.</p>' + cadence() + '</section>' +
+      '<section class="panel"><h3>In arrivo</h3><p class="hint">' + (late.length ? '<span style="color:var(--urgent);font-weight:600">' + late.length + ' in ritardo</span> · ' : '') + lav.length + ' in lavorazione · ' + cassetto + ' idee</p>' + upcomingList(late.concat(upcoming).concat(lav.filter(function (c) { return !c.data; })).slice(0, 6)) + '</section></div>';
 
     if (sample) {
-      main += '<div class="sec-title"><h2>Analisi di Claude</h2></div><section class="panel"><p class="hint">Claude legge i numeri del periodo e ti dice cosa ripetere, cosa cambiare e cosa provare la prossima settimana.</p>' +
-        '<button class="btn primary" id="aiAnalisi"' + (ui.aiTextBusy || !cur.length ? ' disabled' : '') + '>' + (ui.aiTextBusy ? 'Sto analizzando…' : 'Analizza gli ultimi ' + (P === 365 ? '12 mesi' : P + ' giorni')) + '</button>' +
+      main += '<div class="sec-title"><h2>Analisi di Claude</h2></div><section class="panel"><p class="hint">Claude legge numeri, ospiti, tipi di video e le tue note, e ti dice cosa ripetere, cosa cambiare e cosa provare la prossima settimana.</p>' +
+        '<button class="btn primary" id="aiAnalisi"' + (ui.aiTextBusy || !pubs.length ? ' disabled' : '') + '>' + (ui.aiTextBusy ? 'Sto analizzando…' : 'Analizza i contenuti (' + periodoLabel(P) + ')') + '</button>' +
         (ui.aiText ? '<div class="aitext" style="margin-top:14px" id="aiOut">' + esc(ui.aiText) + '</div>' : '') + '</section>';
     }
 
-    // rail
     var rail = '<section class="panel"><div class="rhead"><h3>Follower</h3><select id="fRange" aria-label="Periodo del grafico">' +
       [[90, '3 mesi'], [180, '6 mesi'], [365, '12 mesi']].map(function (o) { return '<option value="' + o[0] + '"' + (ui.fRange === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
-      '</select></div>' + followerChart(cres, ui.fRange) + '<button class="btn small" id="addFol" style="margin-top:14px;width:100%">Aggiorna follower</button></section>' + goalRing();
+      '</select></div>' + followerChart(cres, ui.fRange) + '<button class="btn small" id="addFol" style="margin-top:14px;width:100%">Aggiorna follower</button></section>' + semRing(pubs) + goalRing();
 
     v.innerHTML = '<div class="dash"><div style="min-width:0">' + main + '</div><aside class="rail">' + rail + '</aside></div>';
 
-    v.querySelectorAll('#periodo [data-p]').forEach(function (b) { b.addEventListener('click', function () { ui.periodo = +b.dataset.p; render(); }); });
+    v.querySelectorAll('#periodo [data-p]').forEach(function (b) { b.addEventListener('click', function () { ui.periodo = b.dataset.p === 'tutto' ? 'tutto' : +b.dataset.p; render(); }); });
+    v.querySelectorAll('#dims [data-d]').forEach(function (b) { b.addEventListener('click', function () { ui.dim = b.dataset.d; render(); }); });
     v.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function () { setTab(b.dataset.go); }); });
-    v.querySelector('#addPost').addEventListener('click', function () { postModal(null); });
+    v.querySelector('#addC').addEventListener('click', function () { contentModal(blank({ fase: 'pubblicato', data: todayISO() })); });
     v.querySelector('#addFol').addEventListener('click', followerModal);
-    v.querySelector('#bNew').addEventListener('click', function () { ideaModal(null); });
+    v.querySelector('#bNew').addEventListener('click', function () { contentModal(blank()); });
     v.querySelector('#bCal').addEventListener('click', function () { setTab('calendario'); });
     v.querySelector('#fRange').addEventListener('change', function (e) { ui.fRange = +e.target.value; render(); });
-    v.querySelectorAll('[data-post]').forEach(function (r) { r.addEventListener('click', function () { postModal(findPost(r.dataset.post)); }); });
-    v.querySelectorAll('[data-idea]').forEach(function (r) { r.addEventListener('click', function () { ideaModal(findIdea(r.dataset.idea)); }); });
-    var ab = v.querySelector('#aiAnalisi'); if (ab) ab.addEventListener('click', function () { aiAnalisi(cur, prev); });
+    bindOpen(v);
+    var ab = v.querySelector('#aiAnalisi'); if (ab) ab.addEventListener('click', function () { aiAnalisi(pubs); });
+  }
+  function bindOpen(root) { root.querySelectorAll('[data-c]').forEach(function (r) { r.addEventListener('click', function () { var c = findC(r.dataset.c); if (c) contentModal(c); }); }); }
+
+  function upcomingList(list) {
+    if (!list.length) return '<div class="empty" style="padding:20px"><p>Niente in lavorazione. Sposta un\'idea in avanti dalla sezione Idee.</p></div>';
+    return '<div class="acts-list">' + list.map(function (c) {
+      var lateC = c.data && c.data < todayISO();
+      return '<div class="act" data-c="' + esc(c.id) + '"><div style="min-width:0"><div class="t">' + esc(titoloDi(c)) + '</div><div class="s"' + (lateC ? ' style="color:var(--urgent)"' : '') + '>' + (c.data ? (lateC ? 'In ritardo · ' : '') + fmtDate(c.data) : 'Senza data') + ' · ' + esc(c.formato || '') + '</div></div>' + semPill(c) + '</div>';
+    }).join('') + '</div>';
   }
 
   function smoothPath(p) {
@@ -732,7 +901,7 @@
   function followerChart(cres, range) {
     var pts = cres.filter(function (c) { return c.data >= daysAgo(range); });
     if (pts.length < 2) pts = cres.slice(-2);
-    if (pts.length < 2) return '<div class="empty" style="padding:22px"><p>' + (cres.length ? 'Serve almeno un secondo dato per disegnare la curva.' : 'Aggiungi il numero di follower di oggi con «Aggiorna follower».') + '</p></div>';
+    if (pts.length < 2) return '<div class="empty" style="padding:22px"><p>' + (cres.length ? 'Serve almeno un secondo dato per disegnare la curva.' : 'Aggiungi il numero di follower di oggi: basta una volta a settimana.') + '</p></div>';
     var W = 300, H = 230, L = 34, R = 10, T = 18, B = 36;
     var xs = pts.map(function (p) { return parseISO(p.data).getTime(); });
     var ys = pts.map(function (p) { return n(p.follower); });
@@ -745,21 +914,15 @@
     var line = smoothPath(P);
     var area = line + ' L' + P[P.length - 1][0].toFixed(1) + ' ' + (H - B) + ' L' + P[0][0].toFixed(1) + ' ' + (H - B) + ' Z';
     var g = '';
-    for (var k = 0; k <= 3; k++) {
-      var gv = y0 + (y1 - y0) * k / 3, gy = Y(gv);
-      g += '<text x="0" y="' + (gy + 3).toFixed(1) + '">' + fmtN(gv) + '</text>';
-    }
-    // month labels
+    for (var k = 0; k <= 3; k++) { var gv = y0 + (y1 - y0) * k / 3; g += '<text x="0" y="' + (Y(gv) + 3).toFixed(1) + '">' + fmtN(gv) + '</text>'; }
     var d0 = new Date(x0), d1 = new Date(x1), months = [];
     var m = new Date(d0.getFullYear(), d0.getMonth(), 1);
     while (m <= d1) { months.push(new Date(m)); m.setMonth(m.getMonth() + 1); }
-    var step = Math.ceil(months.length / 6);
-    var lastM = months[months.length - 1];
+    var step = Math.ceil(months.length / 6), lastM = months[months.length - 1];
     var labels = months.filter(function (mm, i) { return (months.length - 1 - i) % step === 0; }).map(function (mm) {
       var mid = new Date(mm.getFullYear(), mm.getMonth(), 15).getTime();
       var cx = Math.max(L + 12, Math.min(W - R - 12, X(Math.max(x0, Math.min(x1, mid)))));
-      var on = mm === lastM;
-      return on ? '<g class="pillx"><rect x="' + (cx - 17).toFixed(1) + '" y="' + (H - 24) + '" width="34" height="18" rx="6"/><text x="' + cx.toFixed(1) + '" y="' + (H - 11.5) + '" text-anchor="middle">' + MESI[mm.getMonth()] + '</text></g>'
+      return mm === lastM ? '<g class="pillx"><rect x="' + (cx - 17).toFixed(1) + '" y="' + (H - 24) + '" width="34" height="18" rx="6"/><text x="' + cx.toFixed(1) + '" y="' + (H - 11.5) + '" text-anchor="middle">' + MESI[mm.getMonth()] + '</text></g>'
         : '<text x="' + cx.toFixed(1) + '" y="' + (H - 11.5) + '" text-anchor="middle">' + MESI[mm.getMonth()] + '</text>';
     }).join('');
     var lp = P[P.length - 1];
@@ -773,43 +936,47 @@
       '<circle cx="' + lp[0].toFixed(1) + '" cy="' + lp[1].toFixed(1) + '" r="5" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>' + labels + '</svg>';
   }
 
+  function ring(segs, total, center, sub, label) {
+    var r = 62, C = 2 * Math.PI * r, off = 0, arcs = '', gap = segs.filter(function (s) { return s.v; }).length > 1 ? 3 : 0;
+    segs.forEach(function (s) {
+      if (!s.v) return;
+      var len = Math.min(s.v / total, 1 - off / C) * C;
+      if (len <= 0) return;
+      arcs += '<circle cx="85" cy="85" r="' + r + '" fill="none" stroke="' + s.col + '" stroke-width="16" stroke-dasharray="' + Math.max(0, len - gap).toFixed(1) + ' ' + C.toFixed(1) + '" stroke-dashoffset="' + (-off).toFixed(1) + '" transform="rotate(-90 85 85)"/>';
+      off += len;
+    });
+    return '<svg viewBox="0 0 170 170" role="img" aria-label="' + esc(label) + '"><circle cx="85" cy="85" r="' + r + '" fill="none" stroke="var(--soft)" stroke-width="16"/>' + arcs +
+      '<text class="ctr" x="85" y="88" text-anchor="middle">' + center + '<tspan>%</tspan></text><text class="sub" x="85" y="106" text-anchor="middle">' + esc(sub) + '</text></svg>';
+  }
+  function semRing(pubs) {
+    var S = [{ k: 'top', l: 'Top', col: 'var(--s-top)' }, { k: 'ok', l: 'Buono', col: 'var(--s-ok)' }, { k: 'basso', l: 'Sotto', col: 'var(--s-low)' }];
+    S.forEach(function (s) { s.list = pubs.filter(function (c) { return sem(c).k === s.k; }); s.v = s.list.length; });
+    var tot = pubs.length, sopra = tot ? Math.round((S[0].v + S[1].v) / tot * 100) : 0;
+    var so = state.settings.soglie;
+    return '<section class="panel"><div class="rhead"><h3>Semaforo</h3><span class="muted num" style="font-size:12px">' + tot + ' contenuti</span></div><div class="donut">' +
+      ring(S, Math.max(1, tot), sopra, 'sopra le ' + fmtN(so[0]), sopra + '% dei contenuti sopra soglia') +
+      '<div class="legend-list">' + S.map(function (s) {
+        return '<div style="--fmt:' + s.col + '"><i></i><span>' + s.l + ' <span class="muted" style="font-weight:400">· ' + s.v + '</span></span><b>' + (s.v ? fmtN(avg(s.list, function (c) { return n(c.views); })) : '—') + '</b></div>';
+      }).join('') + '</div><p class="hint" style="margin:0;text-align:center">Top da ' + fmtN(so[1]) + ', sotto le ' + fmtN(so[0]) + ' visualizzazioni. A destra la media.</p></div></section>';
+  }
   function goalRing() {
     var now = new Date(), ym = iso(now).slice(0, 7);
     var dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     var goal = Math.max(1, Math.round(Math.max(1, n(state.settings.frequenza)) * dim / 7));
-    var month = state.posts.filter(function (p) { return (p.data || '').slice(0, 7) === ym; });
-    var feed = month.filter(function (p) { return p.formato !== 'Storia'; });
-    var ratio = feed.length / goal, shown = Math.min(1, ratio);
-    var r = 62, C = 2 * Math.PI * r, gap = feed.length > 1 ? 3 : 0;
-    var off = 0, arcs = '', dots = '';
-    ['Reel', 'Carosello', 'Post'].forEach(function (f) {
-      var c = feed.filter(function (p) { return p.formato === f; }).length;
-      if (!c) return;
-      var len = Math.min(c / goal, 1 - off / C) * C;
-      if (len <= 0) return;
-      arcs += '<circle cx="85" cy="85" r="' + r + '" fill="none" stroke="' + FMT_VAR[f] + '" stroke-width="16" stroke-dasharray="' + Math.max(0, len - gap).toFixed(1) + ' ' + C.toFixed(1) + '" stroke-dashoffset="' + (-off).toFixed(1) + '" transform="rotate(-90 85 85)"/>';
-      off += len;
-      var a = off / C * 2 * Math.PI - Math.PI / 2;
-      if (off < C - 1) dots += '<circle cx="' + (85 + r * Math.cos(a)).toFixed(1) + '" cy="' + (85 + r * Math.sin(a)).toFixed(1) + '" r="2.6" fill="var(--surface)"/>';
-    });
+    var month = state.contenuti.filter(function (c) { return c.fase === 'pubblicato' && (c.data || '').slice(0, 7) === ym && c.formato !== 'Storia'; });
+    var planned = state.contenuti.filter(function (c) { return c.fase !== 'pubblicato' && (c.data || '').slice(0, 7) === ym; }).length;
+    var segs = ['Reel', 'Carosello', 'Foto'].map(function (f) { return { v: month.filter(function (c) { return c.formato === f; }).length, col: FMT_VAR[f] }; });
     var mname = now.toLocaleDateString('it-IT', { month: 'long' });
-    var legend = FORMATI.map(function (f) {
-      var list = month.filter(function (p) { return p.formato === f; });
-      return '<div style="--fmt:' + FMT_VAR[f] + '"><i></i><span>' + f + ' <span class="muted" style="font-weight:400">· ' + list.length + '</span></span><b>' + (list.some(base) ? pct(avg(list.filter(base), er)) : '—') + '</b></div>';
-    }).join('');
-    return '<section class="panel"><div class="rhead"><h3>Obiettivo di ' + esc(mname) + '</h3><span class="muted num" style="font-size:12px">' + feed.length + ' / ' + goal + '</span></div><div class="donut">' +
-      '<svg viewBox="0 0 170 170" role="img" aria-label="' + Math.round(ratio * 100) + '% dell\'obiettivo mensile"><circle cx="85" cy="85" r="' + r + '" fill="none" stroke="var(--soft)" stroke-width="16"/>' + arcs + dots +
-      '<text class="ctr" x="85" y="88" text-anchor="middle">' + Math.round(ratio * 100) + '<tspan>%</tspan></text><text class="sub" x="85" y="106" text-anchor="middle">contenuti nel feed</text></svg>' +
-      '<div class="legend-list">' + legend + '</div><p class="hint" style="margin:0;text-align:center">Engagement medio per formato nel mese. Obiettivo: ' + n(state.settings.frequenza) + ' a settimana.</p></div></section>';
+    return '<section class="panel"><div class="rhead"><h3>Obiettivo di ' + esc(mname) + '</h3><span class="muted num" style="font-size:12px">' + month.length + ' / ' + goal + '</span></div><div class="donut">' +
+      ring(segs, goal, Math.round(month.length / goal * 100), 'pubblicati nel mese', 'Obiettivo del mese') +
+      '<div class="legend-list">' + ['Reel', 'Carosello', 'Foto'].map(function (f) { return '<div style="--fmt:' + FMT_VAR[f] + '"><i></i><span>' + f + '</span><b>' + month.filter(function (c) { return c.formato === f; }).length + '</b></div>'; }).join('') +
+      '</div><p class="hint" style="margin:0;text-align:center">' + planned + ' altri programmati nel mese. Obiettivo: ' + n(state.settings.frequenza) + ' a settimana.</p></div></section>';
   }
-
   function weekStart(d) { var x = new Date(d); var g = (x.getDay() + 6) % 7; x.setDate(x.getDate() - g); x.setHours(0, 0, 0, 0); return x; }
   function cadence() {
-    var goal = Math.max(1, n(state.settings.frequenza));
-    var ws = weekStart(new Date());
-    var weeks = [];
+    var goal = Math.max(1, n(state.settings.frequenza)), ws = weekStart(new Date()), weeks = [];
     for (var i = 7; i >= 0; i--) { var s = new Date(ws); s.setDate(s.getDate() - 7 * i); var e = new Date(s); e.setDate(e.getDate() + 6); weeks.push({ s: iso(s), e: iso(e), lab: s.getDate() + '/' + (s.getMonth() + 1) }); }
-    var counts = weeks.map(function (w) { return state.posts.filter(function (p) { return p.data >= w.s && p.data <= w.e && p.formato !== 'Storia'; }).length; });
+    var counts = weeks.map(function (w) { return state.contenuti.filter(function (c) { return c.fase === 'pubblicato' && c.data >= w.s && c.data <= w.e && c.formato !== 'Storia'; }).length; });
     var max = Math.max(goal * 1.5, Math.max.apply(null, counts), 1);
     return '<div class="cadence">' + weeks.map(function (w, i) {
       var c = counts[i], cur = i === weeks.length - 1;
@@ -817,49 +984,14 @@
     }).join('') + '</div>';
   }
 
-  function groupBars(list, key) {
-    var g = {};
-    list.forEach(function (p) { var k = key(p) || 'Senza pilastro'; (g[k] = g[k] || []).push(p); });
-    var rows = Object.keys(g).map(function (k) { return { k: k, v: avg(g[k], er), c: g[k].length }; }).sort(function (a, b) { return b.v - a.v; });
-    if (!rows.length) return '<div class="empty" style="padding:20px"><p>Assegna un pilastro ai contenuti per confrontarli.</p></div>';
-    var max = Math.max.apply(null, rows.map(function (r) { return r.v; })) || 1;
-    return '<div class="hbars">' + rows.map(function (r) {
-      return '<div class="hbar"><span class="lab" title="' + esc(r.k) + '">' + esc(r.k) + ' <span class="muted">(' + r.c + ')</span></span><span class="track"><span class="fill" style="display:block;width:' + (r.v / max * 100).toFixed(0) + '%"></span></span><span class="v">' + pct(r.v) + '</span></div>';
-    }).join('') + '</div>';
-  }
-
-  // ---------- ricerca globale ----------
-  (function () {
-    var gs = document.getElementById('gsearch'), gr = document.getElementById('gres');
-    function run() {
-      var q = gs.value.trim().toLowerCase();
-      if (!q) { gr.hidden = true; return; }
-      var has = function (s) { return String(s || '').toLowerCase().indexOf(q) >= 0; };
-      var res = [];
-      state.ideas.forEach(function (i) { if (has(i.titolo) || has(i.hook) || has(i.note)) res.push({ k: 'Idea · ' + (STATI.filter(function (s) { return s.id === i.stato; })[0] || STATI[0]).nome, t: i.titolo || i.hook, fn: function () { ideaModal(findIdea(i.id)); } }); });
-      state.posts.forEach(function (p) { if (has(p.titolo) || has(p.note)) res.push({ k: 'Contenuto · ' + fmtDate(p.data), t: p.titolo || 'Senza titolo', fn: function () { postModal(findPost(p.id)); } }); });
-      state.spunti.forEach(function (s) { if (has(s.testo)) res.push({ k: 'Spunto · ' + s.tipo, t: s.testo, fn: function () { ui.spTipo = ''; setTab('spunti'); } }); });
-      gr.innerHTML = res.length ? res.slice(0, 10).map(function (r, i) { return '<button type="button" data-i="' + i + '"><span class="t">' + esc(r.t) + '</span><span class="k">' + esc(r.k) + '</span></button>'; }).join('') : '<div class="none">Nessun risultato</div>';
-      gr.hidden = false;
-      gr.querySelectorAll('button[data-i]').forEach(function (b) { b.addEventListener('mousedown', function (e) { e.preventDefault(); var r = res[+b.dataset.i]; gr.hidden = true; gs.value = ''; gs.blur(); r.fn(); }); });
-    }
-    gs.addEventListener('input', run);
-    gs.addEventListener('focus', run);
-    gs.addEventListener('blur', function () { setTimeout(function () { gr.hidden = true; }, 120); });
-    gs.addEventListener('keydown', function (e) { if (e.key === 'Escape') { gs.value = ''; gr.hidden = true; gs.blur(); } });
-    document.getElementById('quickAdd').addEventListener('click', function () { ideaModal(null); });
-    document.getElementById('promoGo').addEventListener('click', function () {
-      setTab('idee');
-      var t = document.getElementById('aiTema'); if (t) t.focus(); else if (!sample) toast('Le idee di Claude sono disponibili aprendo l\'app su claude.ai.');
-    });
-  })();
   function followerModal() {
     var last = state.crescita.slice().sort(function (a, b) { return a.data < b.data ? -1 : 1; }).pop();
     openModal('<header><h2>Aggiorna follower</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
       '<div class="form"><div class="two"><label>Data<input class="field" type="date" id="f_data" value="' + todayISO() + '"></label>' +
-      '<label>Follower<input class="field" type="number" min="0" inputmode="numeric" id="f_n" placeholder="' + (last ? esc(last.follower) : 'es. 4.250') + '"></label></div>' +
+      '<label>Follower<input class="field" type="number" min="0" inputmode="numeric" id="f_n" placeholder="' + (last ? esc(last.follower) : 'es. 4250') + '"></label></div>' +
       (state.crescita.length ? '<p class="note">Ultimi dati: ' + state.crescita.slice().sort(function (a, b) { return a.data < b.data ? 1 : -1; }).slice(0, 4).map(function (c) { return fmtDate(c.data) + ' · ' + fmtN(c.follower); }).join(' — ') + '</p>' : '') +
       '</div><div class="actions"><div></div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="f_ok">Salva</button></div></div>', function (m) {
+      m.querySelector('#f_n').focus();
       m.querySelector('#f_ok').addEventListener('click', function () {
         var d = val(m, 'f_data'), v = n(val(m, 'f_n'));
         if (!d || !v) { toast('Inserisci data e numero di follower.'); return; }
@@ -870,158 +1002,204 @@
     });
   }
 
-  function aiAnalisi(cur, prev) {
+  // ---------- contesto per Claude ----------
+  function profiloCtx() {
+    var s = state.settings;
+    return 'Profilo Instagram: ' + (s.handle ? '@' + s.handle.replace(/^@/, '') : 'ML LAB, studio di personal training, postura e nutrizione') +
+      '\nPubblico: ' + (s.pubblico || 'soprattutto donne che si allenano e vogliono risultati') + '\nObiettivo: ' + (s.obiettivo || 'crescere e trovare nuovi clienti per il coaching') +
+      '\nArgomenti: ' + argNomi().join(', ') + '\nOspiti possibili: ' + s.ospiti.join(', ') + '\nTipi di video: ' + s.tipi.join(', ') + '\nCTA: ' + s.cta.join(', ');
+  }
+  function playbookCtx() {
+    var p = state.playbook;
+    if (!p.funziona.length && !p.evitare.length) return '';
+    return '\n\nPLAYBOOK DEL PROFILO\nFunziona:\n' + p.funziona.map(function (x) { return '- ' + x; }).join('\n') + '\nDa evitare:\n' + p.evitare.map(function (x) { return '- ' + x; }).join('\n') + (p.prova.length ? '\nDa provare:\n' + p.prova.map(function (x) { return '- ' + x; }).join('\n') : '');
+  }
+  function contenutiCtx(list, max) {
+    return list.slice().sort(function (a, b) { return n(b.views) - n(a.views); }).slice(0, max).map(function (c) {
+      return '- [' + sem(c).l + ', ' + n(c.views) + ' visual.' + (n(c.clienti) ? ', ' + n(c.clienti) + ' clienti' : '') + '] ' + titoloDi(c) +
+        ' | ' + [c.argomento, c.formato, c.tipo, c.ospite && c.ospite !== 'Nessuno' ? 'con ' + c.ospite : 'da solo', c.cta ? 'CTA ' + c.cta : ''].filter(Boolean).join(', ') +
+        (c.hook ? ' | hook: "' + c.hook.slice(0, 110) + '"' : '') + (c.note ? ' | nota: ' + c.note.replace(/\s+/g, ' ').slice(0, 220) : '');
+    }).join('\n');
+  }
+  function aiAnalisi(pubs) {
     if (!sample || ui.aiTextBusy) return;
     ui.aiTextBusy = true; ui.aiText = ''; render();
-    var rows = cur.slice().sort(function (a, b) { return er(b) - er(a); }).slice(0, 40).map(function (p) {
-      return [p.data, p.formato, p.pilastro || '-', (p.titolo || '').slice(0, 90), 'copertura ' + base(p), 'like ' + n(p.like), 'commenti ' + n(p.commenti), 'condivisioni ' + n(p.condivisioni), 'salvataggi ' + n(p.salvataggi), 'follow ' + n(p.follow), 'ER ' + pct(er(p))].join(' | ');
-    }).join('\n');
-    var s = state.settings;
-    var prompt = 'Sei un content strategist esperto di Instagram per personal trainer e coach fitness. Rispondi in italiano, in modo diretto e pratico, senza markdown pesante (usa titoletti brevi in maiuscolo e trattini).\n\n' +
-      'Profilo: ' + (s.handle ? '@' + s.handle : 'studio ML LAB (personal training, postura, nutrizione)') + '\nPubblico: ' + (s.pubblico || 'non specificato') + '\nObiettivo: ' + (s.obiettivo || 'crescere e trovare nuovi clienti') + '\nPilastri: ' + s.pilastri.join(', ') + '\n\n' +
-      'Periodo: ultimi ' + ui.periodo + ' giorni, ' + cur.length + ' contenuti (periodo precedente: ' + prev.length + ' contenuti, ER medio ' + pct(avg(prev, er)) + '). ER medio attuale ' + pct(avg(cur, er)) + '.\n\nContenuti (ordinati per engagement):\n' + rows + '\n\n' +
-      'Dammi: 1) COSA FUNZIONA (pattern concreti di hook, formato, tema), 2) COSA NON FUNZIONA, 3) 3 AZIONI PER LA PROSSIMA SETTIMANA, 4) 3 IDEE DI CONTENUTO con hook già scritto. Massimo 350 parole.';
-    sample(prompt, { onText: function (e) { ui.aiText = e.text; var o = document.getElementById('aiOut'); if (o) o.textContent = e.text; else if (ui.tab === 'panoramica') render(); } }).then(function (r) {
+    var prompt = 'Sei un content strategist esperto di Instagram per personal trainer e coach. Rispondi in italiano, diretto e pratico, senza markdown pesante (titoletti brevi in maiuscolo e trattini).\n\n' + profiloCtx() + playbookCtx() +
+      '\n\nContenuti (' + periodoLabel(ui.periodo) + ', ordinati per visualizzazioni; semaforo: Top oltre ' + state.settings.soglie[1] + ', Sotto meno di ' + state.settings.soglie[0] + '):\n' + contenutiCtx(pubs, 60) +
+      '\n\nDammi: 1) COSA FUNZIONA (pattern concreti: argomento, ospite, tipo di video, hook, CTA), 2) COSA NON FUNZIONA, 3) 3 AZIONI PER LA PROSSIMA SETTIMANA, 4) 3 IDEE con hook già scritto. Massimo 380 parole.';
+    sample(prompt, { onText: function (e) { ui.aiText = e.text; var o = document.getElementById('aiOut'); if (o) o.textContent = e.text; else if (ui.tab === 'panoramica' && !document.getElementById('modalRoot').firstChild) render(); } }).then(function (r) {
       ui.aiText = r.text; ui.aiTextBusy = false; render();
-    }, function (e) {
-      ui.aiTextBusy = false; ui.aiText = e && e.text ? e.text : '';
-      if (e && e.code !== 'cancelled') toast(e.code === 'rate_limited' ? 'Troppe richieste, riprova tra qualche minuto.' : 'Analisi non riuscita: ' + (e.message || e.code));
-      render();
-    });
+    }, function (e) { ui.aiTextBusy = false; ui.aiText = e && e.text ? e.text : ''; aiErr(e, 'Analisi non riuscita'); render(); });
   }
 
   // =====================================================================
-  // CONTENUTI (monitoraggio)
+  // ARCHIVIO
   // =====================================================================
   var COLS = [
-    { k: 'data', l: 'Data' }, { k: 'titolo', l: 'Contenuto' }, { k: 'formato', l: 'Formato' }, { k: 'pilastro', l: 'Pilastro' },
-    { k: 'views', l: 'Visual.', r: 1 }, { k: 'reach', l: 'Copertura', r: 1 }, { k: 'like', l: 'Like', r: 1 }, { k: 'commenti', l: 'Comm.', r: 1 },
-    { k: 'condivisioni', l: 'Condiv.', r: 1 }, { k: 'salvataggi', l: 'Salvat.', r: 1 }, { k: 'follow', l: 'Follow', r: 1 }, { k: 'er', l: 'Engag.', r: 1 }
+    { k: 'titolo', l: 'Contenuto' }, { k: 'argomento', l: 'Argomento' }, { k: 'ospite', l: 'Ospite' }, { k: 'tipo', l: 'Tipo' }, { k: 'formato', l: 'Formato' },
+    { k: 'sem', l: 'Esito' }, { k: 'views', l: 'Visual.', r: 1 }, { k: 'salvataggi', l: 'Salvat.', r: 1 }, { k: 'clienti', l: 'Clienti', r: 1 }, { k: 'data', l: 'Data' }
   ];
-  function findPost(id) { return state.posts.filter(function (p) { return p.id === id; })[0]; }
-  function filteredPosts() {
-    var q = ui.q.toLowerCase();
-    var list = state.posts.filter(function (p) {
-      if (ui.fFmt && p.formato !== ui.fFmt) return false;
-      if (ui.fPil && p.pilastro !== ui.fPil) return false;
-      if (q && ((p.titolo || '') + ' ' + (p.note || '')).toLowerCase().indexOf(q) < 0) return false;
+  function filteredArchive() {
+    var q = normTxt(ui.q);
+    var list = pubblicati().filter(function (c) {
+      if (ui.fArg && c.argomento !== ui.fArg) return false;
+      if (ui.fOsp && (c.ospite || 'Nessuno') !== ui.fOsp) return false;
+      if (ui.fTipo && c.tipo !== ui.fTipo) return false;
+      if (ui.fFmt && c.formato !== ui.fFmt) return false;
+      if (ui.fSem && sem(c).k !== ui.fSem) return false;
+      if (q && normTxt([c.titolo, c.hook, c.testo, c.note].join(' ')).indexOf(q) < 0) return false;
       return true;
     });
-    var k = ui.sort, d = ui.dir;
+    var k = ui.sort, d = ui.dir, rank = { top: 3, ok: 2, basso: 1, giallo: 0 };
     list.sort(function (a, b) {
-      var x = k === 'er' ? er(a) : a[k], y = k === 'er' ? er(b) : b[k];
-      if (typeof x === 'string' || typeof y === 'string') { x = String(x || ''); y = String(y || ''); return x < y ? -d : x > y ? d : 0; }
-      return (n(x) - n(y)) * d;
+      if (k === 'sem') return (rank[sem(a).k] - rank[sem(b).k]) * d || (n(a.views) - n(b.views)) * d;
+      if (k === 'views' || k === 'salvataggi' || k === 'clienti') return (n(a[k]) - n(b[k])) * d;
+      if (k === 'data') { var x = a.data || a.creato || '', y = b.data || b.creato || ''; return x < y ? -d : x > y ? d : 0; }
+      var s1 = String(a[k] || ''), s2 = String(b[k] || ''); return s1.localeCompare(s2, 'it') * d;
     });
     return list;
   }
-  function renderContenuti(v) {
-    var list = filteredPosts();
-    var ref = avg(state.posts, er);
-    var html = '<div class="bar"><input class="field grow" type="search" id="q" placeholder="Cerca nei contenuti…" value="' + esc(ui.q) + '">' +
-      '<select class="field" id="fFmt">' + opts(FORMATI, ui.fFmt, 'Tutti i formati') + '</select>' +
-      '<select class="field" id="fPil">' + opts(state.settings.pilastri, ui.fPil, 'Tutti i pilastri') + '</select>' +
+  function renderArchivio(v) {
+    var list = filteredArchive(), s = state.settings;
+    var html = '<div class="bar"><input class="field grow" type="search" id="q" placeholder="Cerca in titoli, testi e note…" value="' + esc(ui.q) + '">' +
+      '<div class="seg" id="vista"><button data-v="schede" class="' + (ui.vista === 'schede' ? 'on' : '') + '">Schede</button><button data-v="tabella" class="' + (ui.vista === 'tabella' ? 'on' : '') + '">Tabella</button></div>' +
       '<label class="btn" style="cursor:pointer">Importa CSV<input type="file" id="csv" accept=".csv,text/csv" hidden></label>' +
-      '<button class="btn" id="exp"' + (state.posts.length ? '' : ' disabled') + '>Esporta CSV</button>' +
-      '<button class="btn primary" id="add">+ Registra contenuto</button></div>';
+      '<button class="btn" id="exp"' + (state.contenuti.length ? '' : ' disabled') + '>Esporta</button>' +
+      '<button class="btn primary" id="add">+ Contenuto</button></div>' +
+      '<div class="bar" style="margin-top:-8px">' +
+      '<select class="field" id="fArg">' + opts(argNomi(), ui.fArg, 'Tutti gli argomenti') + '</select>' +
+      '<select class="field" id="fOsp">' + opts(s.ospiti, ui.fOsp, 'Tutti gli ospiti') + '</select>' +
+      '<select class="field" id="fTipo">' + opts(s.tipi, ui.fTipo, 'Tutti i tipi') + '</select>' +
+      '<select class="field" id="fFmt">' + opts(FORMATI, ui.fFmt, 'Tutti i formati') + '</select>' +
+      '<select class="field" id="fSem"><option value="">Tutti gli esiti</option>' + [['top', '🟣 Top'], ['ok', '🟢 Buono'], ['basso', '🔴 Sotto'], ['giallo', '🟡 Senza dati']].map(function (o) { return '<option value="' + o[0] + '"' + (ui.fSem === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
+      (ui.fArg || ui.fOsp || ui.fTipo || ui.fFmt || ui.fSem || ui.q ? '<button class="btn ghost small" id="clr">Azzera filtri</button>' : '') + '</div>';
 
-    if (!state.posts.length) {
-      html += '<div class="empty"><strong>Qui monitori ogni contenuto pubblicato</strong><p>Il modo più veloce: da Meta Business Suite apri Insights › Contenuti, scegli il periodo ed esporta il CSV, poi tocca «Importa CSV». Riconosco le colonne in italiano e in inglese. Puoi anche registrare un contenuto a mano.</p></div>';
+    if (!pubblicati().length) {
+      html += '<div class="empty"><strong>Qui trovi tutti i contenuti pubblicati</strong><p>Tocca «Importa CSV» e scegli l\'export del tuo database Notion dei contenuti (riconosco Argomento, Ospite, Stato post, Testo, Visualizzazioni e Note) oppure l\'export di Meta Business Suite. Puoi anche aggiungere i contenuti a mano.</p></div>';
     } else {
-      var tot = list.reduce(function (s, p) { s.v += n(p.views); s.r += n(p.reach); s.i += interazioni(p); s.f += n(p.follow); return s; }, { v: 0, r: 0, i: 0, f: 0 });
-      html += '<p class="muted" style="margin:0 0 12px;font-size:12.5px">' + list.length + ' contenuti · ' + fmtN(tot.v) + ' visualizzazioni · ' + fmtN(tot.i) + ' interazioni · ' + fmtN(tot.f) + ' nuovi follower · engagement medio ' + pct(avg(list, er)) + '. In verde i contenuti sopra la media del profilo, in rosso quelli sotto.</p>';
-      html += '<div class="tablewrap"><table><thead><tr>' + COLS.map(function (c) {
-        return '<th data-k="' + c.k + '" class="' + (c.r ? 'r ' : '') + (ui.sort === c.k ? 'sorted' : '') + '">' + c.l + (ui.sort === c.k ? (ui.dir < 0 ? ' ↓' : ' ↑') : '') + '</th>';
-      }).join('') + '</tr></thead><tbody>' + list.map(function (p) {
-        return '<tr data-id="' + esc(p.id) + '"><td class="num" style="white-space:nowrap">' + fmtDate(p.data) + '</td><td class="ttl" title="' + esc(p.titolo) + '">' + esc(p.titolo || 'Senza titolo') + '</td><td>' + fmtPill(p.formato) + '</td><td class="muted">' + esc(p.pilastro || '—') + '</td>' +
-          ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow'].map(function (k) { return '<td class="r">' + (p[k] === '' || p[k] == null ? '<span class="muted">—</span>' : fmtN(p[k])) + '</td>'; }).join('') +
-          '<td class="r"><span class="er ' + erClass(er(p), ref) + '">' + (base(p) ? pct(er(p)) : '—') + '</span></td></tr>';
-      }).join('') + '</tbody></table></div>';
-      if (!list.length) html += '<p class="muted" style="text-align:center">Nessun contenuto corrisponde ai filtri.</p>';
+      var withV = list.filter(function (c) { return has(c.views); });
+      html += '<p class="muted" style="margin:0 0 14px;font-size:12.5px">' + list.length + ' contenuti · ' + fmtN(sum(list, function (c) { return n(c.views); })) + ' visualizzazioni · media ' + (withV.length ? fmtN(avg(withV, function (c) { return n(c.views); })) : '—') + ' · ' + list.filter(function (c) { return sem(c).k === 'top'; }).length + ' top · ' + fmtN(sum(list, function (c) { return n(c.clienti); })) + ' clienti portati</p>';
+      if (!list.length) html += '<div class="empty"><p>Nessun contenuto corrisponde ai filtri.</p></div>';
+      else if (ui.vista === 'tabella') {
+        html += '<div class="tablewrap"><table><thead><tr>' + COLS.map(function (c) {
+          return '<th data-k="' + c.k + '" class="' + (c.r ? 'r ' : '') + (ui.sort === c.k ? 'sorted' : '') + '">' + c.l + (ui.sort === c.k ? (ui.dir < 0 ? ' ↓' : ' ↑') : '') + '</th>';
+        }).join('') + '</tr></thead><tbody>' + list.map(function (c) {
+          return '<tr data-c="' + esc(c.id) + '"><td class="ttl" title="' + esc(titoloDi(c)) + '">' + esc(titoloDi(c)) + '</td><td>' + argTag(c.argomento) + '</td><td class="muted">' + esc(c.ospite || 'Nessuno') + '</td><td class="muted">' + esc(c.tipo || '—') + '</td><td>' + (fmtTag(c.formato) || '<span class="muted">—</span>') + '</td><td>' + semPill(c) + '</td>' +
+            '<td class="r">' + (has(c.views) ? fmtN(c.views) : '<span class="muted">—</span>') + '</td><td class="r">' + (has(c.salvataggi) ? fmtN(c.salvataggi) : '<span class="muted">—</span>') + '</td><td class="r">' + (n(c.clienti) ? fmtN(c.clienti) : '<span class="muted">—</span>') + '</td><td class="num muted" style="white-space:nowrap">' + fmtDate(c.data) + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+      } else {
+        html += '<div class="gallery">' + list.map(card).join('') + '</div>';
+      }
     }
     v.innerHTML = html;
     var q = v.querySelector('#q');
     q.addEventListener('input', function () { ui.q = q.value; clearTimeout(q.t); q.t = setTimeout(function () { var pos = q.selectionStart; render(); var nq = document.getElementById('q'); nq.focus(); try { nq.setSelectionRange(pos, pos); } catch (e) {} }, 250); });
-    v.querySelector('#fFmt').addEventListener('change', function (e) { ui.fFmt = e.target.value; render(); });
-    v.querySelector('#fPil').addEventListener('change', function (e) { ui.fPil = e.target.value; render(); });
-    v.querySelector('#add').addEventListener('click', function () { postModal(null); });
+    [['fArg', 'fArg'], ['fOsp', 'fOsp'], ['fTipo', 'fTipo'], ['fFmt', 'fFmt'], ['fSem', 'fSem']].forEach(function (p) { v.querySelector('#' + p[0]).addEventListener('change', function (e) { ui[p[1]] = e.target.value; render(); }); });
+    var clr = v.querySelector('#clr'); if (clr) clr.addEventListener('click', function () { ui.q = ui.fArg = ui.fOsp = ui.fTipo = ui.fFmt = ui.fSem = ''; render(); });
+    v.querySelectorAll('#vista [data-v]').forEach(function (b) { b.addEventListener('click', function () { ui.vista = b.dataset.v; try { localStorage.setItem(LS_KEY + '-vista', ui.vista); } catch (e) {} render(); }); });
+    v.querySelector('#add').addEventListener('click', function () { contentModal(blank({ fase: 'pubblicato', data: todayISO() })); });
     v.querySelector('#exp').addEventListener('click', exportCSV);
     v.querySelector('#csv').addEventListener('change', function (e) { var f = e.target.files[0]; if (f) importCSV(f); e.target.value = ''; });
-    v.querySelectorAll('th[data-k]').forEach(function (th) { th.addEventListener('click', function () { var k = th.dataset.k; if (ui.sort === k) ui.dir *= -1; else { ui.sort = k; ui.dir = (k === 'titolo' || k === 'formato' || k === 'pilastro') ? 1 : -1; } render(); }); });
-    v.querySelectorAll('tbody tr[data-id]').forEach(function (r) { r.addEventListener('click', function () { postModal(findPost(r.dataset.id)); }); });
+    v.querySelectorAll('th[data-k]').forEach(function (th) { th.addEventListener('click', function () { var k = th.dataset.k; if (ui.sort === k) ui.dir *= -1; else { ui.sort = k; ui.dir = ['views', 'salvataggi', 'clienti', 'sem', 'data'].indexOf(k) >= 0 ? -1 : 1; } render(); }); });
+    bindOpen(v);
+  }
+  function card(c) {
+    return '<button class="gc" data-c="' + esc(c.id) + '"><div class="top">' + semPill(c) + '<span class="v">' + (has(c.views) ? fmtN(c.views) + '<small>visual.</small>' : '<small>senza dati</small>') + '</span></div>' +
+      '<div class="t">' + esc(titoloDi(c)) + '</div>' + (c.hook && c.hook !== c.titolo ? '<div class="h">«' + esc(c.hook) + '»</div>' : '') +
+      '<div class="tags">' + argTag(c.argomento) + ospTag(c.ospite) + (c.tipo ? '<span class="tag">' + esc(c.tipo) + '</span>' : '') + fmtTag(c.formato) + (n(c.clienti) ? '<span class="tag">+' + n(c.clienti) + ' clienti</span>' : '') + '</div>' +
+      (c.note ? '<div class="n">' + esc(c.note) + '</div>' : '') + '</button>';
   }
 
-  function postModal(p) {
-    var isNew = !p;
-    p = p || { id: uid(), data: todayISO(), formato: 'Reel', titolo: '', pilastro: '', link: '', views: '', reach: '', like: '', commenti: '', condivisioni: '', salvataggi: '', follow: '', note: '' };
-    var pil = state.settings.pilastri.slice(); if (p.pilastro && pil.indexOf(p.pilastro) < 0) pil.push(p.pilastro);
-    function numF(k, l) { return '<label>' + l + '<input class="field num" type="number" min="0" inputmode="numeric" id="p_' + k + '" value="' + esc(p[k]) + '"></label>'; }
-    openModal('<header><h2>' + (isNew ? 'Registra contenuto' : 'Contenuto') + '</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
-      '<div class="form">' +
-      '<label>Titolo o hook<input class="field" id="p_titolo" value="' + esc(p.titolo) + '" placeholder="es. Cosce gonfie dopo la palestra?"></label>' +
-      '<div class="three"><label>Data<input class="field" type="date" id="p_data" value="' + esc(p.data) + '"></label>' +
-      '<label>Formato<select class="field" id="p_formato">' + opts(FORMATI, p.formato) + '</select></label>' +
-      '<label>Pilastro<select class="field" id="p_pilastro">' + opts(pil, p.pilastro, '—') + '</select></label></div>' +
-      '<label>Link al post<input class="field" id="p_link" value="' + esc(p.link) + '" placeholder="https://www.instagram.com/reel/…"></label>' +
-      '<div class="three">' + numF('views', 'Visualizzazioni') + numF('reach', 'Copertura') + numF('like', 'Mi piace') + numF('commenti', 'Commenti') + numF('condivisioni', 'Condivisioni') + numF('salvataggi', 'Salvataggi') + numF('follow', 'Nuovi follower') + '</div>' +
-      '<label>Note (cosa ha funzionato, retention, commenti ricevuti)<textarea class="field" id="p_note">' + esc(p.note) + '</textarea></label>' +
-      (p.link ? '<a href="' + esc(p.link) + '" target="_blank" rel="noopener" style="color:var(--accent);font-size:13px">Apri su Instagram ↗</a>' : '') +
-      '</div><div class="actions"><div>' + (isNew ? '' : '<button class="btn danger" id="p_del">Elimina</button>') + '</div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="p_ok">Salva</button></div></div>', function (m) {
-      m.querySelector('#p_ok').addEventListener('click', function () {
-        var o = { id: p.id };
-        ['data', 'formato', 'titolo', 'pilastro', 'link', 'note'].forEach(function (k) { o[k] = val(m, 'p_' + k); });
-        ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow'].forEach(function (k) { var x = val(m, 'p_' + k); o[k] = x === '' ? '' : n(x); });
-        if (!o.data) { toast('Inserisci la data di pubblicazione.'); return; }
-        if (isNew) state.posts.push(o); else state.posts = state.posts.map(function (x) { return x.id === p.id ? o : x; });
-        save('posts'); closeModal(); render(); toast(isNew ? 'Contenuto registrato' : 'Modifiche salvate');
+  // ---------- scheda contenuto ----------
+  function contentModal(c, opt) {
+    opt = opt || {};
+    var isNew = !findC(c.id), s = state.settings;
+    var altri = state.contenuti.filter(function (x) { return x.id !== c.id; }).sort(function (a, b) { return titoloDi(a).localeCompare(titoloDi(b), 'it'); });
+    function numF(k, l) { return '<label>' + l + '<input class="field num" type="number" min="0" inputmode="numeric" id="c_' + k + '" value="' + esc(c[k]) + '"></label>'; }
+    openModal('<header><h2>' + (isNew ? 'Nuovo contenuto' : esc(titoloDi(c))) + '</h2><div style="display:flex;gap:8px;align-items:center">' + (isNew ? '' : semPill(c)) + '<button class="iconbtn" data-close aria-label="Chiudi">✕</button></div></header>' +
+      '<div class="form" style="max-width:none">' +
+      '<div class="msec"><h4>Contenuto</h4>' +
+      '<label>Titolo<input class="field" id="c_titolo" value="' + esc(c.titolo) + '" placeholder="es. L\'errore che fanno tutti nell\'hip thrust"></label>' +
+      '<label>Hook (la prima frase, quella che ferma lo scroll)<input class="field" id="c_hook" value="' + esc(c.hook) + '" placeholder="es. Senti poco i glutei nell\'hip thrust? Prova questo"></label>' +
+      '<div class="three"><label>Argomento<select class="field" id="c_argomento">' + opts(argNomi(), c.argomento, '—') + '</select></label>' +
+      '<label>Formato<select class="field" id="c_formato">' + opts(FORMATI, c.formato, '—') + '</select></label>' +
+      '<label>Tipo di video<select class="field" id="c_tipo">' + opts(s.tipi, c.tipo, '—') + '</select></label>' +
+      '<label>Ospite<select class="field" id="c_ospite">' + opts(s.ospiti, c.ospite || 'Nessuno') + '</select></label>' +
+      '<label>CTA<select class="field" id="c_cta">' + opts(s.cta, c.cta, '—') + '</select></label>' +
+      '<label>Collegato a<select class="field" id="c_collegato"><option value="">—</option>' + altri.map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === c.collegato ? ' selected' : '') + '>' + esc(titoloDi(x).slice(0, 60)) + '</option>'; }).join('') + '</select></label></div>' +
+      '<label>Testo (script e caption)<textarea class="field" id="c_testo" style="min-height:170px">' + esc(c.testo) + '</textarea></label>' +
+      (sample ? '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn small" id="c_ai">Scrivi lo script con Claude</button><span class="muted" id="c_aist" style="font-size:12px"></span></div>' : '') +
+      '</div>' +
+      '<div class="msec"><h4>Pubblicazione</h4><div class="three"><label>Fase<select class="field" id="c_fase">' + FASI.map(function (f) { return '<option value="' + f.id + '"' + (f.id === c.fase ? ' selected' : '') + '>' + f.nome + '</option>'; }).join('') + '</select></label>' +
+      '<label>Data<input class="field" type="date" id="c_data" value="' + esc(c.data) + '"></label>' +
+      '<label>Link al post<input class="field" id="c_link" value="' + esc(c.link) + '" placeholder="https://www.instagram.com/reel/…"></label></div></div>' +
+      '<div class="msec" id="c_ris"><h4>Risultati</h4><div class="three">' + METRICHE.map(function (m) { return numF(m[0], m[1]); }).join('') + '</div></div>' +
+      '<div class="msec"><h4>Cosa ho imparato</h4><textarea class="field" id="c_note" placeholder="Perché è andato così? Gancio, montaggio, ospite, CTA, cosa rifaresti…">' + esc(c.note) + '</textarea>' +
+      (c.link && /^https?:\/\//.test(c.link) ? '<a href="' + esc(c.link) + '" target="_blank" rel="noopener" style="color:var(--ink);font-size:13px">Apri su Instagram ↗</a>' : '') + '</div>' +
+      '</div><div class="actions"><div>' + (isNew ? '' : '<button class="btn danger" id="c_del">Elimina</button>') + '</div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="c_ok">Salva</button></div></div>', function (m) {
+      if (opt.focus) { var f = m.querySelector('#c_' + opt.focus); if (f) { f.scrollIntoView({ block: 'center' }); f.focus(); } }
+      else if (isNew) m.querySelector('#c_titolo').focus();
+      m.querySelector('#c_ok').addEventListener('click', function () {
+        var o = Object.assign({}, c);
+        ['titolo', 'hook', 'argomento', 'formato', 'tipo', 'ospite', 'cta', 'collegato', 'fase', 'data', 'link'].forEach(function (k) { o[k] = val(m, 'c_' + k); });
+        o.testo = m.querySelector('#c_testo').value; o.note = m.querySelector('#c_note').value;
+        METRICHE.forEach(function (mm) { var x = val(m, 'c_' + mm[0]); o[mm[0]] = x === '' ? '' : n(x); });
+        if (!o.titolo && !o.hook) { toast('Scrivi almeno il titolo o l\'hook.'); return; }
+        if (o.fase === 'pubblicato' && !o.data && c.fase !== 'pubblicato') o.data = todayISO();
+        saveItem(o); closeModal(); render(); toast(isNew ? 'Contenuto salvato' : 'Modifiche salvate');
       });
-      var del = m.querySelector('#p_del');
-      if (del) armDelete(del, function () { state.posts = state.posts.filter(function (x) { return x.id !== p.id; }); save('posts'); closeModal(); render(); toast('Contenuto eliminato'); });
-    });
+      var del = m.querySelector('#c_del');
+      if (del) armDelete(del, function () { removeItem(c.id); closeModal(); render(); toast('Contenuto eliminato'); });
+      var ai = m.querySelector('#c_ai'); if (ai) ai.addEventListener('click', function () { aiScript(m, ai); });
+    }, true);
   }
 
-  // ---- CSV ----
+  // ---------- import / export ----------
   function parseCSV(text) {
     text = text.replace(/^﻿/, '');
     var firstLine = text.split(/\r?\n/)[0] || '';
     var delim = (firstLine.split(';').length > firstLine.split(',').length) ? ';' : (firstLine.split('\t').length > firstLine.split(',').length ? '\t' : ',');
     var rows = [], row = [], f = '', q = false;
     for (var i = 0; i < text.length; i++) {
-      var c = text[i];
-      if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
-      else if (c === '"') q = true;
-      else if (c === delim) { row.push(f); f = ''; }
-      else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
-      else f += c;
+      var ch = text[i];
+      if (q) { if (ch === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === delim) { row.push(f); f = ''; }
+      else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+      else f += ch;
     }
     if (f || row.length) { row.push(f); rows.push(row); }
     return rows.filter(function (r) { return r.some(function (x) { return x.trim() !== ''; }); });
   }
   var SYN = {
+    titolo: ['title', 'titolo', 'name', 'nome'],
+    testo: ['testo', 'description', 'descrizione', 'caption', 'didascalia', 'script'],
+    hook: ['hook', 'gancio'],
+    argomento: ['argomento', 'pilastro', 'categoria', 'rubrica'],
+    ospite: ['ospite', 'ospiti', 'guest'],
+    stato: ['stato post', 'stato', 'esito'],
+    note: ['note', 'notes', 'cosa ho imparato'],
     data: ['publish time', 'ora di pubblicazione', 'data di pubblicazione', 'data', 'date', 'orario di pubblicazione'],
-    titolo: ['description', 'descrizione', 'titolo', 'caption', 'didascalia', 'title'],
-    formato: ['post type', 'tipo di post', 'tipo di contenuto', 'tipo', 'formato', 'type'],
+    formato: ['formato', 'post type', 'tipo di post', 'tipo di contenuto'],
+    tipo: ['tipo di video', 'tipo video', 'stile'],
+    cta: ['cta', 'call to action'],
     link: ['permalink', 'link', 'url'],
-    views: ['views', 'visualizzazioni', 'plays', 'riproduzioni', 'impressions', 'impressioni'],
+    views: ['visualizzazioni', 'views', 'plays', 'riproduzioni', 'impressions', 'impressioni'],
     reach: ['reach', 'copertura', 'account raggiunti', 'accounts reached'],
     like: ['likes', 'mi piace', 'like'],
     commenti: ['comments', 'commenti'],
     condivisioni: ['shares', 'condivisioni'],
     salvataggi: ['saves', 'salvataggi', 'elementi salvati', 'salvati'],
     follow: ['follows', 'follow', 'nuovi follower', 'follower acquisiti'],
-    pilastro: ['pilastro', 'categoria', 'rubrica']
+    clienti: ['clienti', 'clienti portati', 'dm', 'lead']
   };
-  function normH(h) { return h.toLowerCase().replace(/\s+/g, ' ').replace(/[^a-zà-ù ]/g, '').trim(); }
+  function normH(h) { return String(h).toLowerCase().replace(/[^a-zà-ù ]/g, ' ').replace(/\s+/g, ' ').trim(); }
   function mapHeaders(hdr) {
-    var map = {}, used = {};
-    var H = hdr.map(normH);
+    var map = {}, used = {}, H = hdr.map(normH);
     Object.keys(SYN).forEach(function (k) {
-      for (var s = 0; s < SYN[k].length; s++) {
-        var idx = H.indexOf(SYN[k][s]);
-        if (idx >= 0 && !used[idx]) { map[k] = idx; used[idx] = 1; return; }
-      }
+      for (var s = 0; s < SYN[k].length; s++) { var idx = H.indexOf(SYN[k][s]); if (idx >= 0 && !used[idx]) { map[k] = idx; used[idx] = 1; return; } }
     });
-    return { map: map, italian: H.some(function (h) { return /pubblicazione|copertura|visualizzazioni|commenti/.test(h); }) };
+    return { map: map, italian: H.some(function (h) { return /pubblicazione|copertura|visualizzazioni|commenti|argomento|testo/.test(h); }) };
   }
   function parseNum(s) { s = String(s || '').trim(); if (!s) return ''; s = s.replace(/\s/g, ''); if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ''); s = s.replace(/,(\d{3})(?!\d)/g, '$1').replace(',', '.'); var x = parseFloat(s); return isFinite(x) ? Math.round(x) : ''; }
   function parseDate(s, italian) {
@@ -1030,19 +1208,78 @@
     if (m) return m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0');
     m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
     if (m) {
-      var a = +m[1], b = +m[2], y = m[3].length === 2 ? '20' + m[3] : m[3];
-      var dd, mm;
+      var a = +m[1], b = +m[2], y = m[3].length === 2 ? '20' + m[3] : m[3], dd, mm;
       if (a > 12) { dd = a; mm = b; } else if (b > 12) { dd = b; mm = a; } else if (italian) { dd = a; mm = b; } else { mm = a; dd = b; }
       return y + '-' + String(mm).padStart(2, '0') + '-' + String(dd).padStart(2, '0');
     }
     var d = new Date(s); return isNaN(d) ? '' : iso(d);
   }
+  function splitEmoji(s) {
+    s = String(s || '').trim();
+    var col = '';
+    Object.keys(EMOJI_COL).forEach(function (e) { if (!col && s.indexOf(e) === 0) col = EMOJI_COL[e]; });
+    return { nome: s.replace(/^[^\wÀ-ù]+/, '').trim(), colore: col };
+  }
   function parseFmt(s) {
     s = String(s || '').toLowerCase();
-    if (/reel|video/.test(s)) return 'Reel';
+    if (!s) return '';
     if (/carous|carosel|sequenza|album/.test(s)) return 'Carosello';
     if (/stor/.test(s)) return 'Storia';
-    return s ? 'Post' : 'Reel';
+    if (/reel|video/.test(s)) return 'Reel';
+    if (/image|immagine|foto|photo|post/.test(s)) return 'Foto';
+    return '';
+  }
+  function inferFormato(text) {
+    var t = text.toLowerCase();
+    if (/carosello|carousel/.test(t)) return 'Carosello';
+    if (/\bimmagine\b|\bfoto comica\b/.test(t)) return 'Foto';
+    if (/\breel\b|\bvideo\b/.test(t)) return 'Reel';
+    return '';
+  }
+  // prima titolo e note (dove descrivi il video), poi il testo solo per gli schemi evidenti
+  function inferTipo(head, testo) {
+    var t = head.toLowerCase(), x = String(testo || '').toLowerCase();
+    if (/green ?screen/.test(t)) return 'Green screen';
+    if (/correg|correzion/.test(t)) return 'Correzione dal vivo';
+    if (/prima e dopo/.test(t)) return 'Prima e dopo';
+    if (/dialogo/.test(t) || /(^|\n)\s*tu:/.test(x)) return 'Dialogo';
+    if (/inside ml lab|dentro una seduta|durante la seduta|seduta pt|seduta individuale/.test(t + '\n' + x)) return 'Dentro la seduta';
+    if (/frontal/.test(t)) return 'Frontale';
+    if (/\b[2-5] (punti|tips|consigli|step)\b/.test(t + '\n' + x)) return 'Tutorial a punti';
+    return '';
+  }
+  function inferCta(text) {
+    var t = text.toLowerCase();
+    if (/comment/.test(t)) return 'Commenta';
+    if (/\bdm\b|direct|inviami|scrivimi/.test(t)) return 'Scrivimi in DM';
+    if (/link in bio/.test(t)) return 'Link in bio';
+    if (/segui (la pagina|il profilo|mi)|seguimi|ti seguo/.test(t)) return 'Seguimi';
+    if (/salva (il post|questo)/.test(t)) return 'Salva il post';
+    return '';
+  }
+  function firstLine(t) { var l = String(t || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean)[0] || ''; return l.replace(/^["“”']+|["“”']+$/g, '').trim().slice(0, 160); }
+  function rowToContent(get, italian) {
+    var titolo = String(get('titolo') || '').trim(), testo = String(get('testo') || '').trim(), note = String(get('note') || '').trim();
+    var noteFmt = note;
+    if (/^(reel|carosello|frontale|foto|video)\.?$/i.test(note)) note = '';
+    if (!titolo && testo) titolo = firstLine(testo).slice(0, 90);
+    if (!titolo) return null;
+    var all = [titolo, noteFmt, testo].join('\n');
+    var arg = splitEmoji(get('argomento')), stato = String(get('stato') || '').trim();
+    var views = parseNum(get('views'));
+    var c = blank({
+      titolo: titolo, testo: testo, note: note,
+      hook: String(get('hook') || '').trim() || firstLine(testo) || titolo,
+      argomento: arg.nome, ospite: String(get('ospite') || '').trim() || 'Nessuno',
+      formato: parseFmt(get('formato')) || inferFormato(all),
+      tipo: String(get('tipo') || '').trim() || inferTipo(titolo + '\n' + noteFmt, testo),
+      cta: String(get('cta') || '').trim() || inferCta(testo),
+      data: parseDate(get('data'), italian), link: String(get('link') || '').trim(),
+      fase: (has(views) || /🔴|🟢|🟣/.test(stato) || get('data')) ? 'pubblicato' : (stato.indexOf('🟡') >= 0 ? 'registrare' : 'pubblicato')
+    });
+    ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow', 'clienti'].forEach(function (k) { c[k] = parseNum(get(k)); });
+    if (!has(c.clienti)) { var mc = note.match(/portato (\d+) client/i); c.clienti = mc ? +mc[1] : ''; }
+    return { c: c, argColore: arg.colore };
   }
   function importCSV(file) {
     var r = new FileReader();
@@ -1050,35 +1287,41 @@
       var rows = parseCSV(String(r.result || ''));
       if (rows.length < 2) { toast('Il file non contiene righe da importare.'); return; }
       var hi = 0;
-      for (var i = 0; i < Math.min(rows.length, 5); i++) { var mm = mapHeaders(rows[i]).map; if (mm.data != null && (mm.views != null || mm.reach != null || mm.like != null)) { hi = i; break; } }
+      for (var i = 0; i < Math.min(rows.length, 5); i++) { var mm = mapHeaders(rows[i]).map; if ((mm.titolo != null || mm.testo != null) && (mm.views != null || mm.argomento != null || mm.data != null)) { hi = i; break; } }
       var mh = mapHeaders(rows[hi]), map = mh.map;
-      if (map.data == null) { toast('Non trovo la colonna con la data di pubblicazione. Controlla che sia l\'export dei contenuti di Meta.'); return; }
-      var added = 0, updated = 0;
-      rows.slice(hi + 1).forEach(function (row) {
-        function g(k) { return map[k] != null ? row[map[k]] : ''; }
-        var d = parseDate(g('data'), mh.italian); if (!d) return;
-        var o = { data: d, formato: parseFmt(g('formato')), titolo: String(g('titolo') || '').replace(/\s+/g, ' ').trim().slice(0, 220), link: String(g('link') || '').trim(), pilastro: String(g('pilastro') || '').trim() };
-        ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow'].forEach(function (k) { o[k] = parseNum(g(k)); });
-        var ex = state.posts.filter(function (p) { return (o.link && p.link === o.link) || (!o.link && p.data === o.data && (p.titolo || '').slice(0, 60) === o.titolo.slice(0, 60)); })[0];
+      if (map.titolo == null && map.testo == null) { toast('Non trovo né il titolo né il testo dei contenuti. Controlla che sia l\'export di Notion o di Meta.'); return; }
+      var s = state.settings, added = 0, updated = 0, base = Date.now();
+      rows.slice(hi + 1).forEach(function (row, idx) {
+        var res = rowToContent(function (k) { return map[k] != null ? row[map[k]] : ''; }, mh.italian);
+        if (!res) return;
+        var c = res.c;
+        c.creato = new Date(base - (rows.length - idx) * 1000).toISOString();
+        if (c.argomento && argNomi().indexOf(c.argomento) < 0) s.argomenti.push({ nome: c.argomento, colore: res.argColore || 'grigio' });
+        if (c.ospite && s.ospiti.indexOf(c.ospite) < 0) s.ospiti.push(c.ospite);
+        if (c.tipo && s.tipi.indexOf(c.tipo) < 0) s.tipi.push(c.tipo);
+        if (c.cta && s.cta.indexOf(c.cta) < 0) s.cta.push(c.cta);
+        var ex = state.contenuti.filter(function (p) { return (c.link && p.link === c.link) || (!c.link && normTxt(p.titolo) === normTxt(c.titolo) && (!c.data || !p.data || p.data === c.data)); })[0];
         if (ex) {
-          ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow'].forEach(function (k) { if (o[k] !== '') ex[k] = o[k]; });
-          if (!ex.titolo && o.titolo) ex.titolo = o.titolo;
-          if (!ex.pilastro && o.pilastro) ex.pilastro = o.pilastro;
-          updated++;
-        } else { o.id = uid(); o.note = ''; state.posts.push(o); added++; }
+          var o = Object.assign({}, ex);
+          ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow', 'clienti'].forEach(function (k) { if (has(c[k])) o[k] = c[k]; });
+          ['hook', 'testo', 'argomento', 'formato', 'tipo', 'cta', 'data', 'link', 'note'].forEach(function (k) { if (!o[k] && c[k]) o[k] = c[k]; });
+          if ((!o.ospite || o.ospite === 'Nessuno') && c.ospite !== 'Nessuno') o.ospite = c.ospite;
+          if (c.fase === 'pubblicato') o.fase = 'pubblicato';
+          saveItem(o); updated++;
+        } else { saveItem(c); added++; }
       });
       if (!added && !updated) { toast('Nessuna riga valida trovata nel file.'); return; }
-      save('posts'); render();
-      toast(added + ' contenuti aggiunti' + (updated ? ', ' + updated + ' aggiornati' : ''));
+      save('settings'); render();
+      toast(added + ' contenuti importati' + (updated ? ', ' + updated + ' aggiornati' : ''));
     };
     r.onerror = function () { toast('Non riesco a leggere il file.'); };
     r.readAsText(file);
   }
   function csvCell(v) { v = String(v == null ? '' : v); return /[";\n,]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
   function exportCSV() {
-    var h = ['Data', 'Formato', 'Pilastro', 'Titolo', 'Link', 'Visualizzazioni', 'Copertura', 'Mi piace', 'Commenti', 'Condivisioni', 'Salvataggi', 'Nuovi follower', 'Engagement %', 'Note'];
-    var lines = [h.join(';')].concat(filteredPosts().map(function (p) {
-      return [p.data, p.formato, p.pilastro, p.titolo, p.link, p.views, p.reach, p.like, p.commenti, p.condivisioni, p.salvataggi, p.follow, base(p) ? (er(p) * 100).toFixed(2).replace('.', ',') : '', p.note].map(csvCell).join(';');
+    var h = ['Titolo', 'Hook', 'Argomento', 'Formato', 'Tipo di video', 'Ospite', 'CTA', 'Fase', 'Esito', 'Data', 'Link', 'Visualizzazioni', 'Copertura', 'Mi piace', 'Commenti', 'Condivisioni', 'Salvataggi', 'Nuovi follower', 'Clienti', 'Testo', 'Note'];
+    var lines = [h.join(';')].concat(state.contenuti.map(function (c) {
+      return [c.titolo, c.hook, c.argomento, c.formato, c.tipo, c.ospite, c.cta, (FASI.filter(function (f) { return f.id === c.fase; })[0] || {}).nome, sem(c).l, c.data, c.link, c.views, c.reach, c.like, c.commenti, c.condivisioni, c.salvataggi, c.follow, c.clienti, c.testo, c.note].map(csvCell).join(';');
     }));
     saveFile('ML LAB contenuti ' + todayISO() + '.csv', '﻿' + lines.join('\n'), 'CSV');
   }
@@ -1086,78 +1329,72 @@
   // =====================================================================
   // IDEE (pipeline)
   // =====================================================================
-  function findIdea(id) { return state.ideas.filter(function (i) { return i.id === id; })[0]; }
   function renderIdee(v) {
-    var html = '';
+    var s = state.settings, html = '';
     if (sample) {
-      html += '<div class="ai"><h3>Genera idee con Claude</h3><p class="note" style="margin:0">Claude parte dai tuoi pilastri, dai contenuti che hanno funzionato meglio e dagli spunti salvati.</p>' +
-        '<div class="row"><input class="field" id="aiTema" placeholder="Tema o richiesta (facoltativo): es. gonfiore alle gambe, donne 30-45 anni, errori in palestra"><select class="field" id="aiFmt" style="flex:0 1 170px">' + opts(FORMATI, '', 'Qualsiasi formato') + '</select>' +
+      html += '<div class="ai"><h3>Genera idee con Claude</h3><p class="note" style="margin:0">Claude parte dai tuoi contenuti top, dal playbook e dagli spunti salvati.</p>' +
+        '<div class="row"><input class="field" id="aiTema" placeholder="Tema o richiesta (facoltativo): es. errori in palestra, gonfiore alle gambe"><select class="field" id="aiArg" style="flex:0 1 170px">' + opts(argNomi(), '', 'Qualsiasi argomento') + '</select><select class="field" id="aiOsp" style="flex:0 1 150px">' + opts(s.ospiti.filter(function (o) { return o !== 'Nessuno'; }), '', 'Ospite libero') + '</select>' +
         '<button class="btn primary" id="aiGo"' + (ui.aiBusy ? ' disabled' : '') + '>' + (ui.aiBusy ? 'Sto pensando…' : 'Proponi 6 idee') + '</button></div>' +
-        (ui.aiIdeas.length ? '<div class="sugg">' + ui.aiIdeas.map(function (s, i) {
-          return '<div class="sg"><div class="meta" style="display:flex;gap:6px;flex-wrap:wrap">' + fmtPill(s.formato) + (s.pilastro ? '<span class="pill">' + esc(s.pilastro) + '</span>' : '') + '</div><div class="t">' + esc(s.titolo) + '</div><div class="h">«' + esc(s.hook) + '»</div><div class="w">' + esc(s.perche) + '</div>' +
+        (ui.aiIdeas.length ? '<div class="sugg">' + ui.aiIdeas.map(function (x, i) {
+          return '<div class="sg"><div style="display:flex;gap:6px;flex-wrap:wrap">' + argTag(x.argomento) + fmtTag(x.formato) + ospTag(x.ospite) + (x.tipo ? '<span class="tag">' + esc(x.tipo) + '</span>' : '') + '</div><div class="t">' + esc(x.titolo) + '</div><div class="h">«' + esc(x.hook) + '»</div><div class="w">' + esc(x.perche) + '</div>' +
             '<div style="display:flex;gap:8px"><button class="btn small primary" data-take="' + i + '">Aggiungi alle idee</button><button class="btn small ghost" data-drop="' + i + '">Scarta</button></div></div>';
         }).join('') + '</div>' : '') + '</div>';
     }
-    html += '<div class="kanban" id="kanban">' + STATI.map(function (st) {
-      var items = state.ideas.filter(function (i) { return (i.stato || 'idea') === st.id; });
-      items.sort(function (a, b) { if (st.id === 'pubblicato') return (b.data || '') < (a.data || '') ? -1 : 1; return (a.data || '9999') < (b.data || '9999') ? -1 : 1; });
-      var shown = st.id === 'pubblicato' ? items.slice(0, 12) : items;
-      return '<section class="kcol" data-st="' + st.id + '"><h3>' + st.nome + ' <span>' + items.length + '</span></h3>' + shown.map(ideaCard).join('') +
-        (st.id === 'pubblicato' && items.length > 12 ? '<p class="muted" style="font-size:12px;margin:0">e altri ' + (items.length - 12) + '</p>' : '') +
-        (st.id !== 'pubblicato' ? '<button class="kadd" data-new="' + st.id + '">+ Aggiungi</button>' : '') + '</section>';
+    html += '<div class="kanban">' + FASI.map(function (f) {
+      var items = state.contenuti.filter(function (c) { return (c.fase || 'idea') === f.id; });
+      if (f.id === 'pubblicato') items.sort(function (a, b) { var x = a.data || a.creato || '', y = b.data || b.creato || ''; return x < y ? 1 : -1; });
+      else items.sort(function (a, b) { return (a.data || '9999') < (b.data || '9999') ? -1 : (a.data || '9999') > (b.data || '9999') ? 1 : 0; });
+      var shown = f.id === 'pubblicato' ? items.slice(0, 8) : items;
+      return '<section class="kcol" data-st="' + f.id + '"><h3>' + f.nome + ' <span>' + items.length + '</span></h3>' + shown.map(ideaCard).join('') +
+        (f.id === 'pubblicato' && items.length > 8 ? '<button class="kadd" data-go="archivio">Tutti in archivio (' + items.length + ')</button>' : '') +
+        (f.id !== 'pubblicato' ? '<button class="kadd" data-new="' + f.id + '">+ Aggiungi</button>' : '') + '</section>';
     }).join('') + '</div>';
-    if (!state.ideas.length) html += '<p class="note" style="margin-top:14px">Ogni idea passa da sinistra a destra: la scrivi, la registri, la monti, la programmi e la pubblichi. Trascina le schede tra le colonne o usa le frecce. Quando la segni come pubblicata puoi registrarne subito i numeri.</p>';
     v.innerHTML = html;
 
-    v.querySelectorAll('[data-new]').forEach(function (b) { b.addEventListener('click', function () { ideaModal(null, { stato: b.dataset.new }); }); });
-    v.querySelectorAll('.kcard').forEach(function (c) {
-      c.addEventListener('click', function (e) {
+    v.querySelectorAll('[data-new]').forEach(function (b) { b.addEventListener('click', function () { contentModal(blank({ fase: b.dataset.new })); }); });
+    v.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function () { setTab(b.dataset.go); }); });
+    v.querySelectorAll('.kcard').forEach(function (cd) {
+      cd.addEventListener('click', function (e) {
         var mv = e.target.closest('[data-mv]');
-        if (mv) { e.stopPropagation(); moveIdea(c.dataset.id, +mv.dataset.mv); return; }
-        ideaModal(findIdea(c.dataset.id));
+        if (mv) { e.stopPropagation(); moveIdea(cd.dataset.id, +mv.dataset.mv); return; }
+        var c = findC(cd.dataset.id); if (c) contentModal(c);
       });
-      c.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', c.dataset.id); e.dataTransfer.effectAllowed = 'move'; });
+      cd.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', cd.dataset.id); e.dataTransfer.effectAllowed = 'move'; });
     });
     v.querySelectorAll('.kcol').forEach(function (col) {
       col.addEventListener('dragover', function (e) { e.preventDefault(); col.classList.add('drop'); });
       col.addEventListener('dragleave', function () { col.classList.remove('drop'); });
-      col.addEventListener('drop', function (e) { e.preventDefault(); col.classList.remove('drop'); var id = e.dataTransfer.getData('text/plain'); setStato(id, col.dataset.st); });
+      col.addEventListener('drop', function (e) { e.preventDefault(); col.classList.remove('drop'); setFase(e.dataTransfer.getData('text/plain'), col.dataset.st); });
     });
-    var go = v.querySelector('#aiGo'); if (go) go.addEventListener('click', function () { aiIdee(val(v, 'aiTema'), val(v, 'aiFmt')); });
+    var go = v.querySelector('#aiGo'); if (go) go.addEventListener('click', function () { aiIdee(val(v, 'aiTema'), val(v, 'aiArg'), val(v, 'aiOsp')); });
     v.querySelectorAll('[data-take]').forEach(function (b) { b.addEventListener('click', function () {
-      var s = ui.aiIdeas[+b.dataset.take];
-      state.ideas.push({ id: uid(), titolo: s.titolo, hook: s.hook, formato: FORMATI.indexOf(s.formato) >= 0 ? s.formato : 'Reel', pilastro: s.pilastro || '', stato: 'idea', data: '', note: s.perche ? 'Perché funziona: ' + s.perche : '', creata: todayISO() });
-      ui.aiIdeas.splice(+b.dataset.take, 1); save('ideas'); render(); toast('Idea aggiunta');
+      var x = ui.aiIdeas[+b.dataset.take];
+      saveItem(blank({ titolo: x.titolo, hook: x.hook, argomento: x.argomento, formato: FORMATI.indexOf(x.formato) >= 0 ? x.formato : 'Reel', tipo: x.tipo, ospite: x.ospite || 'Nessuno', cta: x.cta, testo: x.perche ? 'Perché può funzionare: ' + x.perche : '' }));
+      ui.aiIdeas.splice(+b.dataset.take, 1); render(); toast('Idea aggiunta');
     }); });
     v.querySelectorAll('[data-drop]').forEach(function (b) { b.addEventListener('click', function () { ui.aiIdeas.splice(+b.dataset.drop, 1); render(); }); });
   }
-  function ideaCard(i) {
-    var idx = STATI.map(function (s) { return s.id; }).indexOf(i.stato || 'idea');
-    var late = i.data && i.data < todayISO() && i.stato !== 'pubblicato';
-    return '<article class="kcard" draggable="true" data-id="' + esc(i.id) + '"><div class="t">' + esc(i.titolo || 'Senza titolo') + '</div>' +
-      (i.hook ? '<div class="h">«' + esc(i.hook) + '»</div>' : '') +
-      '<div class="meta">' + fmtPill(i.formato) + (i.pilastro ? '<span class="pill">' + esc(i.pilastro) + '</span>' : '') + '</div>' +
+  function ideaCard(c) {
+    var idx = FASI.map(function (f) { return f.id; }).indexOf(c.fase || 'idea');
+    var late = c.data && c.data < todayISO() && c.fase !== 'pubblicato';
+    return '<article class="kcard" draggable="true" data-id="' + esc(c.id) + '"><div class="t">' + esc(titoloDi(c)) + '</div>' +
+      (c.hook && c.hook !== c.titolo ? '<div class="h">«' + esc(c.hook) + '»</div>' : '') +
+      '<div class="meta">' + argTag(c.argomento) + ospTag(c.ospite) + (c.fase === 'pubblicato' ? semPill(c) : fmtTag(c.formato)) + '</div>' +
       '<div class="moves"><button class="iconbtn" data-mv="-1" aria-label="Sposta indietro"' + (idx === 0 ? ' disabled style="visibility:hidden"' : '') + '>←</button>' +
-      '<span class="date' + (late ? ' late' : '') + '">' + (i.data ? (late ? 'In ritardo · ' : '') + fmtDate(i.data) : 'Senza data') + '</span>' +
-      '<button class="iconbtn" data-mv="1" aria-label="Sposta avanti"' + (idx === STATI.length - 1 ? ' disabled style="visibility:hidden"' : '') + '>→</button></div></article>';
+      '<span class="date' + (late ? ' late' : '') + '">' + (c.fase === 'pubblicato' && has(c.views) ? fmtN(c.views) + ' visual.' : c.data ? (late ? 'In ritardo · ' : '') + fmtDate(c.data) : 'Senza data') + '</span>' +
+      '<button class="iconbtn" data-mv="1" aria-label="Sposta avanti"' + (idx === FASI.length - 1 ? ' disabled style="visibility:hidden"' : '') + '>→</button></div></article>';
   }
   function moveIdea(id, d) {
-    var i = findIdea(id); if (!i) return;
-    var ids = STATI.map(function (s) { return s.id; });
-    var k = Math.max(0, Math.min(ids.length - 1, ids.indexOf(i.stato || 'idea') + d));
-    setStato(id, ids[k]);
+    var c = findC(id); if (!c) return;
+    var ids = FASI.map(function (f) { return f.id; });
+    setFase(id, ids[Math.max(0, Math.min(ids.length - 1, ids.indexOf(c.fase || 'idea') + d))]);
   }
-  function setStato(id, st) {
-    var i = findIdea(id); if (!i || i.stato === st) return;
-    i.stato = st;
-    if (st === 'pubblicato') {
-      if (!i.data || i.data > todayISO()) i.data = todayISO();
-      save('ideas'); render();
-      var exists = state.posts.some(function (p) { return p.ideaId === i.id; });
-      if (!exists) toastAction('Pubblicato. Registrane i numeri quando li hai.', 'Registra ora', function () { postFromIdea(i); });
-      return;
-    }
-    save('ideas'); render();
+  function setFase(id, f) {
+    var c = findC(id); if (!c || c.fase === f) return;
+    var o = Object.assign({}, c, { fase: f });
+    if (f === 'pubblicato' && (!o.data || o.data > todayISO())) o.data = todayISO();
+    saveItem(o); render();
+    if (f === 'pubblicato') toastAction('Pubblicato. Registra le visualizzazioni quando le hai.', 'Apri la scheda', function () { contentModal(findC(id), { focus: 'views' }); });
   }
   function toastAction(msg, label, fn) {
     var r = document.getElementById('toastRoot');
@@ -1165,88 +1402,40 @@
     r.querySelector('#tAct').addEventListener('click', function () { r.innerHTML = ''; fn(); });
     clearTimeout(toast.t); toast.t = setTimeout(function () { r.innerHTML = ''; }, 7000);
   }
-  function postFromIdea(i) {
-    var p = { id: uid(), ideaId: i.id, data: i.data || todayISO(), formato: i.formato === 'Storia' ? 'Storia' : (i.formato || 'Reel'), titolo: i.hook || i.titolo, pilastro: i.pilastro || '', link: '', views: '', reach: '', like: '', commenti: '', condivisioni: '', salvataggi: '', follow: '', note: '' };
-    state.posts.push(p); save('posts'); postModal(p);
-  }
-
-  function ideaModal(i, preset) {
-    var isNew = !i;
-    i = i || Object.assign({ id: uid(), titolo: '', hook: '', formato: 'Reel', pilastro: '', stato: 'idea', data: '', note: '', creata: todayISO() }, preset || {});
-    var pil = state.settings.pilastri.slice(); if (i.pilastro && pil.indexOf(i.pilastro) < 0) pil.push(i.pilastro);
-    openModal('<header><h2>' + (isNew ? 'Nuova idea' : 'Idea') + '</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
-      '<div class="form">' +
-      '<label>Titolo (di cosa parla)<input class="field" id="i_titolo" value="' + esc(i.titolo) + '" placeholder="es. Perché le cosce si gonfiano dopo l\'allenamento"></label>' +
-      '<label>Hook (la prima frase che dici o scrivi)<input class="field" id="i_hook" value="' + esc(i.hook) + '" placeholder="es. Cosce gonfie dopo la palestra? Non è muscolo."></label>' +
-      '<div class="three"><label>Formato<select class="field" id="i_formato">' + opts(FORMATI, i.formato) + '</select></label>' +
-      '<label>Pilastro<select class="field" id="i_pilastro">' + opts(pil, i.pilastro, '—') + '</select></label>' +
-      '<label>Data di pubblicazione<input class="field" type="date" id="i_data" value="' + esc(i.data) + '"></label></div>' +
-      '<label>Fase<select class="field" id="i_stato">' + STATI.map(function (s) { return '<option value="' + s.id + '"' + (s.id === i.stato ? ' selected' : '') + '>' + s.nome + '</option>'; }).join('') + '</select></label>' +
-      '<label>Script, scaletta e caption<textarea class="field" id="i_note" style="min-height:180px">' + esc(i.note) + '</textarea></label>' +
-      (sample ? '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn small" id="i_ai">Scrivi lo script con Claude</button><span class="muted" id="i_aist" style="font-size:12.5px"></span></div>' : '') +
-      '</div><div class="actions"><div>' + (isNew ? '' : '<button class="btn danger" id="i_del">Elimina</button>') + '</div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="i_ok">Salva</button></div></div>', function (m) {
-      m.querySelector('#i_ok').addEventListener('click', function () {
-        var o = Object.assign({}, i);
-        ['titolo', 'hook', 'formato', 'pilastro', 'data', 'stato'].forEach(function (k) { o[k] = val(m, 'i_' + k); });
-        o.note = m.querySelector('#i_note').value;
-        if (!o.titolo && !o.hook) { toast('Scrivi almeno il titolo o l\'hook.'); return; }
-        var wasPub = !isNew && i.stato === 'pubblicato';
-        if (isNew) state.ideas.push(o); else state.ideas = state.ideas.map(function (x) { return x.id === i.id ? o : x; });
-        save('ideas'); closeModal(); render(); toast(isNew ? 'Idea salvata' : 'Modifiche salvate');
-        if (o.stato === 'pubblicato' && !wasPub && !state.posts.some(function (p) { return p.ideaId === o.id; })) toastAction('Pubblicato. Registrane i numeri quando li hai.', 'Registra ora', function () { postFromIdea(o); });
-      });
-      var del = m.querySelector('#i_del');
-      if (del) armDelete(del, function () { state.ideas = state.ideas.filter(function (x) { return x.id !== i.id; }); save('ideas'); closeModal(); render(); toast('Idea eliminata'); });
-      var ai = m.querySelector('#i_ai');
-      if (ai) ai.addEventListener('click', function () { aiScript(m, ai); });
-    });
-  }
-
-  function profiloCtx() {
-    var s = state.settings;
-    return 'Profilo Instagram: ' + (s.handle ? '@' + s.handle.replace(/^@/, '') : 'ML LAB, studio di personal training, postura e nutrizione') + '\nPubblico: ' + (s.pubblico || 'persone che si allenano e vogliono risultati, soprattutto donne') + '\nObiettivo: ' + (s.obiettivo || 'crescere e trovare nuovi clienti per il coaching') + '\nPilastri: ' + s.pilastri.join(', ');
-  }
-  function topCtx(k) {
-    var pool = state.posts.filter(function (p) { return base(p) && p.titolo; }).sort(function (a, b) { return er(b) - er(a); });
-    if (!pool.length) return 'Nessun dato di performance ancora.';
-    return 'Contenuti migliori:\n' + pool.slice(0, k).map(function (p) { return '- [' + p.formato + ', ER ' + pct(er(p)) + ', ' + n(p.follow) + ' follow] ' + p.titolo.slice(0, 110); }).join('\n') +
-      (pool.length > 6 ? '\nContenuti peggiori:\n' + pool.slice(-3).map(function (p) { return '- [' + p.formato + ', ER ' + pct(er(p)) + '] ' + p.titolo.slice(0, 110); }).join('\n') : '');
-  }
-  function aiIdee(tema, fmt) {
+  function aiIdee(tema, arg, osp) {
     if (!sample || ui.aiBusy) return;
     ui.aiBusy = true; render();
-    var gia = state.ideas.slice(-30).map(function (i) { return '- ' + (i.titolo || i.hook); }).join('\n');
-    var sp = state.spunti.slice(-15).map(function (s) { return '- [' + s.tipo + '] ' + s.testo.slice(0, 140); }).join('\n');
-    var prompt = 'Sei un content strategist per Instagram nel fitness. Proponi 6 idee di contenuto originali e specifiche, in italiano.\n\n' + profiloCtx() + '\n\n' + topCtx(8) +
-      (sp ? '\n\nSpunti salvati:\n' + sp : '') + (gia ? '\n\nIdee già in lista (non ripeterle):\n' + gia : '') +
-      (tema ? '\n\nRichiesta: ' + tema : '') + (fmt ? '\nFormato richiesto: ' + fmt : '') +
-      '\n\nRispondi SOLO con JSON: {"idee":[{"titolo":"...","hook":"prima frase, max 12 parole, che ferma lo scroll","formato":"Reel|Carosello|Post|Storia","pilastro":"uno dei pilastri","perche":"una frase su perché funzionerà per questo pubblico"}]}';
+    var gia = state.contenuti.slice(-40).map(function (c) { return '- ' + titoloDi(c); }).join('\n');
+    var sp = state.spunti.slice(-15).map(function (x) { return '- [' + x.tipo + '] ' + x.testo.slice(0, 140); }).join('\n');
+    var s = state.settings;
+    var prompt = 'Sei un content strategist per Instagram nel fitness. Proponi 6 idee di contenuto originali e specifiche, in italiano, coerenti con ciò che funziona su questo profilo.\n\n' + profiloCtx() + playbookCtx() +
+      '\n\nContenuti migliori e peggiori:\n' + contenutiCtx(conViews(state.contenuti), 12) +
+      (sp ? '\n\nSpunti salvati:\n' + sp : '') + (gia ? '\n\nGià fatti o in lista (non ripeterli):\n' + gia : '') +
+      (tema ? '\n\nRichiesta: ' + tema : '') + (arg ? '\nArgomento: ' + arg : '') + (osp ? '\nOspite: ' + osp : '') +
+      '\n\nRispondi SOLO con JSON: {"idee":[{"titolo":"...","hook":"prima frase, max 12 parole","argomento":"uno tra: ' + argNomi().join(' | ') + '","formato":"Reel|Carosello|Foto","tipo":"uno tra: ' + s.tipi.join(' | ') + '","ospite":"uno tra: ' + s.ospiti.join(' | ') + '","cta":"uno tra: ' + s.cta.join(' | ') + '","perche":"una frase sul perché funzionerà, citando un dato del profilo"}]}';
     sample.json(prompt, { modelTier: 'default' }).then(function (r) {
       var list = (r && (r.idee || r.ideas)) || (Array.isArray(r) ? r : []);
-      ui.aiIdeas = list.filter(function (x) { return x && (x.titolo || x.hook); }).map(function (x) { return { titolo: String(x.titolo || ''), hook: String(x.hook || ''), formato: String(x.formato || 'Reel'), pilastro: String(x.pilastro || ''), perche: String(x.perche || '') }; });
+      ui.aiIdeas = list.filter(function (x) { return x && (x.titolo || x.hook); }).map(function (x) { return { titolo: String(x.titolo || ''), hook: String(x.hook || ''), argomento: String(x.argomento || ''), formato: String(x.formato || 'Reel'), tipo: String(x.tipo || ''), ospite: String(x.ospite || 'Nessuno'), cta: String(x.cta || ''), perche: String(x.perche || '') }; });
       ui.aiBusy = false; render();
       if (!ui.aiIdeas.length) toast('Nessuna idea ricevuta, riprova.');
-    }, function (e) {
-      ui.aiBusy = false; render();
-      if (e && e.code !== 'cancelled') toast(e.code === 'rate_limited' ? 'Troppe richieste, riprova tra qualche minuto.' : 'Non riesco a generare idee: ' + (e.message || e.code));
-    });
+    }, function (e) { ui.aiBusy = false; render(); aiErr(e, 'Non riesco a generare idee'); });
   }
   function aiScript(m, btn) {
-    var ta = m.querySelector('#i_note'), st = m.querySelector('#i_aist');
-    var t = val(m, 'i_titolo'), h = val(m, 'i_hook'), f = val(m, 'i_formato'), p = val(m, 'i_pilastro');
+    var ta = m.querySelector('#c_testo'), st = m.querySelector('#c_aist');
+    var t = val(m, 'c_titolo'), h = val(m, 'c_hook'), f = val(m, 'c_formato') || 'Reel', tipo = val(m, 'c_tipo'), osp = val(m, 'c_ospite'), cta = val(m, 'c_cta'), arg = val(m, 'c_argomento');
     if (!t && !h) { toast('Scrivi prima titolo o hook.'); return; }
     btn.disabled = true; st.textContent = 'Claude sta scrivendo…';
     var prev = ta.value.trim();
-    var prompt = 'Scrivi lo script completo di un ' + f + ' Instagram in italiano, tono diretto e professionale da personal trainer.\n\n' + profiloCtx() + '\n\nTitolo: ' + t + '\nHook: ' + (h || 'proponilo tu') + '\nPilastro: ' + (p || '-') + (prev ? '\nAppunti esistenti da rispettare:\n' + prev : '') + '\n\n' + topCtx(4) + '\n\n' +
-      (f === 'Carosello' ? 'Struttura: SLIDE 1 (hook), slide 2-7 (una idea per slide, testo breve), ultima slide CTA. ' : f === 'Storia' ? 'Struttura: 3-5 storie con testo, sticker interattivo (sondaggio/domanda) e CTA. ' : 'Struttura con tempi: HOOK (0-3s), SVILUPPO a battute con indicazione di inquadratura e testo a schermo, CTA finale. Durata 30-45 secondi. ') +
-      'Poi CAPTION (max 120 parole, con domanda finale per i commenti) e 5 HASHTAG mirati. Niente markdown, usa titoletti in maiuscolo.';
-    ta.value = (prev ? prev + '\n\n— — —\n\n' : '');
+    var prompt = 'Scrivi lo script completo di un ' + f + ' Instagram in italiano, tono diretto e professionale da personal trainer.\n\n' + profiloCtx() + playbookCtx() +
+      '\n\nTitolo: ' + t + '\nHook: ' + (h || 'proponilo tu') + '\nArgomento: ' + (arg || '-') + '\nTipo di video: ' + (tipo || 'scegli tu') + '\nOspite: ' + (osp || 'Nessuno') + '\nCTA: ' + (cta || 'scegli tu') +
+      (prev ? '\nAppunti esistenti da rispettare:\n' + prev : '') + '\n\nEsempi dal profilo:\n' + contenutiCtx(conViews(state.contenuti), 5) + '\n\n' +
+      (f === 'Carosello' ? 'Struttura: SLIDE 1 (hook), slide 2-7 (una idea per slide, testo breve), ultima slide CTA. ' : f === 'Storia' ? 'Struttura: 3-5 storie con testo, sticker interattivo e CTA. ' : 'Struttura con tempi: HOOK (0-3s), SVILUPPO a battute con inquadratura e testo a schermo' + (osp && osp !== 'Nessuno' ? ' (indica chi parla)' : '') + ', CTA finale. Durata 20-45 secondi. ') +
+      'Poi CAPTION (max 120 parole, con domanda finale per i commenti) e 5 HASHTAG mirati. Niente markdown, titoletti in maiuscolo.';
+    ta.value = prev ? prev + '\n\n— — —\n\n' : '';
     var startLen = ta.value.length;
     sample(prompt, { onText: function (e) { ta.value = ta.value.slice(0, startLen) + e.text; ta.scrollTop = ta.scrollHeight; } }).then(function (r) {
       ta.value = ta.value.slice(0, startLen) + r.text; btn.disabled = false; st.textContent = 'Fatto. Rivedi e salva.';
-    }, function (e) {
-      btn.disabled = false; st.textContent = e && e.code === 'rate_limited' ? 'Troppe richieste, riprova tra poco.' : 'Non riuscito: ' + ((e && (e.message || e.code)) || 'errore');
-    });
+    }, function (e) { btn.disabled = false; st.textContent = e && e.code === 'rate_limited' ? 'Troppe richieste, riprova tra poco.' : 'Non riuscito: ' + ((e && (e.message || e.code)) || 'errore'); });
   }
 
   // =====================================================================
@@ -1254,53 +1443,98 @@
   // =====================================================================
   function renderCalendario(v) {
     if (!ui.calY) { var t = new Date(); ui.calY = t.getFullYear(); ui.calM = t.getMonth(); }
-    var first = new Date(ui.calY, ui.calM, 1);
-    var start = weekStart(first);
+    var first = new Date(ui.calY, ui.calM, 1), start = weekStart(first), today = todayISO(), ym = iso(first).slice(0, 7);
     var title = first.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
-    var today = todayISO();
     var byDay = {};
-    state.ideas.forEach(function (i) { if (i.data) (byDay[i.data] = byDay[i.data] || []).push({ t: i.titolo || i.hook, f: i.formato, done: i.stato === 'pubblicato', id: i.id, kind: 'idea' }); });
-    state.posts.forEach(function (p) { if (p.data && !p.ideaId) (byDay[p.data] = byDay[p.data] || []).push({ t: p.titolo || 'Contenuto', f: p.formato, done: true, id: p.id, kind: 'post' }); });
-    var monthIdeas = state.ideas.filter(function (i) { return i.data && i.data.slice(0, 7) === iso(first).slice(0, 7); });
-    var monthPosts = state.posts.filter(function (p) { return p.data && p.data.slice(0, 7) === iso(first).slice(0, 7); });
+    state.contenuti.forEach(function (c) { if (c.data) (byDay[c.data] = byDay[c.data] || []).push(c); });
     var cells = '';
     for (var k = 0; k < 42; k++) {
       var d = new Date(start); d.setDate(start.getDate() + k);
       if (k >= 35 && d.getMonth() !== ui.calM) break;
       var ds = iso(d), evs = byDay[ds] || [];
       cells += '<div class="day' + (d.getMonth() !== ui.calM ? ' out' : '') + (ds === today ? ' today' : '') + '" data-day="' + ds + '"><span class="d">' + d.getDate() + '</span>' +
-        evs.slice(0, 4).map(function (e) { return '<div class="ev' + (e.done ? ' done' : '') + '" style="--fmt:' + (FMT_VAR[e.f] || 'var(--ink-muted)') + '" data-' + e.kind + '="' + esc(e.id) + '" title="' + esc(e.t) + '">' + esc(e.t) + '</div>'; }).join('') +
+        evs.slice(0, 4).map(function (c) { return '<div class="ev' + (c.fase === 'pubblicato' ? ' done' : '') + '" style="--fmt:' + (c.argomento ? argCol(c.argomento) : 'var(--ink-muted)') + '" data-ev="' + esc(c.id) + '" title="' + esc(titoloDi(c)) + '">' + esc(titoloDi(c)) + '</div>'; }).join('') +
         (evs.length > 4 ? '<span class="muted" style="font-size:11px">+' + (evs.length - 4) + '</span>' : '') + '</div>';
     }
     var goal = n(state.settings.frequenza);
-    var planned = monthIdeas.filter(function (i) { return i.formato !== 'Storia'; }).length + monthPosts.filter(function (p) { return !p.ideaId && p.formato !== 'Storia'; }).length;
+    var inMonth = state.contenuti.filter(function (c) { return (c.data || '').slice(0, 7) === ym && c.formato !== 'Storia'; }).length;
     v.innerHTML = '<div class="calhead"><button class="btn small" id="cPrev" aria-label="Mese precedente">←</button><h2>' + esc(title) + '</h2><button class="btn small" id="cNext" aria-label="Mese successivo">→</button><button class="btn small ghost" id="cToday">Oggi</button>' +
-      '<span class="grow" style="flex:1"></span><span class="muted" style="font-size:12.5px">' + planned + ' contenuti nel mese' + (goal ? ' · obiettivo circa ' + Math.round(goal * 4.3) : '') + '</span></div>' +
+      '<span style="flex:1"></span><span class="muted" style="font-size:12.5px">' + inMonth + ' contenuti nel mese' + (goal ? ' · obiettivo circa ' + Math.round(goal * 4.3) : '') + '</span></div>' +
       '<div class="cal">' + ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map(function (d) { return '<div class="dow">' + d + '</div>'; }).join('') + cells + '</div>' +
-      '<div class="legend">' + FORMATI.map(function (f) { return '<span style="--fmt:' + FMT_VAR[f] + '"><i></i>' + f + '</span>'; }).join('') + '<span>Barrato = pubblicato</span><span>Tocca un giorno vuoto per programmare un\'idea</span></div>';
+      '<div class="legend">' + state.settings.argomenti.map(function (a) { return '<span style="--fmt:' + (COLORI[a.colore] || COLORI.grigio) + '"><i></i>' + esc(a.nome) + '</span>'; }).join('') + '<span>Barrato = pubblicato</span><span>Tocca un giorno per programmare</span></div>';
     v.querySelector('#cPrev').addEventListener('click', function () { ui.calM--; if (ui.calM < 0) { ui.calM = 11; ui.calY--; } render(); });
     v.querySelector('#cNext').addEventListener('click', function () { ui.calM++; if (ui.calM > 11) { ui.calM = 0; ui.calY++; } render(); });
     v.querySelector('#cToday').addEventListener('click', function () { ui.calY = 0; render(); });
-    v.querySelectorAll('.day').forEach(function (c) { c.addEventListener('click', function (e) {
-      var ev = e.target.closest('.ev');
-      if (ev && ev.dataset.idea) { ideaModal(findIdea(ev.dataset.idea)); return; }
-      if (ev && ev.dataset.post) { postModal(findPost(ev.dataset.post)); return; }
-      scheduleModal(c.dataset.day);
+    v.querySelectorAll('.day').forEach(function (cel) { cel.addEventListener('click', function (e) {
+      var ev = e.target.closest('[data-ev]');
+      if (ev) { var c = findC(ev.dataset.ev); if (c) contentModal(c); return; }
+      scheduleModal(cel.dataset.day);
     }); });
   }
   function scheduleModal(day) {
-    var free = state.ideas.filter(function (i) { return i.stato !== 'pubblicato' && !i.data; });
-    if (!free.length) { ideaModal(null, { data: day, stato: 'programmato' }); return; }
-    openModal('<header><h2>' + esc(parseISO(day).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })) + '</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
+    var free = state.contenuti.filter(function (c) { return c.fase !== 'pubblicato' && !c.data; });
+    if (!free.length) { contentModal(blank({ data: day, fase: 'programmato' })); return; }
+    openModal('<header><h2 style="text-transform:capitalize">' + esc(parseISO(day).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })) + '</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
       '<p class="note" style="margin:0">Scegli un\'idea senza data da programmare in questo giorno, oppure creane una nuova.</p>' +
-      '<div style="display:grid;gap:8px">' + free.map(function (i) { return '<button class="btn" style="text-align:left;white-space:normal;border-radius:12px;display:flex;gap:10px;align-items:center" data-pick="' + esc(i.id) + '">' + fmtPill(i.formato) + '<span>' + esc(i.titolo || i.hook) + '</span></button>'; }).join('') + '</div>' +
+      '<div style="display:grid;gap:8px">' + free.map(function (c) { return '<button class="btn" style="text-align:left;white-space:normal;border-radius:12px;display:flex;gap:10px;align-items:center" data-pick="' + esc(c.id) + '">' + argTag(c.argomento) + '<span>' + esc(titoloDi(c)) + '</span></button>'; }).join('') + '</div>' +
       '<div class="actions"><div></div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="s_new">Nuova idea</button></div></div>', function (m) {
       m.querySelectorAll('[data-pick]').forEach(function (b) { b.addEventListener('click', function () {
-        var i = findIdea(b.dataset.pick); i.data = day; if (i.stato === 'idea') i.stato = 'registrare';
-        save('ideas'); closeModal(); render(); toast('Programmata per il ' + fmtDate(day));
+        var c = Object.assign({}, findC(b.dataset.pick)); c.data = day; if (c.fase === 'idea') c.fase = 'registrare';
+        saveItem(c); closeModal(); render(); toast('Programmato per il ' + fmtDate(day));
       }); });
-      m.querySelector('#s_new').addEventListener('click', function () { ideaModal(null, { data: day, stato: 'programmato' }); });
+      m.querySelector('#s_new').addEventListener('click', function () { contentModal(blank({ data: day, fase: 'programmato' })); });
     });
+  }
+
+  // =====================================================================
+  // PLAYBOOK
+  // =====================================================================
+  function renderPlaybook(v) {
+    var p = state.playbook;
+    var withNotes = conViews(state.contenuti).filter(function (c) { return c.note && c.note.trim(); }).sort(function (a, b) { return n(b.views) - n(a.views); });
+    var good = withNotes.filter(function (c) { return sem(c).k === 'top' || sem(c).k === 'ok'; }), bad = withNotes.filter(function (c) { return sem(c).k === 'basso'; });
+    var cols = [['funziona', 'Cosa funziona', 'var(--s-ok)'], ['evitare', 'Da evitare', 'var(--s-low)'], ['prova', 'Da provare', 'var(--s-top)']];
+    var html = '<div class="bar"><p class="note" style="margin:0;flex:1 1 300px">Le regole del tuo profilo, ricavate dai numeri e dalle tue note. Claude le usa quando propone idee e scrive script.' + (p.aggiornato ? ' Ultimo aggiornamento: ' + esc(fmtDate(p.aggiornato)) + '.' : '') + '</p>' +
+      (sample ? '<button class="btn primary" id="pbAi"' + (ui.pbBusy || conViews(state.contenuti).length < 3 ? ' disabled' : '') + '>' + (ui.pbBusy ? 'Claude sta leggendo i contenuti…' : (p.aggiornato ? 'Aggiorna con Claude' : 'Crea il playbook con Claude')) + '</button>' : '') +
+      '<button class="btn" id="pbEdit">Modifica</button></div>';
+    html += '<div class="pb">' + cols.map(function (c) {
+      var L = p[c[0]] || [];
+      return '<section class="panel"><h3><span class="dot" style="--c:' + c[2] + '"></span>' + c[1] + '</h3>' + (L.length ? '<ul style="margin-top:12px">' + L.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="hint" style="margin:10px 0 0">Ancora vuoto. ' + (sample ? 'Fallo compilare a Claude o scrivi tu le regole.' : 'Scrivi tu le regole con «Modifica».') + '</p>') + '</section>';
+    }).join('') + '</div>';
+    html += '<div class="sec-title"><h2>Dalle tue note</h2><span class="muted">' + withNotes.length + ' contenuti con una lezione annotata</span></div><div class="grid2">' +
+      '<section class="panel"><h3><span class="dot" style="--c:var(--s-ok)"></span> Contenuti top e buoni</h3><p class="hint">Ordinati per visualizzazioni.</p>' + lessons(good) + '</section>' +
+      '<section class="panel"><h3><span class="dot" style="--c:var(--s-low)"></span> Contenuti sotto soglia</h3><p class="hint">Cosa ti sei appuntato quando non è andata.</p>' + lessons(bad) + '</section></div>';
+    v.innerHTML = html;
+    bindOpen(v);
+    var ai = v.querySelector('#pbAi'); if (ai) ai.addEventListener('click', aiPlaybook);
+    v.querySelector('#pbEdit').addEventListener('click', function () {
+      openModal('<header><h2>Modifica playbook</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header><div class="form" style="max-width:none">' +
+        cols.map(function (c) { return '<label>' + c[1] + ' (una regola per riga)<textarea class="field" id="pb_' + c[0] + '" style="min-height:110px">' + esc((p[c[0]] || []).join('\n')) + '</textarea></label>'; }).join('') +
+        '</div><div class="actions"><div></div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="pb_ok">Salva</button></div></div>', function (m) {
+        m.querySelector('#pb_ok').addEventListener('click', function () {
+          cols.forEach(function (c) { p[c[0]] = m.querySelector('#pb_' + c[0]).value.split('\n').map(function (x) { return x.replace(/^[-•\s]+/, '').trim(); }).filter(Boolean); });
+          p.aggiornato = todayISO(); save('playbook'); closeModal(); render(); toast('Playbook salvato');
+        });
+      }, true);
+    });
+  }
+  function lessons(list) {
+    if (!list.length) return '<div class="empty" style="padding:18px"><p>Nessuna nota ancora. Scrivila nella scheda del contenuto, sotto «Cosa ho imparato».</p></div>';
+    return '<div class="lessons">' + list.map(function (c) {
+      return '<button class="lesson" data-c="' + esc(c.id) + '"><span class="t">' + semPill(c) + '<span class="num">' + fmtN(c.views) + '</span> ' + esc(titoloDi(c)) + '</span><span class="x">' + esc(c.note.trim()) + '</span></button>';
+    }).join('') + '</div>';
+  }
+  function aiPlaybook() {
+    if (!sample || ui.pbBusy) return;
+    ui.pbBusy = true; render();
+    var prompt = 'Sei un content strategist esperto di Instagram per personal trainer. Analizza TUTTI i contenuti di questo profilo, con numeri, caratteristiche e note dell\'autore, e scrivi il playbook del profilo in italiano.\n\n' + profiloCtx() +
+      '\n\nContenuti (semaforo: Top oltre ' + state.settings.soglie[1] + ' visualizzazioni, Sotto meno di ' + state.settings.soglie[0] + '):\n' + contenutiCtx(conViews(state.contenuti), 120) +
+      '\n\nRegole concrete e specifiche per questo profilo, ognuna di massimo 25 parole, ognuna basata su un pattern che vedi nei dati (cita il dato tra parentesi, es. "(media 4.900 contro 1.100)"). Rispondi SOLO con JSON: {"funziona":["5-7 regole"],"evitare":["4-6 regole"],"prova":["3-5 esperimenti da testare"]}';
+    sample.json(prompt, { modelTier: 'complex' }).then(function (r) {
+      var p = state.playbook;
+      ['funziona', 'evitare', 'prova'].forEach(function (k) { if (r && Array.isArray(r[k])) p[k] = r[k].map(String).filter(Boolean); });
+      p.aggiornato = todayISO(); ui.pbBusy = false; save('playbook'); render(); toast('Playbook aggiornato');
+    }, function (e) { ui.pbBusy = false; render(); aiErr(e, 'Non riesco ad aggiornare il playbook'); });
   }
 
   // =====================================================================
@@ -1312,12 +1546,11 @@
       '<div class="form" style="max-width:none"><textarea class="field" id="s_testo" placeholder="es. Una cliente mi ha chiesto se gli squat fanno venire le gambe grosse"></textarea>' +
       '<div class="bar" style="margin:0"><select class="field" id="s_tipo">' + opts(TIPI_SPUNTO, TIPI_SPUNTO[1]) + '</select><input class="field grow" id="s_link" placeholder="Link (facoltativo)"><button class="btn primary" id="s_add">Salva spunto</button></div></div></div>';
     html += '<div class="bar"><div class="chips" id="spf"><button class="chip' + (!ui.spTipo ? ' on' : '') + '" data-t="">Tutti · ' + state.spunti.length + '</button>' + TIPI_SPUNTO.map(function (t) {
-      var c = state.spunti.filter(function (s) { return s.tipo === t; }).length;
-      return '<button class="chip' + (ui.spTipo === t ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + ' · ' + c + '</button>';
+      return '<button class="chip' + (ui.spTipo === t ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + ' · ' + state.spunti.filter(function (s) { return s.tipo === t; }).length + '</button>';
     }).join('') + '</div></div>';
     if (!list.length) html += '<div class="empty"><strong>Nessuno spunto ' + (ui.spTipo ? 'di questo tipo' : 'salvato') + '</strong><p>Le domande dei clienti sono la miglior fonte di idee: annotale qui appena le senti. Con «Trasforma in idea» finiscono nella pipeline, e Claude le usa quando genera nuove idee.</p></div>';
     else html += '<div class="spunti">' + list.map(function (s) {
-      return '<article class="sp"><div class="foot"><span class="pill">' + esc(s.tipo) + '</span><span class="muted" style="font-size:12px">' + fmtDate(s.creato) + '</span></div><div class="txt">' + esc(s.testo) + '</div>' +
+      return '<article class="sp"><div class="sp-foot" style="display:flex;justify-content:space-between;gap:8px"><span class="pill">' + esc(s.tipo) + '</span><span class="muted" style="font-size:12px">' + fmtDate(s.creato) + '</span></div><div class="txt">' + esc(s.testo) + '</div>' +
         (s.link && /^https?:\/\//.test(s.link) ? '<a href="' + esc(s.link) + '" target="_blank" rel="noopener">' + esc(s.link.replace(/^https?:\/\/(www\.)?/, '').slice(0, 60)) + ' ↗</a>' : '') +
         '<div class="foot"><button class="btn small" data-toidea="' + esc(s.id) + '">Trasforma in idea</button><button class="iconbtn" data-rm="' + esc(s.id) + '" aria-label="Elimina spunto">✕</button></div></article>';
     }).join('') + '</div>';
@@ -1331,7 +1564,7 @@
     v.querySelectorAll('[data-toidea]').forEach(function (b) { b.addEventListener('click', function () {
       var s = state.spunti.filter(function (x) { return x.id === b.dataset.toidea; })[0];
       var isHook = s.tipo === 'Hook';
-      ideaModal(null, { titolo: isHook ? '' : s.testo.slice(0, 120), hook: isHook ? s.testo.slice(0, 160) : '', note: 'Spunto (' + s.tipo + '): ' + s.testo + (s.link ? '\n' + s.link : '') });
+      contentModal(blank({ titolo: isHook ? '' : s.testo.slice(0, 120), hook: isHook ? s.testo.slice(0, 160) : '', testo: 'Spunto (' + s.tipo + '): ' + s.testo + (s.link ? '\n' + s.link : '') }));
     }); });
     v.querySelectorAll('[data-rm]').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -1346,34 +1579,40 @@
   // =====================================================================
   function renderImpostazioni(v) {
     var s = state.settings;
+    function lines(a) { return esc(a.join('\n')); }
     v.innerHTML = '<div class="form">' +
-      '<div class="three"><label>Il tuo nome<input class="field" id="st_nome" value="' + esc(s.nome) + '" placeholder="Mattia"></label>' +
+      '<div class="three"><label>Il tuo nome<input class="field" id="st_nome" value="' + esc(s.nome) + '"></label>' +
       '<label>Profilo Instagram<input class="field" id="st_handle" value="' + esc(s.handle) + '" placeholder="es. mllab.studio"></label>' +
       '<label>Contenuti a settimana<input class="field" type="number" min="1" max="21" id="st_freq" value="' + esc(s.frequenza) + '"></label></div>' +
-      '<label>Pilastri di contenuto (uno per riga)<textarea class="field" id="st_pil">' + esc(s.pilastri.join('\n')) + '</textarea></label>' +
+      '<div class="two"><label>🔴 Sotto soglia: meno di (visualizzazioni)<input class="field" type="number" min="0" id="st_s0" value="' + esc(s.soglie[0]) + '"></label>' +
+      '<label>🟣 Top: da (visualizzazioni)<input class="field" type="number" min="0" id="st_s1" value="' + esc(s.soglie[1]) + '"></label></div>' +
+      '<div class="two"><label>Argomenti (uno per riga, con il pallino colorato davanti)<textarea class="field" id="st_arg">' + esc(s.argomenti.map(function (a) { return (COL_EMOJI[a.colore] || '⚪️') + ' ' + a.nome; }).join('\n')) + '</textarea></label>' +
+      '<label>Ospiti (uno per riga)<textarea class="field" id="st_osp">' + lines(s.ospiti) + '</textarea></label></div>' +
+      '<div class="two"><label>Tipi di video (uno per riga)<textarea class="field" id="st_tipi" style="min-height:150px">' + lines(s.tipi) + '</textarea></label>' +
+      '<label>CTA (una per riga)<textarea class="field" id="st_cta" style="min-height:150px">' + lines(s.cta) + '</textarea></label></div>' +
       '<label>Pubblico (a chi parli)<input class="field" id="st_pub" value="' + esc(s.pubblico) + '" placeholder="es. donne 25-45 che si allenano in palestra e vogliono gambe più toniche"></label>' +
       '<label>Obiettivo del profilo<input class="field" id="st_obi" value="' + esc(s.obiettivo) + '" placeholder="es. portare richieste di coaching in DM"></label>' +
       '<div><button class="btn primary" id="st_save">Salva impostazioni</button></div>' +
-      '<p class="note">Pubblico, obiettivo e pilastri servono a Claude per proporre idee e script su misura. Il formato e il pilastro di ogni contenuto alimentano i confronti in Panoramica.</p>' +
-      '<div class="sec-title" style="margin-top:14px"><h2>Collegamento a Instagram</h2></div>' +
-      '<p class="note">I numeri arrivano dall\'export di Meta Business Suite: Insights › Contenuti › scegli il periodo › Esporta dati (CSV). Importa lo stesso file anche più volte: i contenuti già presenti vengono aggiornati con i numeri nuovi, senza doppioni. Per un collegamento automatico serve un connettore Instagram in claude.ai: quando sarà disponibile, l\'app potrà leggere i dati direttamente.</p>' +
+      '<p class="note">Pallini disponibili per gli argomenti: 🔵 🟢 ⚫️ 🟣 🟠 🔴 🟡 ⚪️. Le soglie decidono il semaforo di ogni contenuto. Pubblico, obiettivo e categorie servono a Claude per proposte su misura.</p>' +
+      '<div class="sec-title" style="margin-top:14px"><h2>Importare i dati</h2></div>' +
+      '<p class="note">Dall\'Archivio, «Importa CSV» accetta l\'export del database Notion dei contenuti (Title, Argomento, Ospite, Stato post, Testo, Visualizzazioni, Note) e quello di Meta Business Suite (Insights › Contenuti › Esporta). Puoi importare lo stesso file più volte: i contenuti già presenti vengono aggiornati, senza doppioni.</p>' +
       '<div class="sec-title" style="margin-top:14px"><h2>Backup</h2></div>' +
-      '<p class="note">I dati si sincronizzano da soli tra i tuoi dispositivi quando apri l\'app su claude.ai. Il backup è una copia completa da conservare (non va messo nel repository).</p>' +
+      '<p class="note">I dati si sincronizzano da soli tra i tuoi dispositivi su claude.ai. Il backup è una copia completa da conservare (non va messa nel repository).</p>' +
       '<div class="bar"><button class="btn" id="bk_exp">Salva backup</button><label class="btn" style="cursor:pointer">Ripristina backup<input type="file" id="bk_imp" accept=".json,application/json" hidden></label></div>' +
-      '<p class="note num">' + state.posts.length + ' contenuti · ' + state.ideas.length + ' idee · ' + state.spunti.length + ' spunti · ' + state.crescita.length + ' rilevazioni follower</p>' +
-      '</div>';
+      '<p class="note num">' + state.contenuti.length + ' contenuti · ' + state.spunti.length + ' spunti · ' + state.crescita.length + ' rilevazioni follower</p></div>';
+    function L(id) { return v.querySelector('#' + id).value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean); }
     v.querySelector('#st_save').addEventListener('click', function () {
-      state.settings = {
-        nome: val(v, 'st_nome') || 'Mattia',
-        handle: val(v, 'st_handle').replace(/^@/, ''),
-        frequenza: Math.max(1, n(val(v, 'st_freq')) || 4),
-        pilastri: v.querySelector('#st_pil').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean),
-        pubblico: val(v, 'st_pub'), obiettivo: val(v, 'st_obi')
-      };
-      if (!state.settings.pilastri.length) state.settings.pilastri = DEFAULT_SETTINGS.pilastri.slice();
+      var argomenti = L('st_arg').map(function (x) { var e = splitEmoji(x); return { nome: e.nome, colore: e.colore || (s.argomenti.filter(function (a) { return a.nome === e.nome; })[0] || {}).colore || 'grigio' }; }).filter(function (a) { return a.nome; });
+      var s0 = n(val(v, 'st_s0')), s1 = n(val(v, 'st_s1'));
+      if (s1 <= s0) { toast('La soglia Top deve essere più alta di quella Sotto.'); return; }
+      state.settings = fixSettings({
+        nome: val(v, 'st_nome') || 'Mattia', handle: val(v, 'st_handle').replace(/^@/, ''), frequenza: Math.max(1, n(val(v, 'st_freq')) || 4),
+        soglie: [s0, s1], argomenti: argomenti, ospiti: L('st_osp'), tipi: L('st_tipi'), cta: L('st_cta'), pubblico: val(v, 'st_pub'), obiettivo: val(v, 'st_obi')
+      });
+      if (state.settings.ospiti.indexOf('Nessuno') < 0) state.settings.ospiti.unshift('Nessuno');
       save('settings'); render(); toast('Impostazioni salvate');
     });
-    v.querySelector('#bk_exp').addEventListener('click', function () { saveFile('ML LAB contenuti backup ' + todayISO() + '.json', JSON.stringify(Object.assign({ app: 'mllab-contenuti', versione: 1 }, state), null, 2), 'Backup'); });
+    v.querySelector('#bk_exp').addEventListener('click', function () { saveFile('ML LAB contenuti backup ' + todayISO() + '.json', JSON.stringify(Object.assign({ app: 'mllab-contenuti', versione: 2 }, state), null, 2), 'Backup'); });
     v.querySelector('#bk_imp').addEventListener('change', function (e) {
       var f = e.target.files[0]; e.target.value = ''; if (!f) return;
       var r = new FileReader();
@@ -1381,8 +1620,11 @@
         try {
           var d = JSON.parse(String(r.result));
           if (d.app !== 'mllab-contenuti') throw new Error('x');
-          KEYS.forEach(function (k) { if (d[k]) { state[k] = d[k]; save(k); } });
-          state.settings = Object.assign(clone(DEFAULT_SETTINGS), state.settings);
+          var cont = d.contenuti || fromLegacy(d);
+          cont.forEach(function (c) { saveItem(Object.assign(blank(), c)); });
+          ['spunti', 'crescita'].forEach(function (k) { if (d[k]) { state[k] = d[k]; save(k); } });
+          if (d.playbook) { state.playbook = d.playbook; save('playbook'); }
+          if (d.settings) { state.settings = fixSettings(d.settings); save('settings'); }
           render(); toast('Backup ripristinato');
         } catch (err) { toast('Questo file non è un backup di ML LAB Contenuti.'); }
       };
@@ -1390,11 +1632,38 @@
     });
   }
 
+  // ---------- ricerca globale ----------
+  (function () {
+    var gs = document.getElementById('gsearch'), gr = document.getElementById('gres');
+    function run() {
+      var q = normTxt(gs.value);
+      if (!q) { gr.hidden = true; return; }
+      var res = [];
+      state.contenuti.forEach(function (c) { if (normTxt([c.titolo, c.hook, c.testo, c.note].join(' ')).indexOf(q) >= 0) res.push({ k: (c.fase === 'pubblicato' ? (has(c.views) ? fmtN(c.views) + ' visual.' : 'Pubblicato') : sem(c).l), t: titoloDi(c), fn: function () { contentModal(findC(c.id)); } }); });
+      state.spunti.forEach(function (s) { if (normTxt(s.testo).indexOf(q) >= 0) res.push({ k: 'Spunto · ' + s.tipo, t: s.testo, fn: function () { ui.spTipo = ''; setTab('spunti'); } }); });
+      gr.innerHTML = res.length ? res.slice(0, 10).map(function (r, i) { return '<button type="button" data-i="' + i + '"><span class="t">' + esc(r.t) + '</span><span class="k">' + esc(r.k) + '</span></button>'; }).join('') : '<div class="none">Nessun risultato</div>';
+      gr.hidden = false;
+      gr.querySelectorAll('button[data-i]').forEach(function (b) { b.addEventListener('mousedown', function (e) { e.preventDefault(); var r = res[+b.dataset.i]; gr.hidden = true; gs.value = ''; gs.blur(); r.fn(); }); });
+    }
+    gs.addEventListener('input', run);
+    gs.addEventListener('focus', run);
+    gs.addEventListener('blur', function () { setTimeout(function () { gr.hidden = true; }, 120); });
+    gs.addEventListener('keydown', function (e) { if (e.key === 'Escape') { gs.value = ''; gr.hidden = true; gs.blur(); } });
+    document.getElementById('quickAdd').addEventListener('click', function () { contentModal(blank()); });
+    document.getElementById('promoGo').addEventListener('click', function () {
+      setTab('idee');
+      var t = document.getElementById('aiTema'); if (t) t.focus(); else if (!sample) toast('Le idee di Claude funzionano aprendo l\'app su claude.ai.');
+    });
+  })();
+
   // ---------- avvio ----------
   loadLocal();
+  try { ui.vista = localStorage.getItem(LS_KEY + '-vista') || ui.vista; } catch (e) {}
   var startTab = (location.hash || '').slice(1);
+  if (startTab === 'contenuti') startTab = 'archivio';
   if (!startTab) { try { startTab = localStorage.getItem(LS_KEY + '-tab') || ''; } catch (e) {} }
-  if (['panoramica', 'contenuti', 'idee', 'calendario', 'spunti', 'impostazioni'].indexOf(startTab) >= 0) {
+  if (startTab === 'contenuti') startTab = 'archivio';
+  if (TABS.indexOf(startTab) >= 0) {
     ui.tab = startTab;
     document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === startTab); });
   }

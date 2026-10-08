@@ -22,14 +22,17 @@ che finiscono entro 7 giorni. L'assistente ha lo strumento `allenamento`
 (elenca, dettaglio, assegna, nuovo, inizio).
 
 ## Contenuti Instagram (`ml-lab-contenuti.html`)
-App separata per il profilo Instagram, pubblicata come Artifact a sé:
-- **Panoramica** — follower, contenuti pubblicati, copertura, engagement e salvataggi rispetto al periodo
-  precedente; formato, pilastro e giorno migliori; costanza settimanale rispetto all'obiettivo.
-- **Contenuti** — monitoraggio di ogni post/reel. Import del CSV di Meta Business Suite
-  (Insights › Contenuti › Esporta, colonne in italiano o inglese; reimportare aggiorna senza doppioni).
-- **Idee** — pipeline Idea › Da registrare › In montaggio › Programmato › Pubblicato, con Claude che
-  propone idee e scrive script, caption e hashtag.
-- **Calendario** — piano editoriale mensile. **Spunti** — hook, domande dei clienti, trend.
+App separata per il profilo Instagram, pubblicata come Artifact a sé. Ogni contenuto ha una sola scheda,
+dall'idea ai numeri: titolo, hook, testo, argomento, formato, tipo di video, ospite, CTA, fase, data,
+visualizzazioni e altre metriche, clienti portati, contenuto collegato e «cosa ho imparato».
+- **Panoramica** — visualizzazioni medie, top/sotto soglia, clienti portati, follower; «cosa fa la differenza»
+  per argomento, ospite, tipo di video, formato e CTA; semaforo e obiettivo del mese.
+- **Archivio** — schede o tabella con filtri. Import CSV dall'export Notion (Title, Argomento, Ospite,
+  Stato post, Testo, Visualizzazioni, Note) o da Meta Business Suite; reimportare aggiorna senza doppioni.
+- **Idee** — pipeline Idea › Da registrare › In montaggio › Programmato › Pubblicato; Claude propone idee e scrive script.
+- **Calendario**, **Playbook** (regole del profilo e lezioni dalle note, aggiornabili con Claude), **Spunti**.
 
-Capacità usate: `db` (documenti `app/posts`, `app/ideas`, `app/spunti`, `app/crescita`, `app/settings`),
-`sample`, `downloads`. Non c'è un collegamento diretto alle API di Instagram: i dati entrano dal CSV di Meta.
+Semaforo automatico dalle visualizzazioni: 🔴 sotto 1.000, 🟢 da 1.000, 🟣 da 3.500 (soglie in Impostazioni).
+
+Capacità usate: `db` (un documento per contenuto in `contenuti/`, più `app/settings`, `app/playbook`,
+`app/spunti`, `app/crescita`), `sample`, `downloads`.
