@@ -1181,14 +1181,14 @@
     ospite: ['ospite', 'ospiti', 'guest'],
     stato: ['stato post', 'stato', 'esito'],
     note: ['note', 'notes', 'cosa ho imparato'],
-    data: ['publish time', 'ora di pubblicazione', 'data di pubblicazione', 'data', 'date', 'orario di pubblicazione'],
+    data: ['orario di pubblicazione', 'publish time', 'ora di pubblicazione', 'data di pubblicazione', 'data', 'date'],
     formato: ['formato', 'post type', 'tipo di post', 'tipo di contenuto'],
     tipo: ['tipo di video', 'tipo video', 'stile'],
     cta: ['cta', 'call to action'],
     link: ['permalink', 'link', 'url'],
     views: ['visualizzazioni', 'views', 'plays', 'riproduzioni', 'impressions', 'impressioni'],
     reach: ['reach', 'copertura', 'account raggiunti', 'accounts reached'],
-    like: ['likes', 'mi piace', 'like'],
+    like: ['likes', 'mi piace', 'like', 'reazioni', 'reactions'],
     commenti: ['comments', 'commenti'],
     condivisioni: ['shares', 'condivisioni'],
     salvataggi: ['saves', 'salvataggi', 'elementi salvati', 'salvati'],
@@ -1204,6 +1204,13 @@
     return { map: map, italian: H.some(function (h) { return /pubblicazione|copertura|visualizzazioni|commenti|argomento|testo/.test(h); }) };
   }
   function parseNum(s) { s = String(s || '').trim(); if (!s) return ''; s = s.replace(/\s/g, ''); if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ''); s = s.replace(/,(\d{3})(?!\d)/g, '$1').replace(',', '.'); var x = parseFloat(s); return isFinite(x) ? Math.round(x) : ''; }
+  // dmy: true = giorno/mese (Notion, Italia), false = mese/giorno (gli export di Meta, anche in italiano)
+  function dateOrder(values, isMeta) {
+    var dayFirst = false, monthFirst = false;
+    values.forEach(function (v) { var m = String(v || '').trim().match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-]\d{2,4}/); if (!m) return; if (+m[1] > 12) dayFirst = true; if (+m[2] > 12) monthFirst = true; });
+    if (dayFirst !== monthFirst) return dayFirst;
+    return !isMeta;
+  }
   function parseDate(s, italian) {
     s = String(s || '').trim(); if (!s) return '';
     var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
@@ -1262,6 +1269,8 @@
   function firstLine(t) { var l = String(t || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean)[0] || ''; return l.replace(/^["“”']+|["“”']+$/g, '').trim().slice(0, 160); }
   function rowToContent(get, italian) {
     var titolo = String(get('titolo') || '').trim(), testo = String(get('testo') || '').trim(), note = String(get('note') || '').trim();
+    // negli export di Meta il «Titolo» è l'intera didascalia: il titolo diventa la prima riga
+    if (titolo.length > 100 || /\n/.test(titolo)) { if (!testo) testo = titolo; titolo = firstLine(titolo).slice(0, 90); }
     var noteFmt = note;
     if (/^(reel|carosello|frontale|foto|video)\.?$/i.test(note)) note = '';
     if (!titolo && testo) titolo = firstLine(testo).slice(0, 90);
@@ -1292,6 +1301,13 @@
       for (var i = 0; i < Math.min(rows.length, 5); i++) { var mm = mapHeaders(rows[i]).map; if ((mm.titolo != null || mm.testo != null) && (mm.views != null || mm.argomento != null || mm.data != null)) { hi = i; break; } }
       var mh = mapHeaders(rows[hi]), map = mh.map;
       if (map.titolo == null && map.testo == null) { toast('Non trovo né il titolo né il testo dei contenuti. Controlla che sia l\'export di Notion o di Meta.'); return; }
+      var body = rows.slice(hi + 1);
+      if (map.link != null) {
+        var links = body.map(function (r) { return String(r[map.link] || ''); }).filter(Boolean);
+        if (links.length && links.every(function (l) { return /facebook\.com/.test(l); })) { toast('Questo CSV è della pagina Facebook. In Meta Business Suite esporta la scheda «Instagram», tipo «Post».'); return; }
+      }
+      var isMeta = map.link != null && rows[hi].some(function (h) { return /permalink/i.test(h); });
+      mh.italian = map.data != null ? dateOrder(body.map(function (r) { return r[map.data]; }), isMeta) : mh.italian;
       var s = state.settings, added = 0, updated = 0, base = Date.now();
       rows.slice(hi + 1).forEach(function (row, idx) {
         var res = rowToContent(function (k) { return map[k] != null ? row[map[k]] : ''; }, mh.italian);
