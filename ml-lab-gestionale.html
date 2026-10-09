@@ -898,6 +898,15 @@
   .di-addupd { display: grid; grid-template-columns: auto auto 1fr auto; gap: 6px; margin-top: 6px; align-items: center; }
   .di-addupd input, .di-addupd select { padding: 6px 8px; font-size: 13px; }
   .di-btn b { color: #B91C1C; }
+  .di-plan { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 8px 12px; margin: 8px 0 4px; font-size: 13px; }
+  .di-plan.late { background: #FEF2F2; border-color: #FECACA; } .di-plan.ok { background: #F0FDF4; border-color: #BBF7D0; }
+  .di-plan-txt { white-space: pre-wrap; margin: 2px 0 6px; font-size: 14px; }
+  .di-plan-st { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .di-plan-st a.btn { text-decoration: none; }
+  .di-quick { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; } .di-quick button { font-size: 11px; padding: 3px 9px; }
+  .di-planedit { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 10px 12px; margin-top: 8px; }
+  .di-planedit textarea { min-height: 60px; }
+  .di-upd .di-contact { color: #1D4ED8; }
   @media (max-width: 760px) { .di-addupd { grid-template-columns: 1fr 1fr; } .di-addupd input[type="text"] { grid-column: 1 / -1; } }
   .co-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
   .co-chip { border: 1px solid var(--border); background: #FFFFFF; border-radius: 999px; padding: 7px 16px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif; }
@@ -5601,12 +5610,13 @@
           return s.name + ': ' + done.join(', ');
         });
       } },
-    { name: 'diario', description: 'Diario del cliente: segnalazioni nel tempo (dolori, infortuni, malattia, stanchezza, feedback) con zona, intensità 0-10, stato aperta/risolta e aggiornamenti. azione "leggi" (diario di un cliente, filtrabile per zona), "aperte" (tutte le segnalazioni aperte di tutti i clienti), "aggiungi" (nuova segnalazione: cliente, tipo, zona, intensita, testo, data), "aggiorna" (aggiunge un aggiornamento all\'ultima segnalazione aperta del cliente, o a quella della zona indicata), "risolvi" (segna risolta l\'ultima aperta del cliente o quella della zona). Sono dati sanitari: scrivi solo ciò che serve per l\'allenamento.',
-      inputSchema: { type: 'object', properties: { azione: { type: 'string', enum: ['leggi', 'aperte', 'aggiungi', 'aggiorna', 'risolvi'] }, cliente: { type: 'string' }, tipo: { type: 'string', enum: ['Dolore/fastidio', 'Infortunio', 'Malattia', 'Stanchezza/stress', 'Feedback', 'Altro'] }, zona: { type: 'string' }, intensita: { type: 'number', description: '0-10' }, testo: { type: 'string' }, data: { type: 'string', description: 'YYYY-MM-DD, default oggi' } }, required: ['azione'] },
+    { name: 'diario', description: 'Diario del cliente: segnalazioni nel tempo (dolori, infortuni, malattia, stanchezza, feedback) con zona, intensità 0-10, stato aperta/risolta e aggiornamenti. azione "leggi" (diario di un cliente, filtrabile per zona), "aperte" (tutte le segnalazioni aperte di tutti i clienti), "aggiungi" (nuova segnalazione: cliente, tipo, zona, intensita, testo, data), "aggiorna" (aggiunge un aggiornamento all\'ultima segnalazione aperta del cliente, o a quella della zona indicata), "risolvi" (segna risolta l\'ultima aperta del cliente o quella della zona), "piano" (imposta il piano d\'azione con la data entro cui il cliente deve dare un feedback: testo + entro, sull\'ultima aperta o quella della zona), "feedback" (elenco dei feedback scaduti da chiedere). Sono dati sanitari: scrivi solo ciò che serve per l\'allenamento.',
+      inputSchema: { type: 'object', properties: { azione: { type: 'string', enum: ['leggi', 'aperte', 'aggiungi', 'aggiorna', 'risolvi', 'piano', 'feedback'] }, entro: { type: 'string', description: 'YYYY-MM-DD: per "piano", entro quando il cliente deve dare il feedback' }, cliente: { type: 'string' }, tipo: { type: 'string', enum: ['Dolore/fastidio', 'Infortunio', 'Malattia', 'Stanchezza/stress', 'Feedback', 'Altro'] }, zona: { type: 'string' }, intensita: { type: 'number', description: '0-10' }, testo: { type: 'string' }, data: { type: 'string', description: 'YYYY-MM-DD, default oggi' } }, required: ['azione'] },
       execute: function (inp) {
         if (state.anag) anSync();
-        var fmt = function (p, e) { return { cliente: p.nome, data: e.data, tipo: e.tipo, zona: e.zona || null, intensita: e.int === '' ? null : e.int, testo: e.testo || null, stato: e.stato, risolta_il: e.risoltaIl || null, aggiornamenti: (e.agg || []).map(function (u) { return { data: u.data, testo: u.testo, intensita: u.int === '' ? null : u.int }; }) }; };
+        var fmt = function (p, e) { return { cliente: p.nome, data: e.data, tipo: e.tipo, zona: e.zona || null, intensita: e.int === '' ? null : e.int, testo: e.testo || null, stato: e.stato, risolta_il: e.risoltaIl || null, aggiornamenti: (e.agg || []).map(function (u) { return { data: u.data, testo: u.testo, intensita: u.int === '' ? null : u.int }; }), piano: e.piano || null, feedback_entro: e.feedbackEntro || null, stato_feedback: (function () { var f = diFb(e); return f ? (f.st === 'ok' ? 'ricevuto il ' + f.date : f.st === 'late' ? 'scaduto da ' + (-f.days) + ' giorni' : f.st === 'today' ? 'scade oggi' : 'in attesa (mancano ' + f.days + ' giorni)') : null; })() }; };
         if (inp.azione === 'aperte') return diAllOpen().map(function (x) { return fmt(x.p, x.e); });
+        if (inp.azione === 'feedback') return diAllOpen().filter(function (x) { return diFbDue(x.e); }).map(function (x) { return fmt(x.p, x.e); });
         var q = asNorm(inp.cliente); if (!q) throw new Error('manca il nome del cliente');
         var toks = q.split(/\s+/), list = (state.anag.people || []).filter(function (x) { if (x.eliminato) return false; var n = asNorm(x.nome); return toks.every(function (t) { return n.indexOf(t) !== -1; }); });
         var ex = list.filter(function (x) { return asNorm(x.nome) === q; }); var p = ex.length === 1 ? ex[0] : (list.length === 1 ? list[0] : null);
@@ -5625,7 +5635,13 @@
         }
         var target = all.filter(function (e) { return e.stato !== 'risolta' && (!zq || asNorm(e.zona).indexOf(zq) !== -1); })[0];
         if (!target) throw new Error('nessuna segnalazione aperta' + (zq ? ' per la zona "' + inp.zona + '"' : '') + ' nel diario di ' + p.nome);
-        if (inp.azione === 'aggiorna') { (target.agg = target.agg || []).push({ id: 'u_' + uid(), data: day, testo: inp.testo || '', int: iv }); return done('Aggiornamento aggiunto (' + [target.tipo, target.zona].filter(Boolean).join(' · ') + ') nel diario di ' + p.nome); }
+        if (inp.azione === 'aggiorna') { (target.agg = target.agg || []).push({ id: 'u_' + uid(), data: day, testo: inp.testo || '', int: iv, at: new Date().toISOString() }); return done('Aggiornamento aggiunto (' + [target.tipo, target.zona].filter(Boolean).join(' · ') + ') nel diario di ' + p.nome); }
+        if (inp.azione === 'piano') {
+          if (!inp.testo) throw new Error('manca il testo del piano d\'azione');
+          if (!inp.entro || !/^\d{4}-\d{2}-\d{2}$/.test(inp.entro)) throw new Error('manca la data "entro" (YYYY-MM-DD) per il feedback');
+          target.piano = inp.testo; target.feedbackEntro = inp.entro; target.pianoIl = toISO(todayMidnight()); target.pianoAt = new Date().toISOString(); target.contattato = '';
+          return done('Piano d\'azione impostato (' + [target.tipo, target.zona].filter(Boolean).join(' · ') + ') per ' + p.nome + ' · feedback entro ' + inp.entro);
+        }
         if (inp.azione === 'risolvi') { target.stato = 'risolta'; target.risoltaIl = day; return done('Segnata come risolta (' + [target.tipo, target.zona].filter(Boolean).join(' · ') + ') nel diario di ' + p.nome); }
         throw new Error('azione sconosciuta');
       } },
@@ -6103,6 +6119,21 @@
   function diIntCls(v) { return v === '' || v == null ? '' : (v >= 7 ? 'hi' : v >= 4 ? 'mid' : 'lo'); }
   function diIntHtml(v) { return v === '' || v == null ? '' : '<span class="di-int ' + diIntCls(+v) + '">' + v + '/10</span>'; }
   function diDays(iso) { var d = Math.round((todayMidnight() - fromISO(iso)) / 86400000); return d <= 0 ? 'oggi' : d === 1 ? 'da ieri' : 'da ' + d + ' giorni'; }
+  // piano d'azione: il cliente deve dare un feedback entro una data; un aggiornamento dopo il piano = feedback ricevuto
+  function diFb(e) {
+    if (!e || !e.piano || !e.feedbackEntro || e.stato === 'risolta') return null;
+    // conta solo una risposta arrivata DOPO il piano (con l'ora esatta quando c'è)
+    var since = e.pianoIl || e.data, got = (e.agg || []).filter(function (u) { return !u.contatto && (u.at && e.pianoAt ? u.at > e.pianoAt : (u.data || '') > since); }).pop();
+    if (got) return { st: 'ok', date: got.data };
+    var d = Math.round((fromISO(e.feedbackEntro) - todayMidnight()) / 86400000);
+    return { st: d < 0 ? 'late' : (d === 0 ? 'today' : 'wait'), days: d, contattato: e.contattato || '' };
+  }
+  // da sollecitare: scaduto (o scade oggi) e non contattato negli ultimi 2 giorni
+  function diFbDue(e) { var f = diFb(e); if (!f || (f.st !== 'late' && f.st !== 'today')) return false; return !(f.contattato && (todayMidnight() - fromISO(f.contattato)) / 86400000 < 2); }
+  function diWaText(p, e) {
+    var first = String(p.nome || '').split(' ')[0], what = e.zona ? 'con ' + (/^(spalla|anca|caviglia|cervicale|dorsale|lombare)/i.test(e.zona) ? 'la ' : /^(gomito|polso|ginocchio|piede)/i.test(e.zona) ? 'il ' : '') + e.zona.toLowerCase() : '';
+    return 'Ciao ' + first + '! Come va' + (what ? ' ' + what : '') + '? Fammi sapere com\'è andata con quello che avevamo deciso, così sistemiamo il programma 💪';
+  }
   function diLast(e) { var u = (e.agg || []).filter(function (x) { return x.int !== '' && x.int != null; }); return u.length ? u[u.length - 1].int : e.int; }
   function diAfter() {
     saveAn();
@@ -6115,7 +6146,7 @@
   }
   function openDiario(pid, nuova) {
     var p = anPerson(pid); if (!p) { toast('Persona non trovata in Anagrafica'); return; }
-    if (diPid !== pid) diView = { filtro: 'tutte', zona: '', form: false, upd: null };
+    if (diPid !== pid) diView = { filtro: 'tutte', zona: '', form: false, upd: null, plan: null };
     diPid = pid; if (nuova) diView.form = true;
     var ov = document.getElementById('diOverlay');
     if (!ov) { ov = document.createElement('div'); ov.className = 'overlay'; ov.id = 'diOverlay'; document.body.appendChild(ov); ov.addEventListener('click', function (e) { if (e.target === ov) diClose(); }); }
@@ -6133,8 +6164,10 @@
         '<div><label>Data</label><input type="date" id="diData" value="' + toISO(todayMidnight()) + '"></div>' +
         '<div><label>Tipo</label><select id="diTipo" class="form-input">' + DI_TIPI.map(function (t) { return '<option>' + t + '</option>'; }).join('') + '</select></div>' +
         '<div><label>Intensità (0–10)</label><select id="diInt" class="form-input">' + ints(null) + '</select></div>' +
-        '<div class="full"><label>Zona</label><input type="text" id="diZona" list="diZone" placeholder="es. Spalla dx, Lombare, Ginocchio sx…"><datalist id="diZone">' + Object.keys(zone).concat(DI_ZONE.filter(function (z) { return !zone[z]; })).map(function (z) { return '<option value="' + escapeHtml(z) + '">'; }).join('') + '</datalist></div>' +
-        '<div class="full"><label>Cosa ti ha scritto / cosa hai notato</label><textarea id="diTesto" class="note-area" placeholder="Incolla qui il messaggio WhatsApp o scrivi una sintesi (es. fastidio spalla dx in spinta sopra la testa)…"></textarea></div></div>' +
+        '<div class="full"><label>Zona / problema</label><input type="text" id="diZona" list="diZone" placeholder="es. Spalla dx, Lombare, Reflusso…"><datalist id="diZone">' + Object.keys(zone).concat(DI_ZONE.filter(function (z) { return !zone[z]; })).map(function (z) { return '<option value="' + escapeHtml(z) + '">'; }).join('') + '</datalist></div>' +
+        '<div class="full"><label>Cosa ti ha scritto / cosa hai notato</label><textarea id="diTesto" class="note-area" placeholder="Incolla qui il messaggio WhatsApp o scrivi una sintesi (es. fastidio spalla dx in spinta sopra la testa)…"></textarea></div>' +
+        '<div class="full" style="grid-column:1/-1;"><label>🎯 Piano d\'azione <span class="sp-meta">(facoltativo)</span></label><textarea id="diPiano" class="note-area" style="min-height:56px;" placeholder="es. niente lento avanti per 2 settimane, mobilità spalla 10\' al giorno, ghiaccio dopo l\'allenamento"></textarea></div>' +
+        '<div><label>Feedback entro</label><input type="date" id="diEntro"><div class="di-quick">' + [[3, '3 giorni'], [7, '1 settimana'], [14, '2 settimane']].map(function (q) { return '<button type="button" class="btn small ghost" data-diq="' + q[0] + '">' + q[1] + '</button>'; }).join('') + '</div></div></div>' +
         '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;"><button class="btn small ghost" id="diAnnulla">Annulla</button><button class="btn small primary" id="diSalva">Salva segnalazione</button></div></div>'
       : '<button class="btn small nu-new" id="diNuova" style="margin-bottom:12px;">＋ Nuova segnalazione</button>';
     var nOpen = diOpen(p).length;
@@ -6148,9 +6181,23 @@
         '<span class="di-chip">' + escapeHtml(e.tipo || '') + '</span>' + (e.zona ? '<span class="di-chip">📍 ' + escapeHtml(e.zona) + '</span>' : '') + diIntHtml(e.int) +
         (trend.length > 1 ? '<span class="di-trend">andamento ' + trend.join(' → ') + '</span>' : '') + '</div>' +
         (e.testo ? '<div class="di-txt">' + escapeHtml(e.testo) + '</div>' : '') +
-        (agg.length ? '<div class="di-upd">' + agg.map(function (u) { return '<div><span>' + fromISO(u.data).getDate() + ' ' + MESI[fromISO(u.data).getMonth()].slice(0, 3) + ':</span> ' + escapeHtml(u.testo || '') + ' ' + diIntHtml(u.int) + '</div>'; }).join('') + '</div>' : '') +
+        (e.piano ? (function () {
+          var f = diFb(e), cls = f ? (f.st === 'ok' ? 'ok' : (f.st === 'late' ? 'late' : '')) : 'ok', st = '';
+          if (!f) st = '<span class="sp-meta">' + (ok ? 'segnalazione risolta' : 'nessuna scadenza') + '</span>';
+          else if (f.st === 'ok') st = '<strong style="color:#166534;">✅ Feedback ricevuto il ' + spDateShort(fromISO(f.date)) + '</strong>';
+          else {
+            st = (f.st === 'late' ? '<strong style="color:#B91C1C;">🔴 Feedback scaduto da ' + (-f.days) + (f.days === -1 ? ' giorno' : ' giorni') + '</strong>' : f.st === 'today' ? '<strong style="color:#B45309;">⏰ Il feedback scade oggi</strong>' : '<span>⏳ Feedback entro ' + spDateShort(fromISO(e.feedbackEntro)) + ' · mancano ' + f.days + (f.days === 1 ? ' giorno' : ' giorni') + '</span>') +
+              (f.contattato ? '<span class="sp-meta">contattato il ' + spDateShort(fromISO(f.contattato)) + '</span>' : '');
+            if (f.st !== 'wait') st += '<a class="btn small sp-pay-btn" target="_blank" rel="noopener" href="' + apWaUrl(anPhone(p), diWaText(p, e)) + '" data-diwa="' + id + '">💬 Scrivi su WhatsApp</a><button class="btn small ghost" data-dicontact="' + id + '">✓ Ho scritto</button>';
+          }
+          return '<div class="di-plan ' + cls + '"><div><strong>🎯 Piano d\'azione</strong> <span class="sp-meta">dal ' + spDateShort(fromISO(e.pianoIl || e.data)) + (e.feedbackEntro ? ' · feedback entro ' + spDateShort(fromISO(e.feedbackEntro)) : '') + '</span></div><div class="di-plan-txt">' + escapeHtml(e.piano) + '</div><div class="di-plan-st">' + st + '</div></div>';
+        })() : '') +
+        (agg.length ? '<div class="di-upd">' + agg.map(function (u) { return '<div' + (u.contatto ? ' class="di-contact"' : '') + '><span>' + fromISO(u.data).getDate() + ' ' + MESI[fromISO(u.data).getMonth()].slice(0, 3) + ':</span> ' + escapeHtml(u.testo || '') + ' ' + diIntHtml(u.int) + '</div>'; }).join('') + '</div>' : '') +
+        (diView.plan === e.id ? '<div class="di-planedit"><label style="font-size:12px;color:var(--ink-muted);">🎯 Piano d\'azione</label><textarea id="dpPiano" class="note-area">' + escapeHtml(e.piano || '') + '</textarea>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-top:6px;"><div><label style="font-size:12px;color:var(--ink-muted);display:block;">Feedback entro</label><input type="date" id="dpEntro" value="' + escapeHtml(e.feedbackEntro || '') + '"><div class="di-quick">' + [[3, '3 giorni'], [7, '1 settimana'], [14, '2 settimane']].map(function (q) { return '<button type="button" class="btn small ghost" data-diq="' + q[0] + '">' + q[1] + '</button>'; }).join('') + '</div></div>' +
+          '<span style="flex:1;"></span>' + (e.piano ? '<button class="btn small ghost nu-del" id="dpDel">Togli piano</button>' : '') + '<button class="btn small ghost" id="dpAnn">Annulla</button><button class="btn small primary" id="dpSalva">Salva piano</button></div></div>' : '') +
         (diView.upd === e.id ? '<div class="di-addupd"><input type="date" id="duData" value="' + toISO(todayMidnight()) + '"><select id="duInt" class="form-input" title="Intensità oggi">' + ints(null) + '</select><input type="text" id="duTesto" placeholder="Come va? (es. va meglio, solo a fine allenamento)"><button class="btn small primary" id="duSalva">Aggiungi</button></div>' : '') +
-        '<div class="di-actions">' + (diView.upd === e.id ? '' : '<button class="btn small" data-diupd="' + id + '">＋ Aggiornamento</button>') +
+        '<div class="di-actions">' + (diView.upd === e.id ? '' : '<button class="btn small" data-diupd="' + id + '">＋ Aggiornamento</button>') + (ok || diView.plan === e.id ? '' : '<button class="btn small" data-diplan="' + id + '">🎯 ' + (e.piano ? 'Modifica piano' : 'Piano d\'azione') + '</button>') +
           (ok ? '<button class="btn small ghost" data-diriapri="' + id + '">↺ Riapri</button>' : '<button class="btn small sp-pay-btn" data-dirisolta="' + id + '">✓ Risolta</button>') +
           '<button class="ing-del" data-didel="' + id + '" title="Elimina segnalazione">🗑</button></div></div>';
     }).join('');
@@ -6165,9 +6212,13 @@
       var testo = $('diTesto').value.trim(), zona = $('diZona').value.trim();
       if (!testo && !zona) { toast('Scrivi cosa è successo o la zona'); $('diTesto').focus(); return; }
       p.diario = p.diario || [];
-      p.diario.push({ id: 'd_' + uid(), data: $('diData').value || toISO(todayMidnight()), tipo: $('diTipo').value, zona: zona, int: $('diInt').value === '' ? '' : +$('diInt').value, testo: testo, stato: 'aperta', risoltaIl: '', agg: [], creato: new Date().toISOString() });
+      var piano = $('diPiano').value.trim(), entro = $('diEntro').value;
+      if (entro && !piano) { toast('Scrivi il piano d\'azione per cui chiedi il feedback'); $('diPiano').focus(); return; }
+      if (piano && !entro) { toast('Scegli entro quando vuoi il feedback'); $('diEntro').focus(); return; }
+      p.diario.push({ id: 'd_' + uid(), data: $('diData').value || toISO(todayMidnight()), tipo: $('diTipo').value, zona: zona, int: $('diInt').value === '' ? '' : +$('diInt').value, testo: testo, stato: 'aperta', risoltaIl: '', agg: [], piano: piano, feedbackEntro: entro, pianoIl: piano ? toISO(todayMidnight()) : '', pianoAt: piano ? new Date().toISOString() : '', contattato: '', creato: new Date().toISOString() });
       diView.form = false; diView.filtro = 'tutte'; diAfter(); renderDiario(); toast('📒 Segnalazione salvata nel diario di ' + p.nome);
     });
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-diq]'), function (b) { b.addEventListener('click', function () { var t = b.closest('.di-form, .di-planedit').querySelector('input[type="date"][id="diEntro"], input[type="date"][id="dpEntro"]'); if (t) t.value = toISO(addDays(todayMidnight(), +b.getAttribute('data-diq'))); }); });
     Array.prototype.forEach.call(ov.querySelectorAll('[data-difil]'), function (b) { b.addEventListener('click', function () { diView.filtro = b.getAttribute('data-difil'); renderDiario(); }); });
     if ($('diZonaFil')) $('diZonaFil').addEventListener('change', function (e) { diView.zona = e.target.value; renderDiario(); });
     var byId = function (id) { return (p.diario || []).filter(function (e) { return e.id === id; })[0]; };
@@ -6177,12 +6228,29 @@
         var e = byId(diView.upd); if (!e) return;
         var t = $('duTesto').value.trim(), iv = $('duInt').value;
         if (!t && iv === '') { toast('Scrivi come va o metti l\'intensità'); return; }
-        (e.agg = e.agg || []).push({ id: 'u_' + uid(), data: $('duData').value || toISO(todayMidnight()), testo: t, int: iv === '' ? '' : +iv });
+        (e.agg = e.agg || []).push({ id: 'u_' + uid(), data: $('duData').value || toISO(todayMidnight()), testo: t, int: iv === '' ? '' : +iv, at: new Date().toISOString() });
         diView.upd = null; diAfter(); renderDiario();
       };
       $('duSalva').addEventListener('click', addU);
       $('duTesto').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); addU(); } });
     }
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-diplan]'), function (b) { b.addEventListener('click', function () { diView.plan = b.getAttribute('data-diplan'); diView.upd = null; renderDiario(); var t = $('dpPiano'); if (t) t.focus(); }); });
+    if ($('dpSalva')) {
+      $('dpAnn').addEventListener('click', function () { diView.plan = null; renderDiario(); });
+      $('dpSalva').addEventListener('click', function () {
+        var e = byId(diView.plan); if (!e) return;
+        var piano = $('dpPiano').value.trim(), entro = $('dpEntro').value;
+        if (!piano) { toast('Scrivi il piano d\'azione'); $('dpPiano').focus(); return; }
+        if (!entro) { toast('Scegli entro quando vuoi il feedback'); $('dpEntro').focus(); return; }
+        var nuovo = piano !== (e.piano || '') || entro !== (e.feedbackEntro || '');
+        e.piano = piano; e.feedbackEntro = entro; if (nuovo) { e.pianoIl = toISO(todayMidnight()); e.pianoAt = new Date().toISOString(); e.contattato = ''; }
+        diView.plan = null; diAfter(); renderDiario(); toast('🎯 Piano salvato · feedback entro ' + spDateShort(fromISO(entro)));
+      });
+      if ($('dpDel')) $('dpDel').addEventListener('click', function () { var e = byId(diView.plan); if (!e) return; e.piano = ''; e.feedbackEntro = ''; e.pianoIl = ''; e.pianoAt = ''; e.contattato = ''; diView.plan = null; diAfter(); renderDiario(); });
+    }
+    var contact = function (id) { var e = byId(id); if (!e) return; e.contattato = toISO(todayMidnight()); (e.agg = e.agg || []).push({ id: 'u_' + uid(), data: toISO(todayMidnight()), testo: '💬 Scritto per chiedere il feedback', int: '', contatto: true }); diAfter(); renderDiario(); };
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-dicontact]'), function (b) { b.addEventListener('click', function () { contact(b.getAttribute('data-dicontact')); toast('Segnato: hai scritto · lo rivedi tra 2 giorni se non risponde'); }); });
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-diwa]'), function (a) { a.addEventListener('click', function () { if (!anPhone(p)) toast('Manca il numero di telefono: aggiungilo in Anagrafica'); setTimeout(function () { contact(a.getAttribute('data-diwa')); }, 300); }); });
     Array.prototype.forEach.call(ov.querySelectorAll('[data-dirisolta]'), function (b) { b.addEventListener('click', function () { var e = byId(b.getAttribute('data-dirisolta')); if (!e) return; e.stato = 'risolta'; e.risoltaIl = toISO(todayMidnight()); diAfter(); renderDiario(); toast('🟢 Segnata come risolta'); }); });
     Array.prototype.forEach.call(ov.querySelectorAll('[data-diriapri]'), function (b) { b.addEventListener('click', function () { var e = byId(b.getAttribute('data-diriapri')); if (!e) return; e.stato = 'aperta'; e.risoltaIl = ''; diAfter(); renderDiario(); }); });
     Array.prototype.forEach.call(ov.querySelectorAll('[data-didel]'), function (b) {
@@ -7377,12 +7445,13 @@
     var trAtt = trAttention(), trLiberi = (state.train || []).filter(function (p) { return !p.personId; }).length;
     var trBox = (state.train || []).length ? box('🏋️ Allenamento', trAtt.length, (trAtt.length ? trAtt.map(function (x) { return '<div class="og-row og-click" data-ogtr="' + x.id + '"><span class="og-dot og-' + (x.sev === 'scaduto' ? 'red' : 'amber') + '"></span><span class="og-title"><strong>' + escapeHtml(x.name) + '</strong><span class="sp-meta"> · ' + escapeHtml(x.what) + '</span></span></div>'; }).join('') : none('Nessun mesociclo in scadenza questa settimana.')) +
       (trLiberi ? '<div class="og-row og-click" data-oggo="allenamento"><span class="og-title"><span class="sp-meta">' + trLiberi + (trLiberi === 1 ? ' protocollo da assegnare' : ' protocolli da assegnare') + '</span></span></div>' : ''), ['allenamento', 'Allenamento']) : '';
-    var diA = diAllOpen();
+    var diA = diAllOpen(), diF = diA.filter(function (x) { return diFbDue(x.e); });
+    var fbBox = diF.length ? box('⏰ Feedback da chiedere', diF.length, diF.map(function (x) { var f = diFb(x.e); return '<div class="og-row og-click" data-diopen="' + x.p.id + '"><span class="og-dot og-' + (f.st === 'late' ? 'red' : 'amber') + '"></span><span class="og-title"><strong>' + escapeHtml(x.p.nome) + '</strong><span class="sp-meta"> · ' + escapeHtml([x.e.tipo, x.e.zona].filter(Boolean).join(' · ')) + ' · ' + (f.st === 'late' ? 'scaduto da ' + (-f.days) + (f.days === -1 ? ' giorno' : ' giorni') : 'scade oggi') + '</span></span></div>'; }).join(''), null) : '';
     var diBox = diA.length ? box('📒 Segnalazioni aperte', diA.length, diA.slice(0, 8).map(function (x) { var li = diLast(x.e); return '<div class="og-row og-click" data-diopen="' + x.p.id + '"><span class="og-dot og-' + (li >= 7 ? 'red' : 'amber') + '"></span><span class="og-title"><strong>' + escapeHtml(x.p.nome) + '</strong><span class="sp-meta"> · ' + escapeHtml([x.e.tipo, x.e.zona].filter(Boolean).join(' · ')) + (li !== '' && li != null ? ' · ' + li + '/10' : '') + ' · ' + diDays(x.e.data) + '</span></span></div>'; }).join('') + (diA.length > 8 ? '<div class="og-none">e altre ' + (diA.length - 8) + '…</div>' : ''), null) : '';
     var t = new Date(), h = t.getHours();
     listEl.innerHTML = bdBanner + '<div class="og-hello">' + (h < 13 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera') + ' Mattia · ' + GIORNI[t.getDay()] + ' ' + t.getDate() + ' ' + MESI[t.getMonth()] + '</div>' +
       '<div class="og-grid">' + box('📅 Agenda di oggi', finState.status === 'ok' ? d.apps.length : null, apps, ['appuntamenti', 'Apri agenda']) + box('💶 Da incassare', d.pays.length, pays, ['sedute', 'Sedute personal']) +
-      box('🔴 Check e rinnovi', d.checks.length, checks, ['coaching', 'Percorsi coaching']) + box('📝 Promemoria e solleciti', d.pms.length + d.wa.length, pms, ['promemoria', 'Tutti i promemoria']) + diBox + trBox + bdBox + '</div>';
+      box('🔴 Check e rinnovi', d.checks.length, checks, ['coaching', 'Percorsi coaching']) + box('📝 Promemoria e solleciti', d.pms.length + d.wa.length, pms, ['promemoria', 'Tutti i promemoria']) + fbBox + diBox + trBox + bdBox + '</div>';
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-ogtr]'), function (b) { b.addEventListener('click', function () { trOpenFromAnywhere(b.getAttribute('data-ogtr')); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-oganag]'), function (b) { b.addEventListener('click', function () { document.querySelector('.side-btn[data-tab="anagrafica"]').click(); setTimeout(function () { openAnPerson(b.getAttribute('data-oganag')); }, 80); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-ogauguri]'), function (b) { b.addEventListener('click', function () {
@@ -9221,7 +9290,7 @@
     if (state.anag) anSync();
     var diP = diPersonForClient(c);
     if (diP) { var dO = diOpen(diP), dLast = (diP.diario || []).slice().sort(function (a, b) { return (b.data || '').localeCompare(a.data || ''); })[0];
-      html += '<div class="cl-link"><span>📒 Diario</span>' + (dO.length ? '<strong style="color:#B91C1C;">' + dO.length + (dO.length === 1 ? ' segnalazione aperta' : ' segnalazioni aperte') + '</strong><em>' + escapeHtml(dO.map(function (e) { return [e.tipo, e.zona].filter(Boolean).join(' · '); }).join(', ')) + '</em>' : '<strong>' + ((diP.diario || []).length ? 'nessuna aperta' : 'vuoto') + '</strong>' + (dLast ? '<em>ultima ' + spDateShort(fromISO(dLast.data)) + '</em>' : '')) +
+      html += '<div class="cl-link"><span>📒 Diario</span>' + (dO.length ? '<strong style="color:#B91C1C;">' + dO.length + (dO.length === 1 ? ' segnalazione aperta' : ' segnalazioni aperte') + (dO.some(diFbDue) ? ' · ⏰ feedback da chiedere' : '') + '</strong><em>' + escapeHtml(dO.map(function (e) { return [e.tipo, e.zona].filter(Boolean).join(' · '); }).join(', ')) + '</em>' : '<strong>' + ((diP.diario || []).length ? 'nessuna aperta' : 'vuoto') + '</strong>' + (dLast ? '<em>ultima ' + spDateShort(fromISO(dLast.data)) + '</em>' : '')) +
         '<span style="display:flex;gap:6px;"><button class="btn tiny" data-diopen="' + diP.id + '">Apri</button><button class="btn tiny nu-new" data-diopen="' + diP.id + '" data-dinew>＋ Segnalazione</button></span></div>'; }
     if (finState.status !== 'ok') {
       if (finState.status !== 'error' && !finState.loading) finLoad(false).then(function () { if (finState.status === 'ok' && state.openFolderId === c.id) renderFolder(c.id); });
