@@ -1315,7 +1315,7 @@
   .tr-vol tbody th { text-align: left; }
   .tr-zero td, .tr-zero th { color: #BDBDBD; }
 
-  .tr-rowacts { display: flex; gap: 2px; align-items: center; justify-content: center; }
+  .tr-rowacts { display: grid; grid-template-columns: repeat(2, auto); gap: 0 2px; align-items: center; justify-content: center; }
   .check-done-head { margin: 16px 0 6px; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 13.5px; color: var(--ok); }
   .check-done { background: var(--ok-soft); border: 1px solid #BFE6CD; border-radius: 8px; padding: 7px 12px; margin-bottom: 6px; font-size: 13px; }
   .check-done .cdn-main { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -1329,6 +1329,12 @@
   .tr-addrow:hover { background: #FFF1C7; border-color: #FFBF00; }
   .tr-mini { background: none; border: none; cursor: pointer; font-size: 13px; padding: 3px 4px; border-radius: 6px; opacity: 0.6; }
   .tr-mini:hover { opacity: 1; background: #FFF4D1; }
+  .tr-mini.tr-mv { font-size: 11px; padding: 3px 3px; }
+  .tr-mini.tr-mv:disabled, .nu-mv:disabled { opacity: .15; cursor: default; background: none; }
+  .nu-mv { background: none; border: none; cursor: pointer; font-size: 12px; padding: 3px 5px; border-radius: 6px; opacity: .6; }
+  .nu-mv:hover:not(:disabled) { opacity: 1; background: #FFF4D1; }
+  @keyframes rowFlash { from { background: #FFE58A; } to { background: transparent; } }
+  .row-moved > td { animation: rowFlash 1.2s ease-out; }
   .tr-paste { opacity: 1; background: #FFF4D1; }
   .tr-copyto { width: auto; padding: 4px 8px !important; font-size: 12px !important; }
 
@@ -7284,7 +7290,7 @@
   function nuConsigliHtml(f) {
     var integ = '<div class="nu-sec"><div class="nu-sec-title">Integrazione consigliata <button class="btn tiny" id="nuAddInt">+ Aggiungi riga</button></div>' +
       '<table class="nu-table nu-int"><thead><tr><th>Pasto</th><th>Integratore</th><th>Quantità</th><th></th></tr></thead><tbody>' +
-      f.integrazione.map(function (r, i) { return '<tr><td><input type="text" class="nu-in nu-left" data-nuint="' + i + '" data-nuk="pasto" value="' + escapeHtml(r.pasto) + '"></td><td><input type="text" class="nu-in nu-left" data-nuint="' + i + '" data-nuk="integratore" value="' + escapeHtml(r.integratore) + '"></td><td><input type="text" class="nu-in nu-left" data-nuint="' + i + '" data-nuk="quantita" value="' + escapeHtml(r.quantita) + '"></td><td><button class="ing-del" data-nuintdel="' + i + '">🗑</button></td></tr>'; }).join('') + '</tbody></table></div>';
+      f.integrazione.map(function (r, i) { return '<tr><td><input type="text" class="nu-in nu-left" data-nuint="' + i + '" data-nuk="pasto" value="' + escapeHtml(r.pasto) + '"></td><td><input type="text" class="nu-in nu-left" data-nuint="' + i + '" data-nuk="integratore" value="' + escapeHtml(r.integratore) + '"></td><td><input type="text" class="nu-in nu-left" data-nuint="' + i + '" data-nuk="quantita" value="' + escapeHtml(r.quantita) + '"></td><td style="white-space:nowrap;"><button class="nu-mv" data-nuintmv="' + i + ',-1" title="Sposta su"' + (i === 0 ? ' disabled' : '') + '>▲</button><button class="nu-mv" data-nuintmv="' + i + ',1" title="Sposta giù"' + (i === f.integrazione.length - 1 ? ' disabled' : '') + '>▼</button><button class="ing-del" data-nuintdel="' + i + '">🗑</button></td></tr>'; }).join('') + '</tbody></table></div>';
     var al = [['proteine', 'Proteine'], ['proteineCarbo', 'Proteine e carbo'], ['carboidrati', 'Carboidrati'], ['grassi', 'Grassi']];
     var alim = '<div class="nu-sec"><div class="nu-sec-title">Lista alimenti consigliati</div><div class="nu-alim">' + al.map(function (a) { return '<div><label>' + a[1] + '</label><textarea class="note-area" data-nual="' + a[0] + '">' + escapeHtml(f.alimenti[a[0]] || '') + '</textarea></div>'; }).join('') + '</div></div>';
     return integ + alim +
@@ -7443,6 +7449,13 @@
     });
     body.querySelectorAll('[data-nuint]').forEach(function (el) { el.addEventListener('input', function () { f.integrazione[parseInt(el.getAttribute('data-nuint'), 10)][el.getAttribute('data-nuk')] = el.value; nuTouch(f); }); });
     var ai = body.querySelector('#nuAddInt'); if (ai) ai.addEventListener('click', function () { f.integrazione.push({ pasto: '', integratore: '', quantita: '' }); nuTouch(f); nuRenderBody(); });
+    body.querySelectorAll('[data-nuintmv]').forEach(function (b) { b.addEventListener('click', function () {
+      var a = b.getAttribute('data-nuintmv').split(','), i = +a[0], to = i + (+a[1]), L = f.integrazione;
+      if (to < 0 || to >= L.length) return;
+      var x = L[i]; L[i] = L[to]; L[to] = x; nuTouch(f); nuRenderBody();
+      var tr = body.querySelector('[data-nuint="' + to + '"]'); tr = tr && tr.closest('tr'); if (tr) tr.classList.add('row-moved');
+      var nb = body.querySelector('[data-nuintmv="' + to + ',' + a[1] + '"]'); if (nb && !nb.disabled) nb.focus();
+    }); });
     body.querySelectorAll('[data-nuintdel]').forEach(function (b) { b.addEventListener('click', function () { f.integrazione.splice(parseInt(b.getAttribute('data-nuintdel'), 10), 1); nuTouch(f); nuRenderBody(); }); });
     body.querySelectorAll('[data-nual]').forEach(function (el) { el.addEventListener('input', function () { f.alimenti[el.getAttribute('data-nual')] = el.value; nuTouch(f); }); });
     var fb = body.querySelector('#nuFibre'); if (fb) fb.addEventListener('input', function () { f.fibre = fb.value; nuTouch(f); });
@@ -8302,7 +8315,7 @@
     tot.mediaMedie = rows.reduce(function (a, r) { return a + r.media; }, 0) / rows.length;
     return { rows: rows, tot: tot };
   }
-  var trClip = null;
+  var trClip = null, trMoved = null;
   var trView = { search: '' }, trOpenId = null, trTab = 'note', trMeso = 0;
   function renderTrainStats() {
     var list = state.train || [];
@@ -8485,12 +8498,12 @@
       var rows = wk.esercizi.map(function (ex, ei) {
         var cells = '', load = '';
         for (var i = 0; i < W; i++) { var s = ex.sett[i] || {}; cells += '<td><input class="tr-in tr-sm" data-trs="' + wi + ',' + ei + ',' + i + ',s" value="' + escapeHtml(s.s || '') + '" inputmode="numeric"></td><td><input class="tr-in tr-sm" data-trs="' + wi + ',' + ei + ',' + i + ',r" value="' + escapeHtml(s.r || '') + '"></td>'; load += '<td colspan="2"><input class="tr-in tr-load" data-trs="' + wi + ',' + ei + ',' + i + ',c" value="' + escapeHtml(s.c || '') + '" placeholder="carico"></td>'; }
-        return '<tr class="tr-ex"><td rowspan="2"><select class="tr-in tr-mus" data-tre="' + wi + ',' + ei + ',muscolo">' + mopts.replace('value="' + ex.muscolo + '"', 'value="' + ex.muscolo + '" selected') + '</select></td>' +
+        return '<tr class="tr-ex' + (trMoved === wi + ',' + ei ? ' row-moved' : '') + '"><td rowspan="2"><select class="tr-in tr-mus" data-tre="' + wi + ',' + ei + ',muscolo">' + mopts.replace('value="' + ex.muscolo + '"', 'value="' + ex.muscolo + '" selected') + '</select></td>' +
           '<td rowspan="2"><select class="tr-in tr-fc" data-tre="' + wi + ',' + ei + ',tipo" title="F = fondamentale (conta 2) · C = complementare (conta 1)"><option' + (ex.tipo === 'F' ? ' selected' : '') + '>F</option><option' + (ex.tipo === 'C' ? ' selected' : '') + '>C</option></select></td>' +
           '<td rowspan="2"><input class="tr-in tr-name" data-tre="' + wi + ',' + ei + ',nome" value="' + escapeHtml(ex.nome) + '" placeholder="Esercizio"></td>' +
           '<td rowspan="2"><input class="tr-in tr-note" data-tre="' + wi + ',' + ei + ',note" value="' + escapeHtml(ex.note) + '" placeholder="Note"></td>' +
           '<td rowspan="2"><input class="tr-in tr-rest" data-tre="' + wi + ',' + ei + ',rest" value="' + escapeHtml(ex.rest) + '"></td>' + cells +
-          '<td rowspan="2" class="tr-rowbtn"><div class="tr-rowacts"><button class="tr-mini tr-ins" data-trinsex="' + wi + ',' + ei + '" title="Inserisci un esercizio vuoto sotto questa riga">➕</button><button class="tr-mini" data-trdupex="' + wi + ',' + ei + '" title="Duplica la riga sotto (stesso esercizio, serie e ripetizioni; carichi vuoti)">⧉</button>' +
+          '<td rowspan="2" class="tr-rowbtn"><div class="tr-rowacts"><button class="tr-mini tr-mv" data-trmvex="' + wi + ',' + ei + ',-1" title="Sposta su"' + (ei === 0 ? ' disabled' : '') + '>▲</button><button class="tr-mini tr-mv" data-trmvex="' + wi + ',' + ei + ',1" title="Sposta giù"' + (ei === wk.esercizi.length - 1 ? ' disabled' : '') + '>▼</button><button class="tr-mini tr-ins" data-trinsex="' + wi + ',' + ei + '" title="Inserisci un esercizio vuoto sotto questa riga">➕</button><button class="tr-mini" data-trdupex="' + wi + ',' + ei + '" title="Duplica la riga sotto (stesso esercizio, serie e ripetizioni; carichi vuoti)">⧉</button>' +
             '<button class="tr-mini" data-trcpex="' + wi + ',' + ei + '" title="Copia serie, ripetizioni e rest di questa riga">📋</button>' +
             (trClip ? '<button class="tr-mini tr-paste" data-trpsex="' + wi + ',' + ei + '" title="Incolla qui serie, ripetizioni e rest copiati">📥</button>' : '') +
             '<button class="ing-del" data-trdelex="' + wi + ',' + ei + '" title="Elimina esercizio">✕</button></div></td></tr><tr class="tr-loadrow">' + load + '</tr>';
@@ -8607,6 +8620,14 @@
     body.querySelectorAll('[data-trwn]').forEach(function (el) { el.addEventListener('input', function () { m.workouts[+el.getAttribute('data-trwn')].nome = el.value; trTouch(p); }); });
     var focusEx = function (wi, ei) { setTimeout(function () { var n = document.querySelector('[data-tre="' + wi + ',' + ei + ',nome"]'); if (n) { n.scrollIntoView({ block: 'nearest' }); n.focus(); } }, 30); };
     body.querySelectorAll('[data-traddex]').forEach(function (b) { b.addEventListener('click', function () { var wi = +b.getAttribute('data-traddex'), list = m.workouts[wi].esercizi; list.push(trBlankEx(m.settimane)); trTouch(p); re(); focusEx(wi, list.length - 1); }); });
+    // ▲▼ sposta l'esercizio nel workout (con serie, ripetizioni, carichi e note)
+    body.querySelectorAll('[data-trmvex]').forEach(function (b) { b.addEventListener('click', function () {
+      var a = b.getAttribute('data-trmvex').split(','), wi = +a[0], ei = +a[1], to = ei + (+a[2]), list = m.workouts[wi].esercizi;
+      if (to < 0 || to >= list.length) return;
+      var x = list[ei]; list[ei] = list[to]; list[to] = x;
+      trMoved = wi + ',' + to; trTouch(p); re(); trMoved = null;
+      var nb = body.querySelector('[data-trmvex="' + wi + ',' + to + ',' + a[2] + '"]'); if (nb && !nb.disabled) nb.focus();
+    }); });
     body.querySelectorAll('[data-trinsex]').forEach(function (b) { b.addEventListener('click', function () { var a = b.getAttribute('data-trinsex').split(','), wi = +a[0], ei = +a[1]; m.workouts[wi].esercizi.splice(ei + 1, 0, trBlankEx(m.settimane)); trTouch(p); re(); focusEx(wi, ei + 1); }); });
     body.querySelectorAll('[data-trdupex]').forEach(function (b) { b.addEventListener('click', function () {
       var a = b.getAttribute('data-trdupex').split(','), list = m.workouts[+a[0]].esercizi, src = list[+a[1]];
