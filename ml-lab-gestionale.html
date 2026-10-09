@@ -2707,12 +2707,13 @@
     if (days === 0) return 'oggi';
     return 'tra ' + days + ' giorni';
   }
+  var CONTATTO_GIORNI = 10;   // dopo quanti giorni senza contatto la cartella avvisa
   function contattoLabel(client) {
     if (!client.dataUltimoContatto) return null;
     var d = daysUntil(client.dataUltimoContatto);
     if (d === null) return null;
     var giorni = -d;
-    if (giorni > 14) return { text: 'Nessun contatto da ' + giorni + ' giorni', level: 'warning' };
+    if (giorni > CONTATTO_GIORNI) return { text: 'Nessun contatto da ' + giorni + ' giorni', level: 'warning' };
     return { text: 'Contattato di recente', level: 'ok' };
   }
 
