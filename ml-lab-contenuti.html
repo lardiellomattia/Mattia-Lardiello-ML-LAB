@@ -377,6 +377,8 @@
   .modal.wide { width: min(800px, 100%); }
   .shot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; border: 1.5px dashed var(--soft-2); border-radius: 16px; padding: 14px 16px; }
   .shot:focus { outline: none; border-color: var(--ink-muted); }
+  .shot.drop { border-color: var(--ink); background: var(--soft); }
+  .dropzone { outline: 2px dashed var(--ink-muted); outline-offset: 6px; border-radius: 22px; }
   .shot b { display: block; font-size: 13px; }
   .shot span { font-size: 12px; color: var(--ink-muted); line-height: 1.45; }
   .msec { display: grid; gap: 12px; padding-top: 4px; }
@@ -807,6 +809,7 @@
     document.getElementById('hdrHandle').textContent = info ? info[1] : 'Bentornato' + (h ? ' · @' + h.replace(/^@/, '') : '');
     document.querySelector('.avatar').textContent = (nome.trim()[0] || 'M').toUpperCase() + (h ? (h.replace(/^@/, '')[0] || '').toUpperCase() : 'L');
     var v = document.getElementById('view');
+    v.ondragover = v.ondragleave = v.ondrop = null; v.classList.remove('dropzone');
     ({ panoramica: renderPanoramica, archivio: renderArchivio, libreria: renderLibreria, idee: renderIdee, calendario: renderCalendario, playbook: renderPlaybook, spunti: renderSpunti, impostazioni: renderImpostazioni }[ui.tab] || renderPanoramica)(v);
   }
 
@@ -1419,6 +1422,14 @@
     v.querySelector('#exp').addEventListener('click', exportCSV);
     v.querySelector('#drv').addEventListener('click', backupDrive);
     v.querySelector('#csv').addEventListener('change', function (e) { var f = e.target.files[0]; if (f) importCSV(f); e.target.value = ''; });
+    // si può anche trascinare il CSV di Notion o di Meta direttamente sull'archivio
+    v.ondragover = function (e) { if (!e.dataTransfer || [].indexOf.call(e.dataTransfer.types || [], 'Files') < 0) return; e.preventDefault(); v.classList.add('dropzone'); };
+    v.ondragleave = function (e) { if (!v.contains(e.relatedTarget)) v.classList.remove('dropzone'); };
+    v.ondrop = function (e) {
+      if (!e.dataTransfer || !e.dataTransfer.files.length) return; e.preventDefault(); v.classList.remove('dropzone');
+      var f = [].slice.call(e.dataTransfer.files).filter(function (x) { return /\.csv$/i.test(x.name) || /csv/.test(x.type); })[0];
+      if (f) importCSV(f); else toast('Qui puoi trascinare il CSV di Notion o di Meta. Gli screenshot vanno nella scheda del contenuto.');
+    };
     v.querySelectorAll('th[data-k]').forEach(function (th) { th.addEventListener('click', function () { var k = th.dataset.k; if (ui.sort === k) ui.dir *= -1; else { ui.sort = k; ui.dir = ['views', 'salvataggi', 'clienti', 'sem', 'data'].indexOf(k) >= 0 ? -1 : 1; } render(); }); });
     bindOpen(v);
   }
@@ -1453,7 +1464,7 @@
       '<label>Data<input class="field" type="date" id="c_data" value="' + esc(c.data) + '"></label>' +
       '<label>Link al post<input class="field" id="c_link" value="' + esc(c.link) + '" placeholder="https://www.instagram.com/reel/…"></label></div></div>' +
       '<div class="msec" id="c_ris"><h4>Risultati</h4>' +
-      (sample && imgLimits ? '<div class="shot" id="c_shot" tabindex="0"><div><b>Leggi i numeri dagli screenshot</b><span>Scegli o incolla (⌘V) gli screenshot degli Insights del post: Claude compila i campi e scrive l\'analisi.</span></div><label class="btn small primary" style="cursor:pointer">Scegli screenshot<input type="file" id="c_files" multiple accept="' + esc((imgLimits.mediaTypes || ['image/png', 'image/jpeg']).join(',')) + '" hidden></label><span class="muted" id="c_shotst" style="font-size:12px;flex-basis:100%"></span></div>' : '') +
+      (sample && imgLimits ? '<div class="shot" id="c_shot" tabindex="0"><div><b>Leggi i numeri dagli screenshot</b><span>Trascina qui, scegli o incolla (⌘V) gli screenshot degli Insights del post: Claude compila i campi e scrive l\'analisi.</span></div><label class="btn small primary" style="cursor:pointer">Scegli screenshot<input type="file" id="c_files" multiple accept="' + esc((imgLimits.mediaTypes || ['image/png', 'image/jpeg']).join(',')) + '" hidden></label><span class="muted" id="c_shotst" style="font-size:12px;flex-basis:100%"></span></div>' : '') +
       '<div class="three">' + METRICHE.map(function (m) { return numF(m[0], m[1]); }).join('') + '</div>' +
       '<label style="display:grid;gap:6px;font-size:12px;font-weight:500;color:var(--ink-muted)">Analisi di Claude<textarea class="field" id="c_analisi" placeholder="Compare qui quando carichi gli screenshot">' + esc(c.analisi) + '</textarea></label></div>' +
       '<div class="msec"><h4>Cosa ho imparato</h4><textarea class="field" id="c_note" placeholder="Perché è andato così? Gancio, montaggio, ospite, CTA, cosa rifaresti…">' + esc(c.note) + '</textarea>' +
@@ -1484,6 +1495,16 @@
       var ai = m.querySelector('#c_ai'); if (ai) ai.addEventListener('click', function () { aiScript(m, ai); });
       var fi = m.querySelector('#c_files');
       if (fi) {
+        // trascinamento: le immagini lasciate su tutta la scheda vanno a Claude, il riquadro si evidenzia
+        var box = m.querySelector('#c_shot'), imgsOf = function (dt) { return [].slice.call((dt && dt.files) || []).filter(function (f) { return /^image\//.test(f.type); }); };
+        var isFiles = function (e) { return e.dataTransfer && [].indexOf.call(e.dataTransfer.types || [], 'Files') >= 0; };
+        m.addEventListener('dragover', function (e) { if (!isFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; box.classList.add('drop'); });
+        m.addEventListener('dragleave', function (e) { if (!m.contains(e.relatedTarget)) box.classList.remove('drop'); });
+        m.addEventListener('drop', function (e) {
+          if (!isFiles(e)) return; e.preventDefault(); box.classList.remove('drop');
+          var fs = imgsOf(e.dataTransfer);
+          if (fs.length) { box.scrollIntoView({ block: 'center' }); readShots(m, c, fs); } else toast('Trascina degli screenshot (PNG o JPG).');
+        });
         fi.addEventListener('change', function () { var fs = [].slice.call(fi.files || []); fi.value = ''; if (fs.length) readShots(m, c, fs); });
         m.addEventListener('paste', function (e) {
           var fs = [].slice.call((e.clipboardData && e.clipboardData.files) || []).filter(function (f) { return /^image\//.test(f.type); });
