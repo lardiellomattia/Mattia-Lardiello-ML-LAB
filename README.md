@@ -32,6 +32,10 @@ visualizzazioni e altre metriche, clienti portati, contenuto collegato e «cosa 
 - **Idee** — pipeline Idea › Da registrare › In montaggio › Programmato › Pubblicato; Claude propone idee e scrive script.
 - **Calendario**, **Playbook** (regole del profilo e lezioni dalle note, aggiornabili con Claude), **Spunti**.
 
+Numeri dagli screenshot: nella scheda di un contenuto (o da «Da aggiornare» in Panoramica) si caricano o incollano
+gli screenshot degli Insights di Instagram; Claude legge visualizzazioni, interazioni, % da non follower e scrive
+un'analisi nel campo «Analisi di Claude».
+
 Semaforo automatico dalle visualizzazioni: 🔴 sotto 1.000, 🟢 da 1.000, 🟣 da 3.500 (soglie in Impostazioni).
 
 Backup: «Backup su Drive» (Archivio o Impostazioni) salva nella cartella «App social backup» su Google Drive
@@ -40,4 +44,4 @@ Backup: «Backup su Drive» (Archivio o Impostazioni) salva nella cartella «App
 aggiornati e mette i precedenti nel cestino. «Ripristina da Drive» rilegge il JSON e ricrea tutti i dati.
 
 Capacità usate: `mcp` (Google Drive: search_files, create_file, trash_file, download_file_content), `db` (un documento per contenuto in `contenuti/`, più `app/settings`, `app/playbook`,
-`app/spunti`, `app/crescita`), `sample`, `downloads`.
+`app/spunti`, `app/crescita`), `sample` (con immagini), `downloads`.
