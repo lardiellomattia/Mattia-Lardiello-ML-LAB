@@ -283,7 +283,7 @@
   .empty strong { color: var(--ink); font-size: 15px; font-weight: 600; }
   .empty p { margin: 0; max-width: 52ch; line-height: 1.55; font-size: 13px; }
 
-  .kanban { display: grid; grid-template-columns: repeat(5, minmax(220px, 1fr)); gap: 14px; overflow-x: auto; padding-bottom: 8px; }
+  .kanban { display: grid; grid-template-columns: repeat(6, minmax(210px, 1fr)); gap: 14px; overflow-x: auto; padding-bottom: 8px; }
   .kcol { background: var(--soft); border: 1.5px solid transparent; border-radius: 20px; padding: 14px; display: grid; gap: 10px; align-content: start; min-height: 170px; }
   .kcol.drop { border-color: var(--ink-muted); }
   .kcol h3 { font-size: 13px; display: flex; justify-content: space-between; gap: 8px; padding: 2px 4px 4px; }
@@ -390,6 +390,60 @@
   .lesson:hover { background: var(--soft-2); }
   .lesson .t { font-weight: 600; font-size: 13px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .lesson .x { font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; color: var(--ink); }
+  /* ---------- brainstorming ---------- */
+  .bs-idea { background: var(--soft); border-radius: 16px; padding: 14px 16px; display: grid; gap: 8px; }
+  .bs-idea .t { font-weight: 600; line-height: 1.35; }
+  .bs-idea .h { font-size: 13px; font-style: italic; }
+  .bs-idea .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bs-thread { display: grid; gap: 10px; max-height: 44vh; overflow: auto; padding: 2px; align-content: start; }
+  .bs-msg { max-width: 88%; padding: 11px 14px; border-radius: 16px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; min-width: 0; }
+  .bs-msg.bs-me { justify-self: end; background: var(--dark); color: var(--on-dark); border-bottom-right-radius: 6px; }
+  .bs-msg.bs-ai { justify-self: start; background: var(--soft); border-bottom-left-radius: 6px; }
+  .bs-msg.wait { color: var(--ink-muted); font-style: italic; }
+  .bs-ver { margin-top: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; white-space: normal; }
+  .bs-ver .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-muted); font-weight: 600; }
+  .bs-ver .t { font-weight: 600; }
+  .bs-ver .h { font-style: italic; font-size: 12.5px; }
+  .bs-ver .a { font-size: 12px; color: var(--ink-muted); white-space: pre-wrap; }
+  .bs-ver .ok { font-size: 12px; color: var(--ok); font-weight: 600; }
+  .bs-quick { display: flex; gap: 6px; flex-wrap: wrap; }
+  .bs-count { font-size: 11px; color: var(--ink-muted); font-weight: 500; }
+  /* ---------- libreria ---------- */
+  .lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; align-items: start; }
+  .lc { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 16px; box-shadow: var(--shadow); display: grid; gap: 12px; min-width: 0; }
+  .lc .hd { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .lc .hd .t { font-weight: 600; line-height: 1.35; }
+  .lc .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lc video { width: 100%; aspect-ratio: 9 / 16; max-height: 560px; background: #000; border-radius: 16px; display: block; object-fit: contain; }
+  .lc .vers { display: flex; gap: 6px; flex-wrap: wrap; }
+  .lc .strip { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; }
+  .lc .strip button { flex: 0 0 82%; padding: 0; border: none; background: none; cursor: zoom-in; scroll-snap-align: start; }
+  .lc .strip img { width: 100%; aspect-ratio: 4 / 5; object-fit: contain; border-radius: 14px; display: block; background: var(--soft); }
+  .lc .cap { font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; background: var(--soft); border-radius: 12px; padding: 10px 12px; max-height: 132px; overflow: auto; overflow-wrap: anywhere; }
+  .lc .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .lc a.btn { text-decoration: none; color: inherit; display: inline-block; }
+  .lc .fsel-w { position: relative; display: inline-flex; }
+  .lc .fsel-w::after { content: ""; position: absolute; right: 12px; top: 50%; margin-top: -2px; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor; pointer-events: none; }
+  .lc .fsel { appearance: none; -webkit-appearance: none; border: 1.5px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 6px 30px 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .zoom img { width: 100%; border-radius: 14px; display: block; }
+  .show { position: fixed; inset: 0; z-index: 70; background: rgba(8, 8, 10, .97); color: #fff; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); touch-action: pan-y; }
+  .show .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; }
+  .show .top .t { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .show .top .k { font-size: 12.5px; opacity: .75; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .show .top .r { display: flex; gap: 8px; align-items: center; flex: none; }
+  .show .sb { border: none; background: rgba(255, 255, 255, .14); color: #fff; border-radius: 12px; padding: 9px 14px; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .show .sb:hover { background: rgba(255, 255, 255, .24); }
+  .show .stage { position: relative; display: grid; place-items: center; min-height: 0; padding: 0 64px; }
+  .show .stage img { max-width: 100%; max-height: calc(100vh - 150px); object-fit: contain; border-radius: 12px; display: block; user-select: none; -webkit-user-drag: none; }
+  .show .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 50%; border: none; background: rgba(255, 255, 255, .16); color: #fff; font-size: 24px; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+  .show .nav:hover { background: rgba(255, 255, 255, .28); }
+  .show .nav[disabled] { opacity: .25; cursor: default; }
+  .show .prev { left: 10px; } .show .next { right: 10px; }
+  .show .dots { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; padding: 14px 16px 18px; }
+  .show .dots button { width: 8px; height: 8px; padding: 0; border: none; border-radius: 50%; background: rgba(255, 255, 255, .35); cursor: pointer; }
+  .show .dots button.on { background: #fff; transform: scale(1.25); }
+  @media (max-width: 640px) { .show .stage { padding: 0 8px; } .show .nav { width: 38px; height: 38px; font-size: 20px; background: rgba(0, 0, 0, .45); } .show .prev { left: 12px; } .show .next { right: 12px; } .show .sb.dl { display: none; } }
   @media (prefers-reduced-motion: no-preference) { .act, .kcard, nav.tabs button, .chip { transition: background-color .15s ease, box-shadow .15s ease, color .15s ease; } }
 </style>
 
@@ -400,6 +454,7 @@
       <nav class="tabs" id="tabs" aria-label="Sezioni">
         <button data-tab="panoramica" class="on"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v5h-8zM3 13h8v8H3zm10-3h8v11h-8z"/></svg>Panoramica</button>
         <button data-tab="archivio"><svg viewBox="0 0 24 24"><path d="M4 20h16v2H4zM5 10h3v8H5zm5.5-6h3v14h-3zM16 13h3v5h-3z"/></svg>Archivio</button>
+        <button data-tab="libreria"><svg viewBox="0 0 24 24"><path d="M4 4h12a2 2 0 0 1 2 2v2.5l4-2.5v12l-4-2.5V18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm4 4.5v7l5.5-3.5z"/></svg>Libreria</button>
         <button data-tab="idee"><svg viewBox="0 0 24 24"><path d="M9 21h6v-1.5H9zm3-19a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2z"/></svg>Idee</button>
         <button data-tab="calendario"><svg viewBox="0 0 24 24"><path d="M7 2h2v3H7zm8 0h2v3h-2zM3 5h18v16H3zm2 5v9h14v-9zm2 2h3v3H7z"/></svg>Calendario</button>
         <button data-tab="playbook"><svg viewBox="0 0 24 24"><path d="M5 3h11a3 3 0 0 1 3 3v15H8a3 3 0 0 1-3-3zm2 15a1 1 0 0 0 1 1h9v-2H8a1 1 0 0 0-1 1zM9 7v2h7V7z"/></svg>Playbook</button>
@@ -444,6 +499,7 @@
     { id: 'idea', nome: 'Idea' },
     { id: 'registrare', nome: 'Da registrare' },
     { id: 'montaggio', nome: 'In montaggio' },
+    { id: 'pronto', nome: 'Pronto' },
     { id: 'programmato', nome: 'Programmato' },
     { id: 'pubblicato', nome: 'Pubblicato' }
   ];
@@ -467,17 +523,17 @@
   };
   var DOC_KEYS = ['spunti', 'crescita', 'settings', 'playbook'];
   var LS_KEY = 'mllab-contenuti-v1';
-  var TABS = ['panoramica', 'archivio', 'idee', 'calendario', 'playbook', 'spunti', 'impostazioni'];
+  var TABS = ['panoramica', 'archivio', 'libreria', 'idee', 'calendario', 'playbook', 'spunti', 'impostazioni'];
   var METRICHE = [['views', 'Visualizzazioni'], ['reach', 'Copertura'], ['like', 'Mi piace'], ['commenti', 'Commenti'], ['condivisioni', 'Condivisioni'], ['salvataggi', 'Salvataggi'], ['follow', 'Nuovi follower'], ['visiteProfilo', 'Visite al profilo'], ['nonFollower', '% da non follower'], ['clienti', 'Clienti / DM portati']];
 
   // ---------- stato ----------
   var state = { contenuti: [], spunti: [], crescita: [], settings: clone(DEFAULT_SETTINGS), playbook: { funziona: [], evitare: [], prova: [], aggiornato: '' } };
   var ui = {
     tab: 'panoramica', periodo: 'tutto', dim: 'argomento', fRange: 180,
-    q: '', fArg: '', fOsp: '', fTipo: '', fFmt: '', fSem: '', vista: 'schede', sort: 'views', dir: -1,
-    calY: 0, calM: 0, spTipo: '', aiIdeas: [], aiBusy: false, aiText: '', aiTextBusy: false, pbBusy: false
+    libF: '', vsel: {}, q: '', fArg: '', fOsp: '', fTipo: '', fFmt: '', fSem: '', vista: 'schede', sort: 'views', dir: -1,
+    calY: 0, calM: 0, spTipo: '', aiIdeas: [], aiBusy: false, aiLast: { tema: '', arg: '', osp: '' }, bsBusy: false, aiText: '', aiTextBusy: false, pbBusy: false
   };
-  var db = null, sample = null, downloads = null, imgLimits = null;
+  var db = null, sample = null, downloads = null, assets = null, imgLimits = null;
   var dirty = {}, writing = {}, timers = {}, pend = {};
 
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
@@ -502,7 +558,7 @@
     return Object.assign({
       id: uid(), titolo: '', hook: '', testo: '', argomento: '', formato: 'Reel', tipo: '', ospite: 'Nessuno', cta: '',
       fase: 'idea', data: '', link: '', views: '', reach: '', like: '', commenti: '', condivisioni: '', salvataggi: '', follow: '', clienti: '',
-      visiteProfilo: '', nonFollower: '', collegato: '', note: '', analisi: '', creato: new Date().toISOString()
+      visiteProfilo: '', nonFollower: '', collegato: '', note: '', analisi: '', brainstorm: [], creato: new Date().toISOString()
     }, o || {});
   }
   function findC(id) { return state.contenuti.filter(function (c) { return c.id === id; })[0]; }
@@ -670,6 +726,7 @@
       try { s.limits().then(function (l) { imgLimits = (l && l.images) || null; renderSoft(); }, function () { renderSoft(); }); } catch (e) { renderSoft(); }
     }, function () {});
     window.claude.use('downloads').then(function (d) { downloads = d; if (d) renderSoft(); }, function () {});
+    window.claude.use('assets').then(function (a) { assets = a; if (a) renderSoft(); }, function () {});
   }
 
   function renderSoft() {
@@ -712,7 +769,7 @@
     if (!downloads) { toast('Il salvataggio di file funziona aprendo l\'app su claude.ai.'); return; }
     downloads.save({ filename: filename, data: data }).then(function (r) {
       if (r && r.status === 'saved') toast(label + ' salvato');
-    }, function (e) { if (e && e.code !== 'cancelled') toast('File non salvato: ' + (e.message || e.code)); });
+    }, function (e) { if (e && e.code !== 'cancelled' && e.code !== 'declined') toast('File non salvato: ' + (e.message || e.code)); });
   }
   function aiErr(e, what) {
     if (!e || e.code === 'cancelled') return;
@@ -736,6 +793,7 @@
 
   var TAB_INFO = {
     archivio: ['Archivio', 'Tutti i contenuti pubblicati, con numeri e lezioni'],
+    libreria: ['Libreria', 'I video e le immagini finali, da guardare, scaricare e pubblicare'],
     idee: ['Idee', 'Dalla prima idea al contenuto pubblicato'],
     calendario: ['Calendario', 'Il piano editoriale del mese'],
     playbook: ['Playbook', 'Cosa funziona sul tuo profilo, cosa evitare, cosa provare'],
@@ -749,7 +807,248 @@
     document.getElementById('hdrHandle').textContent = info ? info[1] : 'Bentornato' + (h ? ' · @' + h.replace(/^@/, '') : '');
     document.querySelector('.avatar').textContent = (nome.trim()[0] || 'M').toUpperCase() + (h ? (h.replace(/^@/, '')[0] || '').toUpperCase() : 'L');
     var v = document.getElementById('view');
-    ({ panoramica: renderPanoramica, archivio: renderArchivio, idee: renderIdee, calendario: renderCalendario, playbook: renderPlaybook, spunti: renderSpunti, impostazioni: renderImpostazioni }[ui.tab] || renderPanoramica)(v);
+    ({ panoramica: renderPanoramica, archivio: renderArchivio, libreria: renderLibreria, idee: renderIdee, calendario: renderCalendario, playbook: renderPlaybook, spunti: renderSpunti, impostazioni: renderImpostazioni }[ui.tab] || renderPanoramica)(v);
+  }
+
+  // =====================================================================
+  // LIBRERIA: i file finali (video e immagini) di ogni contenuto
+  // =====================================================================
+  function mediaSrc(m) { return '/_blob/' + encodeURIComponent(m.id); }
+  function mediaNome(m) { return String(m.nome || 'file').replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' '); }
+  function captionDi(c) { var t = String(c.testo || ''), i = t.indexOf('CAPTION\n'); return i >= 0 ? t.slice(i + 8).trim() : ''; }
+  var FASE_ORD = { pronto: 0, programmato: 1, montaggio: 2, registrare: 3, idea: 4, pubblicato: 5 };
+  function renderLibreria(v) {
+    var conFile = state.contenuti.filter(function (c) { return (c.media || []).length; });
+    var all = conFile.filter(function (c) { return !c.libNascosto; }), nasc = conFile.filter(function (c) { return c.libNascosto; });
+    if (ui.libF === 'nascosti' && !nasc.length) ui.libF = '';
+    var filtri = [['', 'Tutti'], ['pronto', 'Pronti'], ['programmato', 'Programmati'], ['pubblicato', 'Pubblicati']].concat(nasc.length ? [['nascosti', 'Tolti']] : []);
+    var list = (ui.libF === 'nascosti' ? nasc : all).filter(function (c) { return !ui.libF || ui.libF === 'nascosti' || c.fase === ui.libF; }).sort(function (a, b) {
+      return (FASE_ORD[a.fase] - FASE_ORD[b.fase]) || String(b.creato || '').localeCompare(String(a.creato || ''));
+    });
+    var html = '<div class="bar"><div class="chips">' + filtri.map(function (f) {
+      var k = f[0] === 'nascosti' ? nasc.length : f[0] ? all.filter(function (c) { return c.fase === f[0]; }).length : all.length;
+      return '<button class="chip' + (ui.libF === f[0] ? ' on' : '') + '" data-lf="' + f[0] + '">' + f[1] + ' · ' + k + '</button>';
+    }).join('') + '</div></div>';
+    if (!list.length) {
+      html += '<div class="empty"><strong>' + (all.length ? 'Nessun contenuto in questa fase' : 'Qui trovi i file finali dei contenuti') + '</strong><p>' + (all.length ? 'Cambia filtro per vedere gli altri.' : 'Apri un contenuto dalla sezione Idee: quando ha video o immagini allegati, compare qui.') + '</p></div>';
+      v.innerHTML = html; bindLib(v); return;
+    }
+    html += '<div class="lib">' + list.map(libCard).join('') + '</div>';
+    v.innerHTML = html; bindLib(v);
+  }
+  function libCard(c) {
+    var media = c.media || [], vids = media.filter(function (m) { return m.tipo === 'video'; }), imgs = media.filter(function (m) { return m.tipo !== 'video'; });
+    var sel = vids.filter(function (m) { return m.id === ui.vsel[c.id]; })[0] || vids[0];
+    var cap = captionDi(c), h = '<article class="lc" data-c="' + esc(c.id) + '">';
+    h += '<div class="hd"><div class="t">' + esc(titoloDi(c)) + '</div>' + semPill(c) + '</div>';
+    h += '<div class="tags">' + fmtTag(c.formato) + argTag(c.argomento) + ospTag(c.ospite) + '</div>';
+    if (sel) {
+      h += '<video controls playsinline preload="metadata" src="' + mediaSrc(sel) + '"></video>';
+      if (vids.length > 1) h += '<div class="vers">' + vids.map(function (m) { return '<button class="chip' + (m === sel ? ' on' : '') + '" data-vsel="' + esc(m.id) + '">' + esc(mediaNome(m)) + '</button>'; }).join('') + '</div>';
+    }
+    if (imgs.length) h += '<div class="strip">' + imgs.map(function (m, i) { return '<button data-zoom="' + esc(m.id) + '" aria-label="Apri ' + esc(mediaNome(m)) + '"><img loading="lazy" src="' + mediaSrc(m) + '" alt="' + esc(mediaNome(m)) + ' (' + (i + 1) + '/' + imgs.length + ')"></button>'; }).join('') + '</div>';
+    if (cap) h += '<div class="cap">' + esc(cap) + '</div>';
+    var fasiLib = [['pronto', 'Pronto'], ['programmato', 'Programmato'], ['pubblicato', 'Pubblicato']];
+    if (!fasiLib.some(function (x) { return x[0] === c.fase; })) fasiLib.unshift([c.fase, (FASI.filter(function (x) { return x.id === c.fase; })[0] || { nome: c.fase }).nome]);
+    h += '<div class="acts">' + (!c.libNascosto ? '<label class="fsel-w"><span class="sr">Stato</span><select class="fsel" data-fase aria-label="Stato del contenuto">' + fasiLib.map(function (x) { return '<option value="' + esc(x[0]) + '"' + (x[0] === c.fase ? ' selected' : '') + '>' + esc(x[1]) + '</option>'; }).join('') + '</select></label>' : '') +
+      (cap ? '<button class="btn small primary" data-copy>Copia caption</button>' : '') +
+      (sel ? '<button class="btn small" data-dl="' + esc(sel.id) + '">Scarica video</button>' : '') +
+      (imgs.length > 1 ? (function () { var g = gruppi(imgs); return g.length > 1 && g.some(function (x) { return x.l.length > 1; }) ? g.map(function (x) { return '<button class="btn small primary" data-show="' + esc(x.k) + '">▶ ' + esc(x.k.charAt(0).toUpperCase() + x.k.slice(1)) + ' (' + x.l.length + ')</button>'; }).join('') : '<button class="btn small primary" data-show="">▶ Presentazione</button>'; })() : '') +
+      (imgs.length ? '<button class="btn small" data-dlimgs>Scarica immagini (' + imgs.length + ')</button>' : '') +
+      '<button class="btn small ghost" data-open>Apri scheda</button>' +
+      (assets && !c.libNascosto ? '<label class="btn small ghost" style="cursor:pointer">+ Aggiungi file<input type="file" accept="video/*,image/*" multiple hidden data-up></label>' : '') +
+      (c.libNascosto ? '<button class="btn small" data-unhide>Rimetti in libreria</button><button class="btn small ghost danger" data-del>Elimina definitivamente</button>' : '<button class="btn small ghost danger" data-hide>Togli dalla libreria</button>') + '</div>';
+    return h + '</article>';
+  }
+  function bindLib(v) {
+    v.querySelectorAll('[data-lf]').forEach(function (b) { b.addEventListener('click', function () { ui.libF = b.dataset.lf; render(); }); });
+    v.querySelectorAll('.lc').forEach(function (card) {
+      var c = findC(card.dataset.c); if (!c) return;
+      card.querySelectorAll('[data-vsel]').forEach(function (b) { b.addEventListener('click', function () { ui.vsel[c.id] = b.dataset.vsel; render(); }); });
+      var imgsOf = function () { return (c.media || []).filter(function (x) { return x.tipo !== 'video'; }); };
+      var grpOf = function (id) { var g = gruppi(imgsOf()); if (!g.some(function (x) { return x.l.length > 1; })) return { l: imgsOf() }; return g.filter(function (x) { return x.l.some(function (m) { return m.id === id; }); })[0] || { l: imgsOf() }; };
+      card.querySelectorAll('[data-zoom]').forEach(function (b) {
+        b.addEventListener('click', function () { var l = grpOf(b.dataset.zoom).l, i = l.map(function (x) { return x.id; }).indexOf(b.dataset.zoom); openShow(c, l, Math.max(0, i)); });
+      });
+      card.querySelectorAll('[data-show]').forEach(function (sh) {
+        sh.addEventListener('click', function () { var g = gruppi(imgsOf()).filter(function (x) { return x.k === sh.dataset.show; })[0]; openShow(c, sh.dataset.show && g ? g.l : imgsOf(), 0); });
+      });
+      var fs = card.querySelector('[data-fase]');
+      if (fs) fs.addEventListener('change', function () {
+        var nuova = fs.value; render();  // la tendina torna allo stato attuale finché non confermi
+        if (nuova === 'pubblicato') segnaPubblicato(c);
+        else if (nuova === 'programmato') programma(c);
+        else cambiaFase(c, { fase: nuova }, 'Spostato tra i pronti');
+      });
+      var cp = card.querySelector('[data-copy]');
+      if (cp) cp.addEventListener('click', function () { copyText(captionDi(c)); });
+      var dl = card.querySelector('[data-dlimgs]');
+      if (dl) dl.addEventListener('click', function () { saveImagesZip(c); });
+      card.querySelectorAll('[data-dl]').forEach(function (b) {
+        b.addEventListener('click', function () { var m = (c.media || []).filter(function (x) { return x.id === b.dataset.dl; })[0]; if (m) saveMedia(m); });
+      });
+      var hd = card.querySelector('[data-hide]');
+      if (hd) hd.addEventListener('click', function () {
+        if (!hd.classList.contains('armed')) { hd.classList.add('armed'); hd.textContent = 'Sicuro? Tocca di nuovo'; setTimeout(function () { if (hd.isConnected) { hd.classList.remove('armed'); hd.textContent = 'Togli dalla libreria'; } }, 4000); return; }
+        c.libNascosto = true; saveItem(c); render();
+        toastAction('Tolto dalla libreria', 'Annulla', function () { c.libNascosto = false; saveItem(c); render(); });
+      });
+      var dx = card.querySelector('[data-del]');
+      if (dx) dx.addEventListener('click', function () {
+        if (!dx.classList.contains('armed')) { dx.classList.add('armed'); dx.textContent = 'Elimino contenuto e file? Tocca di nuovo'; setTimeout(function () { if (dx.isConnected) { dx.classList.remove('armed'); dx.textContent = 'Elimina definitivamente'; } }, 5000); return; }
+        eliminaContenuto(c);
+      });
+      var uh = card.querySelector('[data-unhide]');
+      if (uh) uh.addEventListener('click', function () { delete c.libNascosto; saveItem(c); render(); toast('Rimesso in libreria'); });
+      card.querySelector('[data-open]').addEventListener('click', function () { contentModal(c); });
+      var up = card.querySelector('[data-up]');
+      if (up) up.addEventListener('change', function () { uploadMedia(c, Array.prototype.slice.call(up.files || [])); });
+    });
+  }
+  // elimina la scheda e i suoi file caricati (non si può annullare)
+  function eliminaContenuto(c) {
+    var ids = (c.media || []).map(function (m) { return m.id; }), falliti = 0;
+    removeItem(c.id); render();
+    if (!assets || !ids.length) { toast('Contenuto eliminato'); return; }
+    Promise.all(ids.map(function (id) { return assets.delete(id).then(null, function (e) { if (!e || e.code !== 'not_found') falliti++; }); })).then(function () {
+      toast(falliti ? 'Contenuto eliminato (' + falliti + ' file non rimossi dallo spazio)' : 'Contenuto e file eliminati');
+    });
+  }
+  function cambiaFase(c, nuovo, msg) {
+    var prima = { fase: c.fase, data: c.data, link: c.link };
+    Object.assign(c, nuovo); saveItem(c); render();
+    toastAction(msg, 'Annulla', function () { Object.assign(c, prima); saveItem(c); render(); });
+  }
+  function programma(c) {
+    var dom = new Date(); dom.setDate(dom.getDate() + 1);
+    openModal('<header><h2>Programma la pubblicazione</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
+      '<div class="form" style="max-width:none"><p class="note" style="margin:0">«' + esc(titoloDi(c)) + '» passa tra i <b>Programmati</b> e compare nel Calendario in quel giorno.</p>' +
+      '<label>Giorno di pubblicazione<input class="field" type="date" id="g_data" value="' + esc(c.data && c.data >= todayISO() ? c.data : iso(dom)) + '"></label></div>' +
+      '<div class="actions"><div></div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="g_ok">Programma</button></div></div>', function (m) {
+      m.querySelector('#g_ok').addEventListener('click', function () {
+        var d = val(m, 'g_data'); if (!d) { toast('Scegli il giorno.'); return; }
+        closeModal(); cambiaFase(c, { fase: 'programmato', data: d }, 'Programmato per il ' + fmtDate(d));
+      });
+    });
+  }
+  function segnaPubblicato(c) {
+    openModal('<header><h2>Segna come pubblicato</h2><button class="iconbtn" data-close aria-label="Chiudi">✕</button></header>' +
+      '<div class="form" style="max-width:none"><p class="note" style="margin:0">«' + esc(titoloDi(c)) + '» passa tra i <b>Pubblicati</b>: lo trovi anche in Archivio, dove aggiungi visualizzazioni e statistiche.</p>' +
+      '<div class="two"><label>Data di pubblicazione<input class="field" type="date" id="p_data" value="' + esc(c.data && c.data <= todayISO() ? c.data : todayISO()) + '"></label>' +
+      '<label>Link al post (facoltativo)<input class="field" id="p_link" value="' + esc(c.link) + '" placeholder="https://www.instagram.com/reel/…"></label></div></div>' +
+      '<div class="actions"><div></div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="p_ok">Segna come pubblicato</button></div></div>', function (m) {
+      m.querySelector('#p_ok').addEventListener('click', function () {
+        closeModal(); cambiaFase(c, { fase: 'pubblicato', data: val(m, 'p_data') || todayISO(), link: val(m, 'p_link') }, 'Spostato tra i pubblicati');
+        if (sample && imgLimits) setTimeout(function () { toastAction('Quando hai i numeri, carica gli screenshot degli Insights.', 'Apri la scheda', function () { var x = findC(c.id); if (x) contentModal(x, { focus: 'shot' }); }); }, 3500);
+      });
+    });
+  }
+  // slide raggruppate per nome file ("errori-1.png", "tecnico-3.png" → errori, tecnico)
+  function gruppi(imgs) {
+    var out = [];
+    imgs.forEach(function (m) {
+      var k = String(m.nome || '').toLowerCase().replace(/\.[a-z0-9]+$/, '').replace(/[-_ ]*\d+$/, '') || 'slide';
+      var g = out.filter(function (x) { return x.k === k; })[0]; if (!g) out.push(g = { k: k, l: [] }); g.l.push(m);
+    });
+    return out;
+  }
+  // presentazione a schermo intero delle slide di un carosello
+  function openShow(c, imgs, start) {
+    if (!imgs.length) return;
+    var i = start || 0, el = document.createElement('div');
+    el.className = 'show'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Presentazione: ' + titoloDi(c));
+    el.innerHTML = '<div class="top"><div style="min-width:0"><div class="t">' + esc(titoloDi(c)) + '</div><div class="k" id="shK"></div></div><div class="r"><button class="sb dl" id="shDl">Scarica</button><button class="sb" id="shX" aria-label="Chiudi">✕</button></div></div>' +
+      '<div class="stage"><button class="nav prev" id="shP" aria-label="Precedente">‹</button><img id="shI" alt=""><button class="nav next" id="shN" aria-label="Successiva">›</button></div>' +
+      '<div class="dots" id="shD">' + imgs.map(function (m, k) { return '<button data-k="' + k + '" aria-label="Slide ' + (k + 1) + '"></button>'; }).join('') + '</div>';
+    document.body.appendChild(el);
+    var img = el.querySelector('#shI'), prev = el.querySelector('#shP'), next = el.querySelector('#shN');
+    function show() {
+      var m = imgs[i]; img.src = mediaSrc(m); img.alt = mediaNome(m);
+      el.querySelector('#shK').textContent = (i + 1) + ' / ' + imgs.length + ' · ' + mediaNome(m);
+      prev.disabled = i === 0; next.disabled = i === imgs.length - 1;
+      el.querySelectorAll('#shD button').forEach(function (d, k) { d.classList.toggle('on', k === i); });
+      if (imgs[i + 1]) { var pre = new Image(); pre.src = mediaSrc(imgs[i + 1]); }
+    }
+    function go(d) { var j = Math.min(imgs.length - 1, Math.max(0, i + d)); if (j !== i) { i = j; show(); } }
+    function close() { document.removeEventListener('keydown', key, true); el.remove(); }
+    function key(e) {
+      if (e.key === 'ArrowRight') { go(1); e.preventDefault(); } else if (e.key === 'ArrowLeft') { go(-1); e.preventDefault(); }
+      else if (e.key === 'Escape') { close(); e.stopPropagation(); }
+    }
+    prev.addEventListener('click', function () { go(-1); }); next.addEventListener('click', function () { go(1); });
+    el.querySelector('#shX').addEventListener('click', close);
+    el.querySelector('#shDl').addEventListener('click', function () { saveMedia(imgs[i]); });
+    el.querySelectorAll('#shD button').forEach(function (d) { d.addEventListener('click', function () { i = +d.dataset.k; show(); }); });
+    img.addEventListener('click', function (e) { var r = img.getBoundingClientRect(); go(e.clientX - r.left < r.width / 3 ? -1 : 1); });
+    var x0 = null, y0 = 0;
+    el.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    el.addEventListener('touchend', function (e) {
+      if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+    }, { passive: true });
+    document.addEventListener('keydown', key, true);
+    show(); el.querySelector('#shX').focus();
+  }
+  function fetchMedia(m) {
+    return fetch(mediaSrc(m)).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); });
+  }
+  function saveMedia(m) {
+    if (!downloads) { toast('Il salvataggio di file funziona aprendo l\'app su claude.ai.'); return; }
+    toast('Preparo ' + (m.nome || 'il file') + '…');
+    fetchMedia(m).then(function (b) { saveFile(m.nome || (m.tipo === 'video' ? 'video.mp4' : 'immagine.png'), b, m.tipo === 'video' ? 'Video' : 'Immagine'); },
+      function () { toast('Non riesco a leggere il file, riprova.'); });
+  }
+  // tutte le immagini di un contenuto in un unico .zip (senza compressione: i png sono già compressi)
+  var CRC_T = null;
+  function crc32(u) {
+    if (!CRC_T) { CRC_T = new Uint32Array(256); for (var i = 0; i < 256; i++) { var c = i; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC_T[i] = c >>> 0; } }
+    var x = 0xFFFFFFFF; for (var j = 0; j < u.length; j++) x = CRC_T[(x ^ u[j]) & 255] ^ (x >>> 8); return (x ^ 0xFFFFFFFF) >>> 0;
+  }
+  function makeZip(files) {
+    var enc = new TextEncoder(), parts = [], central = [], off = 0;
+    function hdr(n) { return new DataView(new ArrayBuffer(n)); }
+    files.forEach(function (f) {
+      var name = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+      var h = hdr(30); h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(8, 0, true); h.setUint32(14, crc, true); h.setUint32(18, sz, true); h.setUint32(22, sz, true); h.setUint16(26, name.length, true);
+      parts.push(h.buffer, name, f.data);
+      var c = hdr(46); c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint32(16, crc, true); c.setUint32(20, sz, true); c.setUint32(24, sz, true); c.setUint16(28, name.length, true); c.setUint32(42, off, true);
+      central.push(c.buffer, name);
+      off += 30 + name.length + sz;
+    });
+    var csize = central.reduce(function (a, b) { return a + b.byteLength; }, 0);
+    var e = hdr(22); e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, csize, true); e.setUint32(16, off, true);
+    return new Blob(parts.concat(central, [e.buffer]), { type: 'application/zip' });
+  }
+  function saveImagesZip(c) {
+    var imgs = (c.media || []).filter(function (m) { return m.tipo !== 'video'; });
+    if (!imgs.length) return;
+    if (imgs.length === 1) { saveMedia(imgs[0]); return; }
+    if (!downloads) { toast('Il salvataggio di file funziona aprendo l\'app su claude.ai.'); return; }
+    toast('Preparo ' + imgs.length + ' immagini…');
+    Promise.all(imgs.map(function (m) { return fetchMedia(m).then(function (b) { return b.arrayBuffer(); }).then(function (ab) { return { name: m.nome || 'immagine.png', data: new Uint8Array(ab) }; }); }))
+      .then(function (files) { saveFile(String(titoloDi(c)).replace(/[^a-z0-9à-ù]+/gi, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 60) + '.zip', makeZip(files), 'Archivio immagini'); },
+        function () { toast('Non riesco a leggere le immagini, riprova.'); });
+  }
+  function copyText(t) {
+    function fallback() { var ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); toast(ok ? 'Caption copiata' : 'Non riesco a copiare: tieni premuto sul testo per selezionarlo.'); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { toast('Caption copiata'); }, fallback); else fallback();
+  }
+  function uploadMedia(c, files) {
+    if (!assets || !files.length) return;
+    toast('Carico ' + files.length + (files.length > 1 ? ' file…' : ' file…'));
+    var added = [], i = 0;
+    (function next() {
+      if (i >= files.length) {
+        if (added.length) { var cur = findC(c.id) || c; cur.media = (cur.media || []).concat(added); saveItem(cur); render(); toast(added.length + ' file aggiunti'); }
+        return;
+      }
+      var f = files[i++];
+      assets.upload(f).then(function (r) {
+        added.push({ id: r.id, nome: f.name, tipo: /^video\//.test(f.type) ? 'video' : 'immagine' }); next();
+      }, function (e) {
+        toast(e && e.code === 'too_large' ? f.name + ' è troppo grande (massimo 20 MB): esportalo più leggero.' : 'Non riesco a caricare ' + f.name + '.'); next();
+      });
+    })();
   }
 
   // =====================================================================
@@ -793,7 +1092,7 @@
     var avgV = avg(pubs, function (c) { return n(c.views); });
     var engList = pubs.filter(hasEng);
 
-    var lav = state.contenuti.filter(function (c) { return ['registrare', 'montaggio', 'programmato'].indexOf(c.fase) >= 0; });
+    var lav = state.contenuti.filter(function (c) { return ['registrare', 'montaggio', 'pronto', 'programmato'].indexOf(c.fase) >= 0; });
     var cassetto = state.contenuti.filter(function (c) { return c.fase === 'idea'; }).length;
     var upcoming = state.contenuti.filter(function (c) { return c.fase !== 'pubblicato' && c.data && c.data >= todayISO(); }).sort(function (a, b) { return a.data < b.data ? -1 : 1; });
     var late = state.contenuti.filter(function (c) { return c.fase !== 'pubblicato' && c.data && c.data < todayISO(); });
@@ -1148,7 +1447,7 @@
       '<label>CTA<select class="field" id="c_cta">' + opts(s.cta, c.cta, '—') + '</select></label>' +
       '<label>Collegato a<select class="field" id="c_collegato"><option value="">—</option>' + altri.map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === c.collegato ? ' selected' : '') + '>' + esc(titoloDi(x).slice(0, 60)) + '</option>'; }).join('') + '</select></label></div>' +
       '<label>Testo (script e caption)<textarea class="field" id="c_testo" style="min-height:170px">' + esc(c.testo) + '</textarea></label>' +
-      (sample ? '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn small" id="c_ai">Scrivi lo script con Claude</button><span class="muted" id="c_aist" style="font-size:12px"></span></div>' : '') +
+      (sample ? '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn small" id="c_ai">Scrivi lo script con Claude</button><button class="btn small" id="c_bs">Brainstorming' + ((c.brainstorm || []).length ? ' · ' + c.brainstorm.length : '') + '</button><span class="muted" id="c_aist" style="font-size:12px"></span></div>' : '') +
       '</div>' +
       '<div class="msec"><h4>Pubblicazione</h4><div class="three"><label>Fase<select class="field" id="c_fase">' + FASI.map(function (f) { return '<option value="' + f.id + '"' + (f.id === c.fase ? ' selected' : '') + '>' + f.nome + '</option>'; }).join('') + '</select></label>' +
       '<label>Data<input class="field" type="date" id="c_data" value="' + esc(c.data) + '"></label>' +
@@ -1162,14 +1461,23 @@
       '</div><div class="actions"><div>' + (isNew ? '' : '<button class="btn danger" id="c_del">Elimina</button>') + '</div><div><button class="btn ghost" data-close>Annulla</button><button class="btn primary" id="c_ok">Salva</button></div></div>', function (m) {
       if (opt.focus) { var f = m.querySelector('#c_' + opt.focus); if (f) { f.scrollIntoView({ block: 'center' }); f.focus(); } }
       else if (isNew) m.querySelector('#c_titolo').focus();
-      m.querySelector('#c_ok').addEventListener('click', function () {
-        var o = Object.assign({}, c);
+      function readForm() {
+        var o = Object.assign({}, findC(c.id) || c);
         ['titolo', 'hook', 'argomento', 'formato', 'tipo', 'ospite', 'cta', 'collegato', 'fase', 'data', 'link'].forEach(function (k) { o[k] = val(m, 'c_' + k); });
         o.testo = m.querySelector('#c_testo').value; o.note = m.querySelector('#c_note').value; o.analisi = m.querySelector('#c_analisi').value;
         METRICHE.forEach(function (mm) { var x = val(m, 'c_' + mm[0]); o[mm[0]] = x === '' ? '' : n(x); });
-        if (!o.titolo && !o.hook) { toast('Scrivi almeno il titolo o l\'hook.'); return; }
+        if (!o.titolo && !o.hook) { toast('Scrivi almeno il titolo o l\'hook.'); return null; }
         if (o.fase === 'pubblicato' && !o.data && c.fase !== 'pubblicato') o.data = todayISO();
+        return o;
+      }
+      m.querySelector('#c_ok').addEventListener('click', function () {
+        var o = readForm(); if (!o) return;
         saveItem(o); closeModal(); render(); toast(isNew ? 'Contenuto salvato' : 'Modifiche salvate');
+      });
+      var bs = m.querySelector('#c_bs');
+      if (bs) bs.addEventListener('click', function () {
+        var o = readForm(); if (!o) return;
+        saveItem(o); render(); brainstormModal({ kind: 'c', id: o.id });
       });
       var del = m.querySelector('#c_del');
       if (del) armDelete(del, function () { removeItem(c.id); closeModal(); render(); toast('Contenuto eliminato'); });
@@ -1181,7 +1489,6 @@
           var fs = [].slice.call((e.clipboardData && e.clipboardData.files) || []).filter(function (f) { return /^image\//.test(f.type); });
           if (fs.length) { e.preventDefault(); readShots(m, c, fs); }
         });
-        if (opt.focus === 'shot') { var sh = m.querySelector('#c_shot'); sh.scrollIntoView({ block: 'center' }); sh.focus(); }
       }
     }, true);
   }
@@ -1234,6 +1541,7 @@
       st.textContent = e && e.code === 'image_rejected' ? 'Immagine non accettata: prova con uno screenshot PNG o JPG più piccolo.' : e && e.code === 'rate_limited' ? 'Troppe richieste, riprova tra poco.' : 'Lettura non riuscita: ' + ((e && (e.message || e.code)) || 'errore');
     });
   }
+
 
   // ---------- import / export ----------
   function parseCSV(text) {
@@ -1535,12 +1843,14 @@
     var s = state.settings, html = '';
     if (sample) {
       html += '<div class="ai"><h3>Genera idee con Claude</h3><p class="note" style="margin:0">Claude parte dai tuoi contenuti top, dal playbook e dagli spunti salvati.</p>' +
-        '<div class="row"><input class="field" id="aiTema" placeholder="Tema o richiesta (facoltativo): es. errori in palestra, gonfiore alle gambe"><select class="field" id="aiArg" style="flex:0 1 170px">' + opts(argNomi(), '', 'Qualsiasi argomento') + '</select><select class="field" id="aiOsp" style="flex:0 1 150px">' + opts(s.ospiti.filter(function (o) { return o !== 'Nessuno'; }), '', 'Ospite libero') + '</select>' +
+        '<div class="row"><input class="field" id="aiTema" value="' + esc(ui.aiLast.tema) + '" placeholder="Tema o richiesta (facoltativo): es. errori in palestra, gonfiore alle gambe"><select class="field" id="aiArg" style="flex:0 1 170px">' + opts(argNomi(), ui.aiLast.arg, 'Qualsiasi argomento') + '</select><select class="field" id="aiOsp" style="flex:0 1 150px">' + opts(s.ospiti.filter(function (o) { return o !== 'Nessuno'; }), ui.aiLast.osp, 'Ospite libero') + '</select>' +
         '<button class="btn primary" id="aiGo"' + (ui.aiBusy ? ' disabled' : '') + '>' + (ui.aiBusy ? 'Sto pensando…' : 'Proponi 6 idee') + '</button></div>' +
         (ui.aiIdeas.length ? '<div class="sugg">' + ui.aiIdeas.map(function (x, i) {
           return '<div class="sg"><div style="display:flex;gap:6px;flex-wrap:wrap">' + argTag(x.argomento) + fmtTag(x.formato) + ospTag(x.ospite) + (x.tipo ? '<span class="tag">' + esc(x.tipo) + '</span>' : '') + '</div><div class="t">' + esc(x.titolo) + '</div><div class="h">«' + esc(x.hook) + '»</div><div class="w">' + esc(x.perche) + '</div>' +
-            '<div style="display:flex;gap:8px"><button class="btn small primary" data-take="' + i + '">Aggiungi alle idee</button><button class="btn small ghost" data-drop="' + i + '">Scarta</button></div></div>';
-        }).join('') + '</div>' : '') + '</div>';
+            (x.appunti ? '<div class="w" style="white-space:pre-wrap;color:var(--ink)">' + esc(x.appunti) + '</div>' : '') +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small primary" data-take="' + i + '">Aggiungi alle idee</button><button class="btn small" data-bsp="' + i + '">Brainstorming' + ((x.brainstorm || []).length ? ' · ' + x.brainstorm.length : '') + '</button><button class="btn small ghost" data-drop="' + i + '">Scarta</button></div></div>';
+        }).join('') + '</div>' +
+        '<div class="row"><input class="field" id="aiFb" placeholder="Non ti convincono? Scrivi cosa cambiare: es. più pratiche, per clienti di Verona, meno tecniche"><button class="btn primary" id="aiFbGo"' + (ui.aiBusy ? ' disabled' : '') + '>Migliora le proposte</button></div>' : '') + '</div>';
     }
     html += '<div class="kanban">' + FASI.map(function (f) {
       var items = state.contenuti.filter(function (c) { return (c.fase || 'idea') === f.id; });
@@ -1559,6 +1869,7 @@
       cd.addEventListener('click', function (e) {
         var mv = e.target.closest('[data-mv]');
         if (mv) { e.stopPropagation(); moveIdea(cd.dataset.id, +mv.dataset.mv); return; }
+        if (e.target.closest('[data-bs]')) { e.stopPropagation(); brainstormModal({ kind: 'c', id: cd.dataset.id }); return; }
         var c = findC(cd.dataset.id); if (c) contentModal(c);
       });
       cd.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', cd.dataset.id); e.dataTransfer.effectAllowed = 'move'; });
@@ -1569,9 +1880,16 @@
       col.addEventListener('drop', function (e) { e.preventDefault(); col.classList.remove('drop'); setFase(e.dataTransfer.getData('text/plain'), col.dataset.st); });
     });
     var go = v.querySelector('#aiGo'); if (go) go.addEventListener('click', function () { aiIdee(val(v, 'aiTema'), val(v, 'aiArg'), val(v, 'aiOsp')); });
+    var fbGo = v.querySelector('#aiFbGo');
+    if (fbGo) fbGo.addEventListener('click', function () {
+      var fb = val(v, 'aiFb'); if (!fb) { toast('Scrivi cosa vuoi cambiare nelle proposte.'); v.querySelector('#aiFb').focus(); return; }
+      aiIdee(val(v, 'aiTema'), val(v, 'aiArg'), val(v, 'aiOsp'), fb);
+    });
+    var fbIn = v.querySelector('#aiFb'); if (fbIn) fbIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') fbGo.click(); });
+    v.querySelectorAll('[data-bsp]').forEach(function (b) { b.addEventListener('click', function () { brainstormModal({ kind: 'p', i: +b.dataset.bsp }); }); });
     v.querySelectorAll('[data-take]').forEach(function (b) { b.addEventListener('click', function () {
       var x = ui.aiIdeas[+b.dataset.take];
-      saveItem(blank({ titolo: x.titolo, hook: x.hook, argomento: x.argomento, formato: FORMATI.indexOf(x.formato) >= 0 ? x.formato : 'Reel', tipo: x.tipo, ospite: x.ospite || 'Nessuno', cta: x.cta, testo: x.perche ? 'Perché può funzionare: ' + x.perche : '' }));
+      saveItem(blank({ titolo: x.titolo, hook: x.hook, argomento: x.argomento, formato: FORMATI.indexOf(x.formato) >= 0 ? x.formato : 'Reel', tipo: x.tipo, ospite: x.ospite || 'Nessuno', cta: x.cta, testo: [x.perche ? 'Perché può funzionare: ' + x.perche : '', x.appunti ? 'Struttura:\n' + x.appunti : ''].filter(Boolean).join('\n\n'), brainstorm: x.brainstorm || [] }));
       ui.aiIdeas.splice(+b.dataset.take, 1); render(); toast('Idea aggiunta');
     }); });
     v.querySelectorAll('[data-drop]').forEach(function (b) { b.addEventListener('click', function () { ui.aiIdeas.splice(+b.dataset.drop, 1); render(); }); });
@@ -1584,6 +1902,7 @@
       '<div class="meta">' + argTag(c.argomento) + ospTag(c.ospite) + (c.fase === 'pubblicato' ? semPill(c) : fmtTag(c.formato)) + '</div>' +
       '<div class="moves"><button class="iconbtn" data-mv="-1" aria-label="Sposta indietro"' + (idx === 0 ? ' disabled style="visibility:hidden"' : '') + '>←</button>' +
       '<span class="date' + (late ? ' late' : '') + '">' + (c.fase === 'pubblicato' && has(c.views) ? fmtN(c.views) + ' visual.' : c.data ? (late ? 'In ritardo · ' : '') + fmtDate(c.data) : 'Senza data') + '</span>' +
+      (sample && c.fase !== 'pubblicato' ? '<button class="iconbtn" data-bs aria-label="Brainstorming con Claude" title="Brainstorming con Claude">💬' + ((c.brainstorm || []).length ? ' <span class="bs-count">' + c.brainstorm.length + '</span>' : '') + '</button>' : '') +
       '<button class="iconbtn" data-mv="1" aria-label="Sposta avanti"' + (idx === FASI.length - 1 ? ' disabled style="visibility:hidden"' : '') + '>→</button></div></article>';
   }
   function moveIdea(id, d) {
@@ -1596,7 +1915,7 @@
     var o = Object.assign({}, c, { fase: f });
     if (f === 'pubblicato' && (!o.data || o.data > todayISO())) o.data = todayISO();
     saveItem(o); render();
-    if (f === 'pubblicato') toastAction('Pubblicato. Registra le visualizzazioni quando le hai.', 'Apri la scheda', function () { contentModal(findC(id), { focus: 'views' }); });
+    if (f === 'pubblicato') toastAction('Pubblicato. Registra le visualizzazioni quando le hai.', 'Apri la scheda', function () { contentModal(findC(id), { focus: sample && imgLimits ? 'shot' : 'views' }); });
   }
   function toastAction(msg, label, fn) {
     var r = document.getElementById('toastRoot');
@@ -1604,8 +1923,10 @@
     r.querySelector('#tAct').addEventListener('click', function () { r.innerHTML = ''; fn(); });
     clearTimeout(toast.t); toast.t = setTimeout(function () { r.innerHTML = ''; }, 7000);
   }
-  function aiIdee(tema, arg, osp) {
+  function aiIdee(tema, arg, osp, fb) {
     if (!sample || ui.aiBusy) return;
+    var prima = fb ? ui.aiIdeas.slice() : [];
+    ui.aiLast = { tema: tema || '', arg: arg || '', osp: osp || '' };
     ui.aiBusy = true; render();
     var gia = state.contenuti.slice(-40).map(function (c) { return '- ' + titoloDi(c); }).join('\n');
     var sp = state.spunti.slice(-15).map(function (x) { return '- [' + x.tipo + '] ' + x.testo.slice(0, 140); }).join('\n');
@@ -1614,14 +1935,121 @@
       '\n\nContenuti migliori e peggiori:\n' + contenutiCtx(conViews(state.contenuti), 12) +
       (sp ? '\n\nSpunti salvati:\n' + sp : '') + (gia ? '\n\nGià fatti o in lista (non ripeterli):\n' + gia : '') +
       (tema ? '\n\nRichiesta: ' + tema : '') + (arg ? '\nArgomento: ' + arg : '') + (osp ? '\nOspite: ' + osp : '') +
+      (fb ? '\n\nPROPOSTE PRECEDENTI (l\'autore le ha già viste):\n' + prima.map(function (x) { return '- ' + x.titolo + ' | hook: "' + x.hook + '" | ' + [x.tipo, x.ospite, x.cta].filter(Boolean).join(', '); }).join('\n') +
+        '\nFEEDBACK DELL\'AUTORE: ' + fb + '\nRiscrivi 6 idee migliorate seguendo il feedback: tieni e migliora quelle che lo rispettano già, sostituisci le altre.' : '') +
       '\n\nRispondi SOLO con JSON: {"idee":[{"titolo":"...","hook":"prima frase, max 12 parole","argomento":"uno tra: ' + argNomi().join(' | ') + '","formato":"Reel|Carosello|Foto","tipo":"uno tra: ' + s.tipi.join(' | ') + '","ospite":"uno tra: ' + s.ospiti.join(' | ') + '","cta":"uno tra: ' + s.cta.join(' | ') + '","perche":"una frase sul perché funzionerà, citando un dato del profilo"}]}';
     sample.json(prompt, { modelTier: 'default' }).then(function (r) {
       var list = (r && (r.idee || r.ideas)) || (Array.isArray(r) ? r : []);
       ui.aiIdeas = list.filter(function (x) { return x && (x.titolo || x.hook); }).map(function (x) { return { titolo: String(x.titolo || ''), hook: String(x.hook || ''), argomento: String(x.argomento || ''), formato: String(x.formato || 'Reel'), tipo: String(x.tipo || ''), ospite: String(x.ospite || 'Nessuno'), cta: String(x.cta || ''), perche: String(x.perche || '') }; });
       ui.aiBusy = false; render();
       if (!ui.aiIdeas.length) toast('Nessuna idea ricevuta, riprova.');
+      else if (fb) toast('Proposte riscritte con il tuo feedback');
     }, function (e) { ui.aiBusy = false; render(); aiErr(e, 'Non riesco a generare idee'); });
   }
+  // ---------- brainstorming su una singola idea (proposta di Claude o idea salvata) ----------
+  var BS_QUICK = [
+    ['3 hook alternativi', 'Proponimi 3 hook alternativi più forti per i primi 3 secondi, ognuno con un\'idea di visivo, e scegli il migliore.'],
+    ['Più pratica', 'Aggiungi un consiglio pratico che chi guarda può applicare subito, così il contenuto viene salvato.'],
+    ['Più locale', 'Adattala al pubblico della mia zona (Verona e Bovolone) per portare clienti in studio.'],
+    ['Altro stile di ripresa', 'Proponi uno stile di ripresa diverso (walk & talk, dimostrazione in palestra, voce fuori campo, dietro le quinte, risposta a un commento) e come cambia il copione.'],
+    ['Critica sincera', 'Dimmi con sincerità i punti deboli di questa idea e come sistemarli.'],
+    ['CTA migliore', 'Proponi una CTA più efficace, con un motivo concreto per commentare o scrivermi in DM.']
+  ];
+  function bsGet(ref) { return ref.kind === 'p' ? ui.aiIdeas[ref.i] : findC(ref.id); }
+  function bsSetThread(ref, thread) {
+    thread = thread.slice(-40);
+    if (ref.kind === 'p') { if (ui.aiIdeas[ref.i]) ui.aiIdeas[ref.i].brainstorm = thread; return; }
+    var c = findC(ref.id); if (c) saveItem(Object.assign({}, c, { brainstorm: thread }));
+  }
+  function brainstormModal(ref) {
+    var x = bsGet(ref);
+    if (!x) { toast('Questa idea non esiste più.'); return; }
+    if (!sample) { toast('Il brainstorming funziona aprendo l\'app su claude.ai.'); return; }
+    var prevIn = document.getElementById('bsIn'), keep = prevIn ? prevIn.value : '';
+    var thread = x.brainstorm || [];
+    var msgs = thread.map(function (r, i) {
+      if (r.r === 'io') return '<div class="bs-msg bs-me">' + esc(r.t) + '</div>';
+      var v = r.v;
+      return '<div class="bs-msg bs-ai">' + esc(r.t) + (v ? '<div class="bs-ver"><span class="k">Versione proposta</span>' + (v.titolo ? '<span class="t">' + esc(v.titolo) + '</span>' : '') + (v.hook ? '<span class="h">«' + esc(v.hook) + '»</span>' : '') +
+        ([v.tipo, v.cta ? 'CTA: ' + v.cta : ''].filter(Boolean).length ? '<span class="a">' + esc([v.tipo, v.cta ? 'CTA: ' + v.cta : ''].filter(Boolean).join(' · ')) + '</span>' : '') +
+        (v.appunti ? '<span class="a">' + esc(v.appunti) + '</span>' : '') +
+        (r.applied ? '<span class="ok">✓ Applicata all\'idea</span>' : '<div><button class="btn small primary" data-apply="' + i + '">Usa questa versione</button></div>') + '</div>' : '') + '</div>';
+    }).join('');
+    if (ui.bsBusy) msgs += '<div class="bs-msg bs-ai wait">Claude sta pensando…</div>';
+    if (!thread.length && !ui.bsBusy) msgs = '<p class="note" style="margin:0">Scrivi cosa ti convince e cosa no, chiedi alternative o usa uno dei suggerimenti qui sotto. Ogni proposta concreta arriva con una versione aggiornata che puoi applicare all\'idea.</p>';
+    openModal('<header><h2>Brainstorming</h2><button class="iconbtn" id="bsX" aria-label="Chiudi">✕</button></header>' +
+      '<div class="bs-idea"><div class="tags">' + argTag(x.argomento) + fmtTag(x.formato) + ospTag(x.ospite) + (x.tipo ? '<span class="tag">' + esc(x.tipo) + '</span>' : '') + (x.cta ? '<span class="tag">CTA: ' + esc(x.cta) + '</span>' : '') + (ref.kind === 'p' ? '<span class="tag">Proposta di Claude</span>' : '') + '</div>' +
+      '<div class="t">' + esc(titoloDi(x)) + '</div>' + (x.hook && x.hook !== x.titolo ? '<div class="h">«' + esc(x.hook) + '»</div>' : '') + '</div>' +
+      '<div class="bs-thread" id="bsThread">' + msgs + '</div>' +
+      '<div class="bs-quick">' + BS_QUICK.map(function (q, i) { return '<button class="chip" data-q="' + i + '"' + (ui.bsBusy ? ' disabled' : '') + '>' + esc(q[0]) + '</button>'; }).join('') + '</div>' +
+      '<textarea class="field" id="bsIn" style="min-height:70px" placeholder="La tua idea, un dubbio o cosa vuoi cambiare… (Invio per inviare, Maiusc+Invio per andare a capo)">' + esc(keep) + '</textarea>' +
+      '<div class="actions"><div>' + (thread.length ? '<button class="btn ghost small" id="bsClear">Ricomincia</button>' : '') + '</div><div><button class="btn ghost" id="bsClose">Chiudi</button><button class="btn primary" id="bsSend"' + (ui.bsBusy ? ' disabled' : '') + '>' + (ui.bsBusy ? 'Claude sta pensando…' : 'Invia') + '</button></div></div>', function (m) {
+      var th = m.querySelector('#bsThread'); th.scrollTop = th.scrollHeight;
+      var inp = m.querySelector('#bsIn');
+      if (!ui.bsBusy) inp.focus();
+      function close() { closeModal(); render(); }
+      m.querySelector('#bsX').addEventListener('click', close);
+      m.querySelector('#bsClose').addEventListener('click', close);
+      function send(text) { text = String(text || '').trim(); if (!text || ui.bsBusy) return; inp.value = ''; aiBrainstorm(ref, text); }
+      m.querySelector('#bsSend').addEventListener('click', function () { send(inp.value); });
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(inp.value); } });
+      m.querySelectorAll('[data-q]').forEach(function (b) { b.addEventListener('click', function () { send(BS_QUICK[+b.dataset.q][1]); }); });
+      m.querySelectorAll('[data-apply]').forEach(function (b) { b.addEventListener('click', function () { bsApply(ref, +b.dataset.apply); }); });
+      var clr = m.querySelector('#bsClear');
+      if (clr) clr.addEventListener('click', function () {
+        if (!clr.classList.contains('armed')) { clr.classList.add('armed'); clr.textContent = 'Cancella la conversazione?'; clr.style.color = 'var(--urgent)'; return; }
+        bsSetThread(ref, []); brainstormModal(ref); render();
+      });
+    }, true);
+  }
+  function bsApply(ref, idx) {
+    var x = bsGet(ref); if (!x) return;
+    var thread = (x.brainstorm || []).slice(), r = thread[idx]; if (!r || !r.v) return;
+    var v = r.v, s = state.settings;
+    var upd = {};
+    if (v.titolo) upd.titolo = v.titolo;
+    if (v.hook) upd.hook = v.hook;
+    if (v.tipo && s.tipi.indexOf(v.tipo) >= 0) upd.tipo = v.tipo;
+    if (v.cta && s.cta.indexOf(v.cta) >= 0) upd.cta = v.cta;
+    thread[idx] = Object.assign({}, r, { applied: true });
+    if (ref.kind === 'p') {
+      if (v.perche) upd.perche = v.perche;
+      if (v.appunti) upd.appunti = v.appunti;
+      Object.assign(ui.aiIdeas[ref.i], upd, { brainstorm: thread });
+    } else {
+      var o = Object.assign({}, x, upd, { brainstorm: thread });
+      if (v.appunti) o.testo = (o.testo ? o.testo + '\n\n— — —\n\n' : '') + 'Versione dal brainstorming (' + fmtDate(todayISO()) + '):\n' + v.appunti;
+      saveItem(o);
+    }
+    render(); brainstormModal(ref); toast('Idea aggiornata');
+  }
+  function aiBrainstorm(ref, text) {
+    var x = bsGet(ref); if (!x || !sample || ui.bsBusy) return;
+    var s = state.settings;
+    var thread = (x.brainstorm || []).concat([{ r: 'io', t: text, d: new Date().toISOString() }]);
+    bsSetThread(ref, thread);
+    ui.bsBusy = true; brainstormModal(ref);
+    var prompt = 'Sei un social media manager e video editor esperto di Instagram Reel per personal trainer. Stai facendo un brainstorming con l\'autore su UNA idea di contenuto per migliorarla: massimizzare retention, salvataggi, commenti e richieste di clienti. Rispondi in italiano, diretto e pratico, come un collega esperto che dà la sua opinione.\n\n' + profiloCtx() + playbookCtx() +
+      '\n\nContenuti migliori del profilo (per riferimento):\n' + contenutiCtx(conViews(state.contenuti), 6) +
+      '\n\nIDEA ATTUALE\nTitolo: ' + (x.titolo || '-') + '\nHook: ' + (x.hook || '-') + '\nArgomento: ' + (x.argomento || '-') + '\nFormato: ' + (x.formato || 'Reel') + '\nTipo di video: ' + (x.tipo || '-') + '\nOspite: ' + (x.ospite || 'Nessuno') + '\nCTA: ' + (x.cta || '-') +
+      (x.perche ? '\nPerché dovrebbe funzionare: ' + x.perche : '') + (x.appunti ? '\nStruttura: ' + x.appunti : '') + (x.testo ? '\nScript e appunti:\n' + String(x.testo).slice(0, 1800) : '') +
+      '\n\nCONVERSAZIONE\n' + thread.slice(-12).map(function (r) { return (r.r === 'io' ? 'Autore: ' : 'Tu: ') + r.t + (r.v ? ' [versione proposta: ' + (r.v.titolo || '') + ' / hook: ' + (r.v.hook || '') + ']' : ''); }).join('\n') +
+      '\n\nRispondi all\'ultimo messaggio dell\'autore. Se proponi modifiche concrete, compila "versione" con l\'idea migliorata completa; se stai solo rispondendo a una domanda, metti "versione": null.' +
+      ' Rispondi SOLO con JSON: {"risposta":"massimo 160 parole, puoi usare elenchi con trattini","versione":{"titolo":"...","hook":"prima frase, max 12 parole","tipo":"uno tra: ' + s.tipi.join(' | ') + '","cta":"uno tra: ' + s.cta.join(' | ') + '","perche":"una frase","appunti":"3-5 righe: hook, corpo, CTA, stile di ripresa"}}';
+    sample.json(prompt, { modelTier: 'default' }).then(function (res) {
+      var v = res && res.versione && (res.versione.titolo || res.versione.hook) ? {
+        titolo: String(res.versione.titolo || ''), hook: String(res.versione.hook || ''), tipo: String(res.versione.tipo || ''), cta: String(res.versione.cta || ''), perche: String(res.versione.perche || ''), appunti: String(res.versione.appunti || '')
+      } : null;
+      var cur = bsGet(ref), th = ((cur && cur.brainstorm) || thread).concat([{ r: 'ai', t: String((res && res.risposta) || 'Nessuna risposta, riprova.'), v: v, d: new Date().toISOString() }]);
+      ui.bsBusy = false; bsSetThread(ref, th);
+      if (document.getElementById('bsThread')) brainstormModal(ref); else render();
+    }, function (e) {
+      ui.bsBusy = false;
+      if (document.getElementById('bsThread')) brainstormModal(ref);
+      aiErr(e, 'Brainstorming non riuscito');
+    });
+  }
+
   function aiScript(m, btn) {
     var ta = m.querySelector('#c_testo'), st = m.querySelector('#c_aist');
     var t = val(m, 'c_titolo'), h = val(m, 'c_hook'), f = val(m, 'c_formato') || 'Reel', tipo = val(m, 'c_tipo'), osp = val(m, 'c_ospite'), cta = val(m, 'c_cta'), arg = val(m, 'c_argomento');
