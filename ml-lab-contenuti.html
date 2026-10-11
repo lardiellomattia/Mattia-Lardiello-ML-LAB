@@ -526,7 +526,7 @@
   var DOC_KEYS = ['spunti', 'crescita', 'settings', 'playbook'];
   var LS_KEY = 'mllab-contenuti-v1';
   var TABS = ['panoramica', 'archivio', 'libreria', 'idee', 'calendario', 'playbook', 'spunti', 'impostazioni'];
-  var METRICHE = [['views', 'Visualizzazioni'], ['reach', 'Copertura'], ['like', 'Mi piace'], ['commenti', 'Commenti'], ['condivisioni', 'Condivisioni'], ['salvataggi', 'Salvataggi'], ['follow', 'Nuovi follower'], ['visiteProfilo', 'Visite al profilo'], ['nonFollower', '% da non follower'], ['clienti', 'Clienti / DM portati']];
+  var METRICHE = [['views', 'Visualizzazioni'], ['repost', 'Repost'], ['like', 'Mi piace'], ['commenti', 'Commenti'], ['condivisioni', 'Condivisioni'], ['salvataggi', 'Salvataggi'], ['follow', 'Nuovi follower'], ['visiteProfilo', 'Visite al profilo'], ['nonFollower', '% da non follower'], ['clienti', 'Clienti / DM portati']];
 
   // ---------- stato ----------
   var state = { contenuti: [], spunti: [], crescita: [], settings: clone(DEFAULT_SETTINGS), playbook: { funziona: [], evitare: [], prova: [], aggiornato: '' } };
@@ -559,14 +559,14 @@
   function blank(o) {
     return Object.assign({
       id: uid(), titolo: '', hook: '', testo: '', argomento: '', formato: 'Reel', tipo: '', ospite: 'Nessuno', cta: '',
-      fase: 'idea', data: '', link: '', views: '', reach: '', like: '', commenti: '', condivisioni: '', salvataggi: '', follow: '', clienti: '',
+      fase: 'idea', data: '', link: '', views: '', reach: '', repost: '', like: '', commenti: '', condivisioni: '', salvataggi: '', follow: '', clienti: '',
       visiteProfilo: '', nonFollower: '', collegato: '', note: '', analisi: '', brainstorm: [], creato: new Date().toISOString()
     }, o || {});
   }
   function findC(id) { return state.contenuti.filter(function (c) { return c.id === id; })[0]; }
   function pubblicati() { return state.contenuti.filter(function (c) { return c.fase === 'pubblicato'; }); }
   function conViews(list) { return list.filter(function (c) { return c.fase === 'pubblicato' && has(c.views); }); }
-  function interazioni(c) { return n(c.like) + n(c.commenti) + n(c.condivisioni) + n(c.salvataggi); }
+  function interazioni(c) { return n(c.like) + n(c.commenti) + n(c.condivisioni) + n(c.salvataggi) + n(c.repost); }
   function hasEng(c) { return (has(c.like) || has(c.salvataggi) || has(c.commenti)) && (n(c.reach) || n(c.views)) > 0; }
   function er(c) { var b = n(c.reach) || n(c.views); return b ? interazioni(c) / b : 0; }
   function sem(c) {
@@ -1542,14 +1542,14 @@
       '\nArgomento: ' + (val(m, 'c_argomento') || '-') + ' · Formato: ' + (val(m, 'c_formato') || '-') + ' · Tipo di video: ' + (val(m, 'c_tipo') || '-') + ' · Ospite: ' + (val(m, 'c_ospite') || 'Nessuno') + ' · CTA: ' + (val(m, 'c_cta') || '-') +
       '\n\nMedia del profilo: ' + (media ? media + ' visualizzazioni' : 'non disponibile') + (conSalv.length ? ', ' + Math.round(avg(conSalv, function (x) { return n(x.salvataggi); })) + ' salvataggi' : '') +
       '. Soglie: sotto ' + state.settings.soglie[0] + ' visualizzazioni è sotto la media del profilo, da ' + state.settings.soglie[1] + ' è un top.' + playbookCtx() +
-      '\n\nRegole di lettura: "views" è il totale delle Visualizzazioni (il primo numero grande della sezione Visualizzazioni). "reach" sono gli account raggiunti o la copertura, solo se scritti come tali. "nonFollower" è la percentuale di visualizzazioni da non follower (numero senza %). "visiteProfilo" è Attività del profilo o Visite al profilo. "follow" sono i Follow dalla sezione Profilo. Se un dato non si vede negli screenshot metti null, non inventarlo.' +
+      '\n\nRegole di lettura: "views" è il totale delle Visualizzazioni (il primo numero grande della sezione Visualizzazioni). "repost" sono i Repost (ripubblicazioni del contenuto), solo se compaiono. "nonFollower" è la percentuale di visualizzazioni da non follower (numero senza %). "visiteProfilo" è Attività del profilo o Visite al profilo. "follow" sono i Follow dalla sezione Profilo. Se un dato non si vede negli screenshot metti null, non inventarlo.' +
       '\n\nPoi scrivi "analisi": 3-4 frasi in italiano, dirette, senza markdown: com\'è andato rispetto alla media del profilo, cosa dicono i numeri (es. molti non follower = il contenuto raggiunge persone nuove; salvataggi alti = contenuto utile; pochi follow = manca una CTA forte), e una cosa concreta da ripetere o cambiare la prossima volta.' +
-      '\n\nRispondi SOLO con JSON: {"views":0,"reach":null,"like":0,"commenti":0,"salvataggi":0,"condivisioni":0,"follow":0,"visiteProfilo":0,"nonFollower":0,"analisi":"..."}';
+      '\n\nRispondi SOLO con JSON: {"views":0,"repost":null,"like":0,"commenti":0,"salvataggi":0,"condivisioni":0,"follow":0,"visiteProfilo":0,"nonFollower":0,"analisi":"..."}';
     Promise.all(files.map(function (f) { return shrinkImage(f, imgLimits && imgLimits.maxBytes); })).then(function (blobs) {
       return sample.json(prompt, { images: blobs, modelTier: 'default', cache: false });
     }).then(function (r) {
       var filled = 0;
-      ['views', 'reach', 'like', 'commenti', 'salvataggi', 'condivisioni', 'follow', 'visiteProfilo', 'nonFollower'].forEach(function (k) {
+      ['views', 'repost', 'like', 'commenti', 'salvataggi', 'condivisioni', 'follow', 'visiteProfilo', 'nonFollower'].forEach(function (k) {
         var v = r && r[k];
         if (v === null || v === undefined || v === '' || !isFinite(Number(String(v).replace(/[^0-9.,]/g, '').replace(',', '.')))) return;
         var el = m.querySelector('#c_' + k); if (!el) return;
@@ -1596,6 +1596,7 @@
     link: ['permalink', 'link', 'url'],
     views: ['visualizzazioni', 'views', 'plays', 'riproduzioni', 'impressions', 'impressioni'],
     reach: ['reach', 'copertura', 'account raggiunti', 'accounts reached'],
+    repost: ['repost', 'reposts', 'ripubblicazioni'],
     like: ['likes', 'mi piace', 'like', 'reazioni', 'reactions'],
     commenti: ['comments', 'commenti'],
     condivisioni: ['shares', 'condivisioni'],
@@ -1696,7 +1697,7 @@
       data: parseDate(get('data'), italian), link: String(get('link') || '').trim(),
       fase: (has(views) || /🔴|🟢|🟣/.test(stato) || get('data')) ? 'pubblicato' : (stato.indexOf('🟡') >= 0 ? 'registrare' : 'pubblicato')
     });
-    ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow', 'clienti'].forEach(function (k) { c[k] = parseNum(get(k)); });
+    ['views', 'reach', 'repost', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow', 'clienti'].forEach(function (k) { c[k] = parseNum(get(k)); });
     if (!has(c.clienti)) { var mc = note.match(/portato (\d+) client/i); c.clienti = mc ? +mc[1] : ''; }
     return { c: c, argColore: arg.colore };
   }
@@ -1729,7 +1730,7 @@
         var ex = state.contenuti.filter(function (p) { return (c.link && p.link === c.link) || (!c.link && normTxt(p.titolo) === normTxt(c.titolo) && (!c.data || !p.data || p.data === c.data)); })[0];
         if (ex) {
           var o = Object.assign({}, ex);
-          ['views', 'reach', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow', 'clienti'].forEach(function (k) { if (has(c[k])) o[k] = c[k]; });
+          ['views', 'reach', 'repost', 'like', 'commenti', 'condivisioni', 'salvataggi', 'follow', 'clienti'].forEach(function (k) { if (has(c[k])) o[k] = c[k]; });
           ['hook', 'testo', 'argomento', 'formato', 'tipo', 'cta', 'data', 'link', 'note'].forEach(function (k) { if (!o[k] && c[k]) o[k] = c[k]; });
           if ((!o.ospite || o.ospite === 'Nessuno') && c.ospite !== 'Nessuno') o.ospite = c.ospite;
           if (c.fase === 'pubblicato') o.fase = 'pubblicato';
@@ -1746,10 +1747,10 @@
   function csvCell(v) { v = String(v == null ? '' : v); return /[";\n,]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
   function csvContenuti(delim, bom) {
     delim = delim || ';';
-    var h = ['Titolo', 'Hook', 'Argomento', 'Formato', 'Tipo di video', 'Ospite', 'CTA', 'Fase', 'Esito', 'Data', 'Link', 'Visualizzazioni', 'Copertura', 'Mi piace', 'Commenti', 'Condivisioni', 'Salvataggi', 'Nuovi follower', 'Visite al profilo', '% da non follower', 'Clienti', 'Testo', 'Note', 'Analisi'];
+    var h = ['Titolo', 'Hook', 'Argomento', 'Formato', 'Tipo di video', 'Ospite', 'CTA', 'Fase', 'Esito', 'Data', 'Link', 'Visualizzazioni', 'Repost', 'Mi piace', 'Commenti', 'Condivisioni', 'Salvataggi', 'Nuovi follower', 'Visite al profilo', '% da non follower', 'Clienti', 'Testo', 'Note', 'Analisi'];
     var list = state.contenuti.slice().sort(function (a, b) { var x = a.data || a.creato || '', y = b.data || b.creato || ''; return x < y ? 1 : x > y ? -1 : 0; });
     var lines = [h.join(delim)].concat(list.map(function (c) {
-      return [c.titolo, c.hook, c.argomento, c.formato, c.tipo, c.ospite, c.cta, (FASI.filter(function (f) { return f.id === c.fase; })[0] || {}).nome, sem(c).l, c.data, c.link, c.views, c.reach, c.like, c.commenti, c.condivisioni, c.salvataggi, c.follow, c.visiteProfilo, c.nonFollower, c.clienti, c.testo, c.note, c.analisi].map(csvCell).join(delim);
+      return [c.titolo, c.hook, c.argomento, c.formato, c.tipo, c.ospite, c.cta, (FASI.filter(function (f) { return f.id === c.fase; })[0] || {}).nome, sem(c).l, c.data, c.link, c.views, c.repost, c.like, c.commenti, c.condivisioni, c.salvataggi, c.follow, c.visiteProfilo, c.nonFollower, c.clienti, c.testo, c.note, c.analisi].map(csvCell).join(delim);
     }));
     return (bom === false ? '' : '\uFEFF') + lines.join('\n');
   }
