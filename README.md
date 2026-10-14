@@ -20,3 +20,8 @@ Protocolli (mesocicli › workout › esercizi) con data di inizio della settima
 mesociclo e settimana in corso, li mostra nella cartella del cliente e segnala in **Oggi** i mesocicli
 che finiscono entro 7 giorni. L'assistente ha lo strumento `allenamento`
 (elenca, dettaglio, assegna, nuovo, inizio).
+
+## Skill per Claude
+`.claude/skills/appuntamenti-clienti/` — skill di Claude Code per prendere, spostare e disdire gli
+appuntamenti dei clienti su Google Calendar con le stesse convenzioni di titolo del gestionale
+(`3a PT Nome`, `Consulenza Nome`), così le sedute vengono contate automaticamente dall'app.
