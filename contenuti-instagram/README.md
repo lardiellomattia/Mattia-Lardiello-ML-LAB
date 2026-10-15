@@ -12,7 +12,7 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 05 | Hip thrust: trova gli errori / tecnico | Caroselli 8 e 7 slide | [05-carosello-hip-thrust](05-carosello-hip-thrust) |
 | 06 | Copertine storie in evidenza | 3 immagini | [06-copertine-storie](06-copertine-storie) |
 | 07 | Hip thrust: "spingi col tallone" | Reel (3 versioni audio + grafiche HyperFrames) | [07-hip-thrust-tallone](07-hip-thrust-tallone) |
-| 08 | Affondo: "spingi col tallone" (bozza) | Reel | [08-affondo-tallone](08-affondo-tallone) |
+| 08 | Affondo bulgaro: "il ginocchio non deve superare la punta" | Reel | [08-affondo-bulgaro](08-affondo-bulgaro) |
 
 ---
 
@@ -111,6 +111,15 @@ Ricorda: consenso scritto di Irene prima di pubblicare.
 >
 > #hipthrust #glutei #allenamentoglutei #tecnicaesercizi #allenamentodonna #personaltrainerverona #bovolone #glutetraining #mitifitness #mllab
 
-## 08 · Affondo: "spingi col tallone" (bozza)
-- `reel-affondo-bozza.mp4`: immagini e scritte già sull'affondo bulgaro; la voce dice ancora "hip thrust".
-  Per completarlo: registrare "Ti hanno insegnato l'affondo sbagliato" e "E anche nell'affondo deve essere così", oppure indicare i secondi in cui si dice "hip thrust" (bip + scritta AFFONDO).
+## 08 · Affondo bulgaro: "il ginocchio non deve superare la punta"
+- `reel-affondo-bulgaro.mp4`: reel finale (20,3 s), solo voce, clip dell'affondo al rallentatore con frecce su tallone e punta.
+
+> L'errore che ti hanno insegnato sull'affondo bulgaro: "il ginocchio non deve superare la punta del piede" 🤔
+> Se blocchi il ginocchio sposti il peso indietro, inclini il busto e lavora la schiena, non i glutei.
+> ✅ Il ginocchio comanda
+> ✅ Peso sul piede avanti
+> ✅ Spinta su tutto il piede, tallone e punta
+> Salvalo per il prossimo leg day e mandalo a chi si allena con te 👇
+> 📍 ML LAB – Bovolone
+>
+> #affondobulgaro #bulgariansplitsquat #splitsquat #glutei #allenamentoglutei #tecnicaesercizi #mitifitness #personaltrainerverona #mllab
