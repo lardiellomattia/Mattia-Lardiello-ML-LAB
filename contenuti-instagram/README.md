@@ -9,9 +9,10 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 02 | Split squat: sentirlo nei glutei | Reel + carosello 6 slide | [02-split-squat](02-split-squat) |
 | 03 | Vendita: consulenza nello studio (voice over) | Reel | [03-vendita-consulenza](03-vendita-consulenza) |
 | 04 | Irene – hip thrust: quiz e vendita | 2 reel | [04-irene-hip-thrust](04-irene-hip-thrust) |
-| 05 | Hip thrust: trova gli errori / tecnico | Caroselli 6 e 7 slide | [05-carosello-hip-thrust](05-carosello-hip-thrust) |
+| 05 | Hip thrust: trova gli errori / tecnico | Caroselli 8 e 7 slide | [05-carosello-hip-thrust](05-carosello-hip-thrust) |
 | 06 | Copertine storie in evidenza | 3 immagini | [06-copertine-storie](06-copertine-storie) |
-| 07 | Hip thrust: "spingi col tallone" | Reel (3 versioni audio) | [07-hip-thrust-tallone](07-hip-thrust-tallone) |
+| 07 | Hip thrust: "spingi col tallone" | Reel (3 versioni audio + grafiche HyperFrames) | [07-hip-thrust-tallone](07-hip-thrust-tallone) |
+| 08 | Affondo: "spingi col tallone" (bozza) | Reel | [08-affondo-tallone](08-affondo-tallone) |
 
 ---
 
@@ -79,18 +80,17 @@ Nota dalle statistiche: il reel ha avuto 0 condivisioni e 0 follow. Per una v2: 
 Ricorda: consenso scritto di Irene prima di pubblicare.
 
 ## 05 · Caroselli hip thrust
-- `errori-1.png` … `errori-6.png`: "Trova gli errori" (versione scelta).
+- `errori-1.png` … `errori-8.png`: "Trova gli errori" v2 (versione scelta): errori, prima / con le correzioni, il lavoro del personal trainer, CTA "mandami il video".
 - `tecnico-1.png` … `tecnico-7.png`: versione tecnica (bozza alternativa).
 
 **Caption "Trova gli errori"**
 > Trova gli errori 👀 Quanti ne vedi in questo hip thrust?
-> 1️⃣ Talloni sollevati
-> 2️⃣ Perno sbagliato
-> ✅ La correzione: gamba verticale, spinta con tutto il piede, punta compresa
-> 📌 Salvalo e controlla il tuo prima del prossimo leg day
-> 👇 Scrivi **GLUTEI** e ti mando la scheda
+> All'inizio sembra un esercizio fatto bene. Poi guardi i dettagli: talloni sollevati, perno sbagliato.
+> È questo il lavoro del personal trainer: vedere quello che da sola non riesci a vedere e guidarti a migliorare.
+> Hai dubbi su un esercizio? 👇 Inviami il video in DM e lo correggiamo insieme.
+> 📌 Salvalo e controlla il tuo hip thrust prima del prossimo leg day.
 >
-> #hipthrust #allenamentoglutei #glutei #erroriinpalestra #tecnicaesercizi #allenamentofemminile #personaltrainerverona #mllab
+> #hipthrust #allenamentoglutei #glutei #erroriinpalestra #tecnicaesercizi #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
 
 ## 06 · Copertine storie in evidenza
 - `copertina-come-lavoro.png`, `copertina-risultati.png`, `copertina-studio.png`.
@@ -99,6 +99,7 @@ Ricorda: consenso scritto di Irene prima di pubblicare.
 - `reel-musica-phonk.mp4`: musica stile phonk, a tempo con i tagli.
 - `reel-musica-ritmata.mp4`: musica elettronica a tempo con i tagli.
 - `reel-solo-voce.mp4`: senza musica, per aggiungere un audio di tendenza da Instagram (volume brano 10–15%).
+- `reel-grafiche-hyperframes.mp4`: stesse immagini e audio phonk, grafiche animate rifatte con HyperFrames.
 
 > "Spingi col tallone" è uno dei consigli più diffusi sull'hip thrust… ed è un errore.
 > I glutei lavorano quando spingi bene TUTTO il piede a terra: tallone e anche la punta.
@@ -109,3 +110,7 @@ Ricorda: consenso scritto di Irene prima di pubblicare.
 > 📍 ML LAB – Bovolone
 >
 > #hipthrust #glutei #allenamentoglutei #tecnicaesercizi #allenamentodonna #personaltrainerverona #bovolone #glutetraining #mitifitness #mllab
+
+## 08 · Affondo: "spingi col tallone" (bozza)
+- `reel-affondo-bozza.mp4`: immagini e scritte già sull'affondo bulgaro; la voce dice ancora "hip thrust".
+  Per completarlo: registrare "Ti hanno insegnato l'affondo sbagliato" e "E anche nell'affondo deve essere così", oppure indicare i secondi in cui si dice "hip thrust" (bip + scritta AFFONDO).
