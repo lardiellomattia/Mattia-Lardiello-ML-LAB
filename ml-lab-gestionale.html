@@ -1535,7 +1535,7 @@
 <!-- Modal appuntamento -->
 <div class="overlay" id="apOverlay">
   <div class="modal">
-    <h2 id="apModalTitle">Nuovo appuntamento</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;"><h2 id="apModalTitle" style="margin:0;">Nuovo appuntamento</h2><button class="btn small" id="apDuplicateBtn" style="display:none;" title="Apre una copia di questo appuntamento da salvare come nuovo">⧉ Duplica</button></div>
     <div class="modal-sub">Le modifiche vengono salvate direttamente sul tuo Google Calendar. <a id="apOpenGoogle" href="#" target="_blank" rel="noopener" style="color:var(--ink);font-weight:600;">Apri in Google Calendar ↗</a></div>
     <div class="form-grid">
       <div class="full"><label>Titolo</label><input type="text" id="ap_summary" placeholder="Es. 3a PT Marco"></div>
@@ -1592,7 +1592,7 @@
       <div class="full"><label>Descrizione</label><textarea id="ap_desc" class="note-area"></textarea></div>
     </div>
     <div class="modal-actions">
-      <div style="display:flex;gap:8px;"><button class="btn danger" id="apDeleteBtn" style="display:none;">Elimina</button><button class="btn" id="apDuplicateBtn" style="display:none;">⧉ Duplica</button></div>
+      <div style="display:flex;gap:8px;"><button class="btn danger" id="apDeleteBtn" style="display:none;">Elimina</button></div>
       <div class="right">
         <button class="btn ghost" id="apCancelBtn">Annulla</button>
         <button class="btn primary" id="apSaveBtn">Salva su Google</button>
