@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -942,6 +943,7 @@
   .co-table input[type="text"], .co-table input[type="time"] { padding: 6px 8px; font-size: 13px; width: 100%; background: rgba(255,255,255,.85); }
   .co-table input[type="time"] { width: 112px; }
   .co-table .co-ck { width: 20px; height: 20px; cursor: pointer; }
+  .co-table td.co-act { white-space: nowrap; } .co-move { width: 44px; padding: 5px 4px; font-size: 14px; border: 1px solid var(--line, #e5e5e5); border-radius: 8px; background: #fff; cursor: pointer; margin-right: 4px; vertical-align: middle; }
   .co-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--ink-muted); margin: 4px 0 12px; }
   .co-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
   .co-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 6px; font-size: 13px; }
@@ -1677,9 +1679,9 @@
 </div>
 
 <!-- Assistente -->
-<button class="as-fab" id="asFab" title="Assistente">🧠 <span id="asFabLabel">Assistente</span><i class="as-fab-dot" id="asFabDot"></i></button>
+<button class="as-fab" id="asFab" title="Virtual ML Coach">🧠 <span id="asFabLabel">Virtual ML Coach</span><i class="as-fab-dot" id="asFabDot"></i></button>
 <div class="as-panel" id="asPanel">
-  <div class="as-head"><div><strong>🧠 Assistente ML LAB</strong><div class="as-sub">Agenda, clienti, pagamenti e promemoria. Le modifiche si possono annullare.</div></div><div style="display:flex;gap:6px;"><button class="btn small ghost" id="asReset" title="Cancella la conversazione e riparti da zero">↺ Nuova chat</button><button class="btn small ghost" id="asClose" title="Riduci a icona: la chat resta com'è">— Riduci</button></div></div>
+  <div class="as-head"><div><strong>🧠 Virtual ML Coach</strong><div class="as-sub">Agenda, clienti, pagamenti e promemoria. Le modifiche si possono annullare.</div></div><div style="display:flex;gap:6px;"><button class="btn small ghost" id="asReset" title="Cancella la conversazione e riparti da zero">↺ Nuova chat</button><button class="btn small ghost" id="asClose" title="Riduci a icona: la chat resta com'è">— Riduci</button></div></div>
   <div class="as-body" id="asBody">
     <div class="as-msg as-assistant">Ciao Mattia! Dimmi cosa ti serve, per esempio:
       <div class="as-examples">
@@ -5452,6 +5454,96 @@
     };
     if (job.emails.length) apAskNotify(job.emails, 'invite', go, function () {}); else go(null);
   }
+  // ---- modifiche ad appuntamenti GIÀ in agenda: elimina giorni e rinumera le PT (con anteprima da confermare)
+  function asRetitle(t, n) {
+    var m = t.match(/(\d{1,2})(?=\s*[aª°]?\s*(?:pt\b|di\s*\d))/i);
+    if (!m) return null;
+    return t.slice(0, m.index) + n + t.slice(m.index + m[1].length);
+  }
+  function asPrepareEdit(inp) {
+    var cliente = String(inp.cliente || '').trim(); if (!cliente) throw new Error('manca il nome del cliente');
+    var dal = fromISO(String(inp.dal || '').slice(0, 10)), al = inp.al ? fromISO(String(inp.al).slice(0, 10)) : null;
+    var elim = (inp.elimina_date || []).map(function (x) { return String(x).slice(0, 10); });
+    var orario = inp.solo_orario ? String(inp.solo_orario).replace('.', ':') : '';
+    if (!dal) { dal = elim.length ? fromISO(elim.slice().sort()[0]) : todayMidnight(); }
+    if (!al) al = addDays(dal, 200);
+    var match = asFindClient(cliente)[0], info = match ? asClientInfo(match) : null;
+    var toks = asNorm(match ? match.name : cliente).split(/\s+/), mails = info ? info.email : [];
+    var P = inp.pacchetto ? parseInt(inp.pacchetto, 10) : (match && match.P > 0 ? match.P : 10);
+    return asListEvents(dal, addDays(al, 1)).then(function (evs) {
+      var mine = evs.filter(function (e) {
+        if (!e.start || !e.start.dateTime) return false;
+        var it = spParse(e); if (!it || it.couple || it.type !== 'pt') return false;
+        var nm = asNorm(it.name);
+        var byName = toks.every(function (t) { return nm.indexOf(t) !== -1; }) || (nm.split(' ').length === 1 && toks[0] === nm);
+        var byMail = (e.attendees || []).some(function (a) { return !a.self && a.email && mails.indexOf(a.email.toLowerCase()) !== -1; });
+        return byName || byMail;
+      }).sort(function (a, b) { return new Date(a.start.dateTime) - new Date(b.start.dateTime); });
+      if (!mine.length) throw new Error('nessuna PT di ' + cliente + ' in agenda tra ' + toISO(dal) + ' e ' + toISO(al));
+      var items = mine.map(function (e) {
+        var d = new Date(e.start.dateTime), key = toISO(d), it = spParse(e);
+        var del = elim.indexOf(key) !== -1 && (!orario || apTime(e.start.dateTime) === (orario.length === 4 ? '0' + orario : orario));
+        return { e: e, d: d, n: it.n, title: (e.summary || '').trim(), del: del, on: true };
+      });
+      var notFound = elim.filter(function (k) { return !items.some(function (x) { return x.del && toISO(x.d) === k; }); });
+      var job = { kind: 'edit', cliente: match ? match.name : cliente, items: items, P: P, renumber: inp.rinumera !== false, startN: parseInt(inp.numero_iniziale, 10) || items[0].n, params: inp };
+      asEditCompute(job);
+      asState.pendingEdit = job; asRenderEdit();
+      var dels = items.filter(function (x) { return x.del; }), ren = items.filter(function (x) { return !x.del && x.newTitle; });
+      return { appuntamenti_trovati: items.length, da_eliminare: dels.map(function (x) { return toISO(x.d) + ' ' + apTime(x.e.start.dateTime) + ' ' + x.title; }),
+        date_non_trovate: notFound, da_rinumerare: ren.map(function (x) { return toISO(x.d) + ': ' + x.title + ' → ' + x.newTitle; }),
+        nota: 'NON è ancora fatto: Mattia deve controllare l\'anteprima e premere "Applica".' };
+    });
+  }
+  function asEditCompute(job) {
+    var n = job.startN;
+    job.items.forEach(function (x) {
+      x.newTitle = null;
+      if (x.del && x.on) return;
+      if (job.renumber && x.n) { if (x.n !== n) { var nt = asRetitle(x.title, n); if (nt && nt !== x.title) x.newTitle = nt; } n = n >= job.P ? 1 : n + 1; }
+    });
+  }
+  function asRenderEdit() {
+    var job = asState.pendingEdit; if (!job) return;
+    var old = document.querySelectorAll('.as-preview.live'); Array.prototype.forEach.call(old, function (o) { o.classList.remove('live'); });
+    var fmt = function (x) { return AS_GIORNI[x.d.getDay()].slice(0, 3) + ' ' + x.d.getDate() + ' ' + MESI[x.d.getMonth()].slice(0, 3) + ' ' + apTime(x.e.start.dateTime); };
+    var rows = job.items.map(function (x, i) {
+      if (x.del) return '<label class="as-prow conf"><input type="checkbox" data-aedel="' + i + '"' + (x.on ? ' checked' : '') + '><span class="as-pdate">' + fmt(x) + '</span><span class="as-ptitle">🗑 ' + (x.on ? 'Elimina' : 'Tieni') + ': ' + escapeHtml(x.title) + '</span></label>';
+      return '<div class="as-prow' + (x.newTitle ? '' : ' as-same') + '"><span style="width:16px;"></span><span class="as-pdate">' + fmt(x) + '</span><span class="as-ptitle">' + (x.newTitle ? escapeHtml(x.title) + ' → <strong>' + escapeHtml(x.newTitle) + '</strong>' : escapeHtml(x.title) + ' <em style="color:var(--ink-muted);font-style:normal;">invariato</em>') + '</span></div>';
+    }).join('');
+    var nD = job.items.filter(function (x) { return x.del && x.on; }).length, nR = job.items.filter(function (x) { return x.newTitle; }).length;
+    var html = '<div class="as-ptop"><strong>Anteprima modifiche · ' + escapeHtml(job.cliente) + '</strong><span class="as-how">' + nD + ' da eliminare · ' + nR + ' da rinumerare' + (job.renumber ? ' · numerazione da ' + job.startN + 'a, pacchetto da ' + job.P : '') + '</span></div>' +
+      '<div class="as-plist">' + rows + '</div>' +
+      '<div class="as-pactions"><button class="btn small ghost" data-ae="cancel">Annulla</button><button class="btn small as-create" data-ae="go">Applica su Google Calendar</button></div>';
+    var box = asAddMsg('assistant', html, 'as-preview live');
+    box.querySelectorAll('[data-aedel]').forEach(function (cb) { cb.addEventListener('change', function () { job.items[+cb.getAttribute('data-aedel')].on = cb.checked; asEditCompute(job); box.remove(); asRenderEdit(); }); });
+    box.querySelector('[data-ae="cancel"]').addEventListener('click', function () { if (asState.pendingEdit !== job) return; asState.pendingEdit = null; box.classList.remove('live'); box.querySelector('.as-pactions').innerHTML = '<span class="as-done">Annullato, l\'agenda non è stata toccata.</span>'; asSave(); });
+    box.querySelector('[data-ae="go"]').addEventListener('click', function () { if (asState.pendingEdit !== job) return; asApplyEdit(job, box); });
+  }
+  function asApplyEdit(job, box) {
+    var dels = job.items.filter(function (x) { return x.del && x.on; }), ups = job.items.filter(function (x) { return x.newTitle && !(x.del && x.on); });
+    if (!dels.length && !ups.length) { toast('Nessuna modifica da fare'); return; }
+    var guests = {}; dels.concat(ups).forEach(function (x) { apGuests(x.e).forEach(function (a) { guests[a.email] = 1; }); });
+    var go = function (level) {
+      asState.pendingEdit = null; box.classList.remove('live');
+      var act = box.querySelector('.as-pactions'), tot = dels.length + ups.length, ok = 0, fail = [];
+      act.innerHTML = '<span class="as-done">Aggiorno l\'agenda… 0/' + tot + '</span>';
+      apGetMcp().then(function (mcp) {
+        if (!mcp) throw { code: 'unavailable' };
+        var chain = Promise.resolve();
+        dels.forEach(function (x) { chain = chain.then(function () { var a = { eventId: x.e.id }; if (level) a.notificationLevel = level; return mcp.callTool(GC_SERVER, 'delete_event', a).then(function () { ok++; }, function (er) { fail.push('eliminare ' + toISO(x.d) + ' (' + ((er && er.code) || 'errore') + ')'); }).then(function () { act.innerHTML = '<span class="as-done">Aggiorno l\'agenda… ' + (ok + fail.length) + '/' + tot + '</span>'; }); }); });
+        ups.forEach(function (x) { chain = chain.then(function () { var a = { eventId: x.e.id, summary: x.newTitle }; if (level) a.notificationLevel = level; return mcp.callTool(GC_SERVER, 'update_event', a).then(function () { ok++; }, function (er) { fail.push('rinumerare ' + toISO(x.d) + ' (' + ((er && er.code) || 'errore') + ')'); }).then(function () { act.innerHTML = '<span class="as-done">Aggiorno l\'agenda… ' + (ok + fail.length) + '/' + tot + '</span>'; }); }); });
+        return chain;
+      }).catch(function (err) { fail.push(apErrorText(err)); }).then(function () {
+        act.innerHTML = '<span class="as-done' + (fail.length ? ' warn' : '') + '">✓ Fatto: ' + dels.length + ' eliminati, ' + ups.length + ' rinumerati su Google Calendar' + (fail.length ? ' · non riusciti: ' + escapeHtml(fail.join(', ')) : '') + '</span>';
+        asState.turns.push({ role: 'user', content: '[Nota dell\'app: Mattia ha confermato le modifiche per ' + job.cliente + ': ' + dels.length + ' eliminati, ' + ups.length + ' rinumerati' + (fail.length ? ', ' + fail.length + ' non riusciti' : '') + '.]' });
+        asState.turns.push({ role: 'assistant', content: 'Ok, preso nota.' });
+        asSave(); if (typeof apRefresh === 'function') apRefresh(); finLoad(true);
+      });
+    };
+    var g = Object.keys(guests);
+    if (g.length) apAskNotify(g, 'update', go, function () {}); else go(null);
+  }
   function asAddReminder(inp) {
     var testo = String(inp.testo || '').trim(); if (!testo) throw new Error('manca il testo');
     var data = inp.data ? String(inp.data).slice(0, 10) : '';
@@ -5492,6 +5584,17 @@
         email_invitati: { type: 'array', items: { type: 'string' } }, luogo: { type: 'string' }, colore: { type: 'string', description: 'colorId Google 1-11' },
         google_meet: { type: 'boolean' }, descrizione: { type: 'string' } }, required: ['cliente'] },
       execute: function (inp) { asSetStatus('Preparo gli appuntamenti e controllo l\'agenda…'); return asEnsureCalendar().then(function () { return asPrepareSeries(inp); }); } },
+    { name: 'modifica_appuntamenti', description: 'Per appuntamenti GIÀ in agenda di un cliente (PT numerate): elimina uno o più giorni e/o rinumera le PT successive ("1a PT", "2a PT"…) così la numerazione resta consecutiva. Prepara un\'anteprima con il pulsante "Applica": NON modifica nulla finché Mattia non conferma. Ogni nuova chiamata sostituisce l\'anteprima precedente. Se Mattia dice "togli il 21 ottobre e aggiorna i numeri": elimina_date ["YYYY-10-21"], rinumera true.',
+      inputSchema: { type: 'object', properties: {
+        cliente: { type: 'string' },
+        elimina_date: { type: 'array', items: { type: 'string' }, description: 'giorni YYYY-MM-DD da eliminare (tutte le PT del cliente in quel giorno)' },
+        solo_orario: { type: 'string', description: 'HH:MM: elimina solo l\'appuntamento a quest\'ora nei giorni indicati' },
+        rinumera: { type: 'boolean', description: 'default true: rinumera le PT rimaste in ordine di data' },
+        numero_iniziale: { type: 'number', description: 'numero della prima PT del periodo (default: quello che ha già la prima PT del periodo)' },
+        pacchetto: { type: 'number', description: 'dopo questo numero si riparte da 1 (default: pacchetto del cliente)' },
+        dal: { type: 'string', description: 'YYYY-MM-DD, da dove leggere/rinumerare (default: il primo giorno da eliminare, o oggi)' },
+        al: { type: 'string', description: 'YYYY-MM-DD (default: 200 giorni dopo)' } }, required: ['cliente'] },
+      execute: function (inp) { asSetStatus('Cerco gli appuntamenti di ' + inp.cliente + '…'); return asEnsureCalendar().then(function () { return asPrepareEdit(inp); }); } },
     { name: 'aggiungi_promemoria', description: 'Aggiunge un promemoria nella lista Promemoria dell\'app (non in Google Calendar).',
       inputSchema: { type: 'object', properties: { testo: { type: 'string' }, data: { type: 'string', description: 'YYYY-MM-DD, facoltativa' }, nota: { type: 'string' }, prioritario: { type: 'boolean' } }, required: ['testo'] },
       execute: function (inp) { return asAddReminder(inp); } }
@@ -5768,8 +5871,9 @@
     var cal = [];
     for (var i = 0; i < 21; i++) { var dd = addDays(todayMidnight(), i); cal.push(AS_GIORNI[dd.getDay()] + ' ' + toISO(dd)); }
     var pend = asState.pending ? 'ANTEPRIMA ATTUALMENTE MOSTRATA (non ancora creata), preparata con: ' + JSON.stringify(asState.pending.params) + '. Se Mattia chiede modifiche, richiama prepara_appuntamenti partendo da questi parametri e cambiando SOLO ciò che chiede. ' : '';
+    if (asState.pendingEdit) pend += 'ANTEPRIMA DI MODIFICA ATTUALMENTE MOSTRATA (non ancora applicata), preparata con: ' + JSON.stringify(asState.pendingEdit.params) + '. Per correggerla richiama modifica_appuntamenti con tutti i parametri aggiornati. ';
     var clienti = Object.keys(state.sp.clients || {}).map(function (k) { return state.sp.clients[k].name; }).slice(0, 80).join(', ');
-    return 'Sei l\'assistente di Mattia Lardiello, personal trainer (studio ML LAB a Bovolone). Rispondi in italiano, breve e pratico, senza elenchi lunghi. ' +
+    return 'Sei Virtual ML Coach, l\'assistente di Mattia Lardiello, personal trainer (studio ML LAB a Bovolone). Rispondi in italiano, breve e pratico, senza elenchi lunghi. ' +
       'Oggi è ' + AS_GIORNI[t.getDay()] + ' ' + toISO(t) + ' (fuso Europe/Rome). ' +
       'Nei titoli dell\'agenda Mattia scrive le sedute come "1a PT Nome Cognome", "2a PT Nome"… e le consulenze come "Consulenza Nome". I pacchetti sono da 1, 5 o 10 PT; dopo l\'ultima seduta si riparte da 1a PT. ' +
       'REGOLA PRINCIPALE: segui alla lettera quello che scrive Mattia (giorni, orari, date di inizio e fine, numero di sedute, durata, titolo, numerazione, invitati). Le abitudini del cliente trovate con cerca_cliente servono SOLO per completare ciò che Mattia non ha detto: non sostituirle mai alle sue indicazioni. Se un dato essenziale manca e non è deducibile, chiedilo con una sola domanda breve. ' +
@@ -5777,7 +5881,7 @@
       'Quando Mattia chiede di mettere appuntamenti: 1) cerca_cliente; 2) prepara_appuntamenti con i parametri presi dalla sua richiesta (se giorni diversi hanno orari diversi usa orari_per_giorno); 3) rispondi in 1-3 frasi con quanti sono, giorni e orari, dal-al, da che numero parte la numerazione ed eventuali sovrapposizioni; ricorda di controllare l\'anteprima e premere Crea. ' +
       pend +
       'Non dire mai che gli appuntamenti sono stati creati: li crea solo Mattia con il pulsante. Usa l\'email del cliente come invitato solo se l\'ha trovata cerca_cliente o se Mattia la scrive. ' +
-      'Per domande su orari liberi usa leggi_agenda. Per note o cose da ricordare usa aggiungi_promemoria. ' +
+      'Per ELIMINARE giorni o RINUMERARE PT già in agenda usa modifica_appuntamenti (non dire mai che è fatto: Mattia deve premere Applica nell\'anteprima). Per domande su orari liberi usa leggi_agenda. Per note o cose da ricordare usa aggiungi_promemoria. ' +
       'Puoi agire su tutta l\'app: creare e modificare cartelle clienti (crea_cliente, modifica_cliente), gestire rate e richieste di pagamento (gestisci_rata), check (gestisci_check), protocolli di allenamento (allenamento), consulenze (aggiungi_consulenza), cartelle di Sedute personal con tariffe, acconti e stato (cartella_sedute), riepiloghi (riepilogo) e aprire pagine o cartelle (apri). ' +
       'Queste modifiche all\'app avvengono subito: fai SOLO quello che Mattia ha chiesto, sul cliente giusto (se il nome è ambiguo chiedi quale), e alla fine elenca in breve cosa hai cambiato. Mattia può annullare tutto con il pulsante sotto la tua risposta. ' +
       'Le date vanno nel formato YYYY-MM-DD. Distingui: "Percorsi coaching"/"Solo visite" sono le cartelle dell\'app (clienti coaching con check e rate); "Sedute personal" sono i clienti delle PT in agenda (pacchetti, tariffe, acconti). ' +
@@ -5804,7 +5908,7 @@
     }).then(function (r) {
       bubble.innerHTML = asFmtText(r.text || '');
       asState.turns.push({ role: 'assistant', content: r.text || '…' });
-      if (asState.pending && document.querySelector('.as-preview.live')) asEl('asBody').appendChild(document.querySelector('.as-preview.live'));
+      if (document.querySelector('.as-preview.live')) asEl('asBody').appendChild(document.querySelector('.as-preview.live'));
       if (asState.justDone) {
         asState.justDone = false;
         var nb = document.createElement('div');
@@ -5861,15 +5965,15 @@
   function asFab() {
     var open = asEl('asPanel').classList.contains('open');
     var has = asState.turns.length > 0;
-    var lbl = asState.busy ? 'Sta lavorando…' : (asState.unread ? 'Nuova risposta' : (has ? 'Chat aperta' : 'Assistente'));
-    asEl('asFabLabel').textContent = open ? 'Assistente' : lbl;
+    var lbl = asState.busy ? 'Sta lavorando…' : (asState.unread ? 'Nuova risposta' : 'Virtual ML Coach');
+    asEl('asFabLabel').textContent = open ? 'Virtual ML Coach' : lbl;
     asEl('asFab').classList.toggle('has-chat', !open && has);
     asEl('asFab').classList.toggle('busy', !open && asState.busy);
     asEl('asFabDot').style.display = (!open && (asState.unread || asState.busy)) ? '' : 'none';
   }
   function asReset() {
     if (asState.ctl) asState.ctl.abort();
-    asState.turns = []; asState.pending = null; asState.unread = false;
+    asState.turns = []; asState.pending = null; asState.pendingEdit = null; asState.unread = false;
     asEl('asBody').innerHTML = asWelcome;
     asSetStatus(''); asSave(); asFab();
     asEl('asInput').value = ''; asEl('asInput').focus();
@@ -6466,6 +6570,20 @@
       '<button class="ing-del" id="coDel" title="Elimina collaboratore">🗑</button></div>';
     var legend = '<div class="co-legend"><span><i style="background:#22C55E"></i>Confermata</span><span><i style="background:#22D3EE"></i>Cliente da confermare</span><span><i style="background:#FACC15"></i>Libera</span></div>';
     var days = [0, 1, 2, 3, 4, 5, 6].filter(function (g) { return c.slots.some(function (sl) { return sl.g === g; }); });
+    // opzioni "Sposta su…": fasce libere (sposta), fasce occupate (scambia), nuova fascia stesso orario negli altri giorni
+    var coMoveOpts = function (x) {
+      var o = '<option value="">⇄</option>';
+      var sorted = c.slots.slice().sort(function (a, b) { return a.g - b.g || coMin(a.da) - coMin(b.da); });
+      [0, 1, 2, 3, 4, 5, 6].forEach(function (g) {
+        var inner = sorted.filter(function (y) { return y.g === g && y.id !== x.id; }).map(function (y) {
+          var free = coStatus(y) === 'free';
+          return '<option value="s:' + escapeHtml(y.id) + '">' + (free ? '→ ' : '⇄ ') + escapeHtml((y.da || '?') + '–' + (y.a || '?')) + (free ? ' (libera)' : ' · scambia con ' + escapeHtml(y.cliente)) + '</option>';
+        }).join('');
+        if (g !== x.g) inner += '<option value="n:' + g + '">＋ nuova fascia ' + escapeHtml((x.da || '') + '–' + (x.a || '')) + '</option>';
+        if (inner) o += '<optgroup label="' + CO_DAYS[g] + '">' + inner + '</optgroup>';
+      });
+      return o;
+    };
     var blocks = days.map(function (g) {
       var sl = c.slots.filter(function (x) { return x.g === g; }).sort(function (a, b) { return coMin(a.da) - coMin(b.da); });
       var okN = sl.filter(function (x) { return coStatus(x) === 'ok'; }).length, freeN = sl.filter(function (x) { return coStatus(x) === 'free'; }).length;
@@ -6475,7 +6593,7 @@
           '<td class="co-c"><input type="text" list="coNomi" data-cof="cliente" data-coid="' + id + '" value="' + escapeHtml(x.cliente || '') + '" placeholder="— libera —"></td>' +
           '<td class="co-s"><input type="text" data-cof="sost" data-coid="' + id + '" value="' + escapeHtml(x.sost || '') + '" placeholder="Possibili sostituzioni"></td>' +
           '<td style="text-align:center;"><input type="checkbox" class="co-ck" data-cof="ok" data-coid="' + id + '"' + (x.ok ? ' checked' : '') + ' title="Confermata"></td>' +
-          '<td><button class="ing-del" data-codel="' + id + '" title="Elimina fascia">🗑</button></td></tr>';
+          '<td class="co-act"><select class="co-move" data-comove="' + id + '" title="Sposta su un altro giorno o orario">' + coMoveOpts(x) + '</select><button class="ing-del" data-codel="' + id + '" title="Elimina fascia">🗑</button></td></tr>';
       }).join('');
       var others = CO_DAYS.map(function (d, i) { return i === g ? '' : '<option value="' + i + '">' + d + '</option>'; }).join('');
       return '<div class="co-day"><div class="co-day-head"><h3>' + CO_DAYS[g] + '</h3>' +
@@ -6521,6 +6639,27 @@
       });
     });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-codel]'), function (b) { b.addEventListener('click', function () { var id = b.getAttribute('data-codel'); c.slots = c.slots.filter(function (x) { return x.id !== id; }); coSave(true); }); });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-comove]'), function (sel) {
+      sel.addEventListener('change', function () {
+        var src = slotOf(sel.getAttribute('data-comove')), v = sel.value; sel.value = '';
+        if (!src || !v) return;
+        if (typeof pushUndoCheckpoint === 'function') { try { pushUndoCheckpoint(); } catch (e) { /* ignore */ } }
+        var who = (src.cliente || '').trim() || 'La fascia libera', msg;
+        if (v.indexOf('n:') === 0) {
+          var g = parseInt(v.slice(2), 10);
+          c.slots.push({ id: 's_' + uid(), g: g, da: src.da, a: src.a, cliente: src.cliente || '', sost: src.sost || '', ok: !!src.ok });
+          src.cliente = ''; src.sost = ''; src.ok = false;
+          msg = who + ' spostato a ' + CO_DAYS[g] + ' ' + src.da + '–' + src.a;
+        } else {
+          var dst = slotOf(v.slice(2)); if (!dst) return;
+          var t = { cliente: dst.cliente || '', sost: dst.sost || '', ok: !!dst.ok }, free = coStatus(dst) === 'free';
+          dst.cliente = src.cliente || ''; dst.sost = src.sost || ''; dst.ok = !!src.ok;
+          src.cliente = t.cliente; src.sost = t.sost; src.ok = t.ok;
+          msg = free ? who + ' spostato a ' + CO_DAYS[dst.g] + ' ' + dst.da + '–' + dst.a : who + ' scambiato con ' + t.cliente + ' (' + CO_DAYS[dst.g] + ' ' + dst.da + ')';
+        }
+        coSave(true); toast(msg + ' · la fascia di partenza resta libera');
+      });
+    });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-codaynote]'), function (inp) { inp.addEventListener('change', function () { c.giorni = c.giorni || {}; c.giorni[inp.getAttribute('data-codaynote')] = inp.value; coSave(false); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-coaddslot]'), function (b) {
       b.addEventListener('click', function () {
@@ -10518,9 +10657,19 @@
         state.filterUrgenza = ''; document.getElementById('filterUrgenza').value = '';
         var inCoaching = ids.some(function (id) { var c = getClient(id); return c && clientTab(c) === 'coaching'; });
         var inVisita = ids.some(function (id) { var c = getClient(id); return c && clientTab(c) === 'visita'; });
+        // da qualsiasi altra pagina porto all'elenco dei clienti (coaching o visite) con il filtro già attivo
+        if (state.activeTab !== 'coaching' && state.activeTab !== 'visita') {
+          if (state.openFolderId) closeFolder();
+          apStopWatch(); ingStopPolling();
+          state.activeTab = inCoaching || !inVisita ? 'coaching' : 'visita';
+          try { localStorage.setItem(LAST_TAB_KEY, state.activeTab); } catch (e) { /* ignore */ }
+          addBtnLabel();
+        }
         if (state.activeTab === 'coaching' && !inCoaching && inVisita) state.activeTab = 'visita';
         if (state.activeTab === 'visita' && !inVisita && inCoaching) state.activeTab = 'coaching';
         render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (inCoaching && inVisita) toast('Ci sono scadenze anche in ' + (state.activeTab === 'coaching' ? 'Solo visite' : 'Percorsi coaching') + ': il filtro resta attivo se cambi scheda');
       });
     });
   }
@@ -10584,3 +10733,5 @@
 </script>
 </body>
 </html>
+
+</body></html>
