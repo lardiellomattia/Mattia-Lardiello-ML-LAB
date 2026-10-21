@@ -1331,6 +1331,11 @@
   .tr-addrow:hover { background: #FFF1C7; border-color: #FFBF00; }
   .tr-mini { background: none; border: none; cursor: pointer; font-size: 13px; padding: 3px 4px; border-radius: 6px; opacity: 0.6; }
   .tr-mini:hover { opacity: 1; background: #FFF4D1; }
+  .row.row-off { opacity: .55; } .row.row-off:hover { opacity: .85; }
+  .tag.tag-off { background: #E5E7EB; color: #374151; }
+  .an-tag-nonattivo { background: #E5E7EB; color: #374151; }
+  .an-off-box { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #F3F4F6; border-radius: 12px; padding: 8px 12px; margin-top: 10px; font-size: 13px; }
+  .an-off-box input { flex: 1 1 200px; padding: 6px 10px; font-size: 13px; }
   .drag-h { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 9px; background: #F3F4F6; border: none; color: #6B7280; cursor: grab; touch-action: none; padding: 0; flex: none; }
   .drag-h:hover, .drag-h:focus-visible { background: #FFF4D1; color: #111; outline: none; }
   .drag-h svg { width: 16px; height: 16px; pointer-events: none; }
@@ -2468,6 +2473,8 @@
   function clientTab(c) {
     return c.tipoCliente || (isVisitaOnly(c) ? 'visita' : 'coaching');
   }
+  // cliente segnato "non viene più" nella sua scheda in Anagrafica
+  function clientInattivo(c) { var per = ((state.anag && state.anag.people) || []).filter(function (x) { return x.appClientId === c.id && !x.eliminato; })[0]; return !!(per && per.inattivo); }
   function tabClients() {
     return state.clients.filter(function (c) { return clientTab(c) === state.activeTab; });
   }
@@ -7738,7 +7745,7 @@
     var trAtt = trAttention(), trLiberi = (state.train || []).filter(function (p) { return !p.personId; }).length;
     var trBox = (state.train || []).length ? box('🏋️ Allenamento', trAtt.length, (trAtt.length ? trAtt.map(function (x) { return '<div class="og-row og-click" data-ogtr="' + x.id + '"><span class="og-dot og-' + (x.sev === 'scaduto' ? 'red' : 'amber') + '"></span><span class="og-title"><strong>' + escapeHtml(x.name) + '</strong><span class="sp-meta"> · ' + escapeHtml(x.what) + '</span></span></div>'; }).join('') : none('Nessun mesociclo in scadenza questa settimana.')) +
       (trLiberi ? '<div class="og-row og-click" data-oggo="allenamento"><span class="og-title"><span class="sp-meta">' + trLiberi + (trLiberi === 1 ? ' protocollo da assegnare' : ' protocolli da assegnare') + '</span></span></div>' : ''), ['allenamento', 'Allenamento']) : '';
-    var diA = diAllOpen(), diF = diA.filter(function (x) { return diFbDue(x.e); });
+    var diA = diAllOpen(), diF = diA.filter(function (x) { return !x.p.inattivo && diFbDue(x.e); });
     var fbBox = diF.length ? box('⏰ Feedback da chiedere', diF.length, diF.map(function (x) { var f = diFb(x.e); return '<div class="og-row og-click" data-diopen="' + x.p.id + '"><span class="og-dot og-' + (f.st === 'late' ? 'red' : 'amber') + '"></span><span class="og-title"><strong>' + escapeHtml(x.p.nome) + '</strong><span class="sp-meta"> · ' + escapeHtml([x.e.tipo, x.e.zona].filter(Boolean).join(' · ')) + ' · ' + (f.st === 'late' ? 'scaduto da ' + (-f.days) + (f.days === -1 ? ' giorno' : ' giorni') : 'scade oggi') + '</span></span></div>'; }).join(''), null) : '';
     var diBox = diA.length ? box('📒 Segnalazioni aperte', diA.length, diA.slice(0, 8).map(function (x) { var li = diLast(x.e); return '<div class="og-row og-click" data-diopen="' + x.p.id + '"><span class="og-dot og-' + (li >= 7 ? 'red' : 'amber') + '"></span><span class="og-title"><strong>' + escapeHtml(x.p.nome) + '</strong><span class="sp-meta"> · ' + escapeHtml([x.e.tipo, x.e.zona].filter(Boolean).join(' · ')) + (li !== '' && li != null ? ' · ' + li + '/10' : '') + ' · ' + diDays(x.e.data) + '</span></span></div>'; }).join('') + (diA.length > 8 ? '<div class="og-none">e altre ' + (diA.length - 8) + '…</div>' : ''), null) : '';
     var t = new Date(), h = t.getHours();
@@ -7965,6 +7972,7 @@
     var nextAg = agenda.filter(function (ev) { return ev.d >= todayMidnight(); }).sort(function (a, b) { return a.d - b.d; })[0];
     var lastAg = agenda.filter(function (ev) { return ev.d < todayMidnight(); }).sort(function (a, b) { return b.d - a.d; })[0];
     var tags = [];
+    if (p.inattivo) tags.push('Non attivo');
     if (p.affidato || sps.some(function (s) { return s.stato === 'riccardo'; })) tags.push('Riccardo');
     if (c) tags.push(clientTab(c) === 'visita' ? 'Visite' : 'Coaching');
     if (sps.length) tags.push('PT');
@@ -7974,7 +7982,7 @@
     if (agenda.length && !sps.length && !ings.length && !couples.length) tags.push('Agenda');
     var activeSp = sps.concat(couples.map(function (x) { return x.s; })).some(function (s) { return s.active; }), lastIng = ings.length ? ings[ings.length - 1].date : null;
     var alert = (det && det.reasons.length) || due > 0;
-    var attivo = !p.affidato && ((c && !c.archiviato) || activeSp || (lastIng && now - lastIng < 45 * 86400000) || !!nextAg || (lastAg && now - lastAg.d < 45 * 86400000));
+    var attivo = !p.inattivo && !p.affidato && ((c && !c.archiviato) || activeSp || (lastIng && now - lastIng < 45 * 86400000) || !!nextAg || (lastAg && now - lastAg.d < 45 * 86400000));
     return { nextAg: nextAg, agenda: agenda, couples: couples, c: c, sps: sps, ings: ings, nutri: nutri, det: det, due: due, tags: tags, alert: alert, attivo: attivo };
   }
   var anShowDel = false;
@@ -8005,10 +8013,12 @@
     anSync();
     var q = anTok(anView.search), P = state.anag.people.filter(function (p) { return !p.eliminato; }).sort(function (a, b) { return a.nome.localeCompare(b.nome); });
     var ctx = anCtx();
+    P = P.filter(function (p) { return !p.inattivo; }).concat(P.filter(function (p) { return p.inattivo; }));   // chi non viene più va in fondo
     var rows = P.map(function (p) { return { p: p, i: anPersonInfo(p, ctx) }; }).filter(function (x) {
       if (q && anTok(x.p.nome + ' ' + (x.p.alias || []).join(' ') + ' ' + (x.p.emails || []).join(' ') + ' ' + (x.p.telefono || '')).indexOf(q) === -1) return false;
       var f = anView.filter;
       if (f === 'attivi') return x.i.attivo;
+      if (f === 'nonattivi') return !!x.p.inattivo;
       if (f === 'gestire') return x.i.alert;
       if (f !== 'tutti') return x.i.tags.indexOf(f) !== -1;
       return true;
@@ -8019,13 +8029,13 @@
       return '<div class="an-sug-row"><span>' + d(s.a) + '</span><span class="an-eq">=</span><span>' + d(s.b) + '</span><span class="an-sug-btns"><button class="btn small nu-new" data-anyes="' + s.a.id + '|' + s.b.id + '">Sì, è la stessa</button><button class="btn small ghost" data-anno="' + s.key + '">No</button></span></div>';
     }).join('') + (sug.length > 8 ? '<div class="sp-meta">e altri ' + (sug.length - 8) + '…</div>' : '') + '</div>' : '';
     var filters = '<div class="sp-filters"><div class="search-wrap" style="flex:1 1 240px;"><input type="search" id="anSearch" placeholder="Cerca per nome, email o telefono…" value="' + escapeHtml(anView.search) + '"></div><button class="btn small" id="anReload" title="Rilegge subito l\'agenda e ricollega gli appuntamenti">↻ Aggiorna dall\'agenda</button><button class="btn small nu-new" id="anNewBtn">+ Nuova persona</button>' +
-      '<div class="ap-seg sp-seg">' + [['tutti', 'Tutti'], ['attivi', 'Attivi'], ['gestire', 'Da gestire'], ['Coaching', 'Coaching'], ['Visite', 'Visite'], ['PT', 'PT'], ['Coppia', 'Coppia'], ['Nutrizione', 'Nutrizione'], ['Ingressi', 'Ingressi']].map(function (f) { return '<button type="button" data-anf="' + f[0] + '" class="' + (anView.filter === f[0] ? 'on' : '') + '">' + f[1] + '</button>'; }).join('') + '</div></div>';
+      '<div class="ap-seg sp-seg">' + [['tutti', 'Tutti'], ['attivi', 'Attivi'], ['nonattivi', 'Non vengono più'], ['gestire', 'Da gestire'], ['Coaching', 'Coaching'], ['Visite', 'Visite'], ['PT', 'PT'], ['Coppia', 'Coppia'], ['Nutrizione', 'Nutrizione'], ['Ingressi', 'Ingressi']].map(function (f) { return '<button type="button" data-anf="' + f[0] + '" class="' + (anView.filter === f[0] ? 'on' : '') + '">' + f[1] + '</button>'; }).join('') + '</div></div>';
     var bdays = {}; anBirthdays(7).forEach(function (b) { bdays[b.p.id] = b.days; });
     var cards = rows.map(function (x) {
       var p = x.p, i = x.i;
       return '<div class="an-card' + (i.attivo ? '' : ' an-off') + '" data-anopen="' + p.id + '"><div class="an-av">' + escapeHtml((p.nome || '?').charAt(0).toUpperCase()) + '</div>' +
         '<div class="an-main"><div class="an-name">' + escapeHtml(p.nome) + (i.alert ? ' <span class="an-dot" title="Qualcosa da gestire"></span>' : '') + (bdays[p.id] != null ? ' <span class="an-bday" title="' + (bdays[p.id] === 0 ? 'Compie gli anni oggi' : 'Compleanno tra ' + bdays[p.id] + (bdays[p.id] === 1 ? ' giorno' : ' giorni')) + '">🎂' + (bdays[p.id] === 0 ? ' oggi' : '') + '</span>' : '') + '</div>' +
-        '<div class="an-tags">' + i.tags.map(function (t) { return '<span class="an-tag an-tag-' + t.toLowerCase() + '">' + t + '</span>'; }).join('') + (p.telefono ? '<span class="sp-meta">📞 ' + escapeHtml(p.telefono) + '</span>' : '') + (i.nextAg ? '<span class="sp-meta">📅 ' + i.nextAg.d.getDate() + ' ' + MESI[i.nextAg.d.getMonth()].slice(0, 3) + '</span>' : '') + '</div></div>' +
+        '<div class="an-tags">' + i.tags.map(function (t) { return '<span class="an-tag an-tag-' + t.toLowerCase().replace(/\s+/g, '') + '">' + t + '</span>'; }).join('') + (p.telefono ? '<span class="sp-meta">📞 ' + escapeHtml(p.telefono) + '</span>' : '') + (i.nextAg ? '<span class="sp-meta">📅 ' + i.nextAg.d.getDate() + ' ' + MESI[i.nextAg.d.getMonth()].slice(0, 3) + '</span>' : '') + '</div></div>' +
         (i.due ? '<div class="an-due">' + spEuro(i.due) + '</div>' : '') + '</div>';
     }).join('');
     listEl.innerHTML = (finState.status !== 'ok' ? '<div class="ap-loading" style="margin-bottom:10px;">Leggo l\'agenda per collegare PT e ingressi…</div>' : '') + sugBox + filters +
@@ -8113,7 +8123,8 @@
     var sec = function (title, body, action) { return '<div class="an-sec"><div class="an-sec-head"><strong>' + title + '</strong>' + (action || '') + '</div>' + body + '</div>'; };
     var html = '<div class="an-head"><div class="an-av an-av-big">' + escapeHtml((p.nome || '?').charAt(0).toUpperCase()) + '</div><div style="flex:1;min-width:0;">' +
       '<input type="text" id="anNome" class="an-name-in" value="' + escapeHtml(p.nome) + '"' + (c ? ' title="Il nome della cartella coaching si cambia dalla cartella"' : '') + '>' +
-      '<div class="an-tags">' + i.tags.map(function (t) { return '<span class="an-tag an-tag-' + t.toLowerCase() + '">' + t + '</span>'; }).join('') + '</div></div><button class="btn small ghost nu-del" id="anDelete">🗑 Elimina</button><button class="btn small ghost" id="anClose">✕ Chiudi</button></div>' +
+      '<div class="an-tags">' + i.tags.map(function (t) { return '<span class="an-tag an-tag-' + t.toLowerCase().replace(/\s+/g, '') + '">' + t + '</span>'; }).join('') + '</div></div><button class="btn small" id="anOffToggle" title="' + (p.inattivo ? 'Torna tra i clienti attivi' : 'Il cliente non viene più: resta in archivio con tutti i dati, ma non ricevi più avvisi di check e rinnovi') + '">' + (p.inattivo ? '▶ Riattiva' : '⏸ Non viene più') + '</button><button class="btn small ghost nu-del" id="anDelete">🗑 Elimina</button><button class="btn small ghost" id="anClose">✕ Chiudi</button></div>' +
+      (p.inattivo ? '<div class="an-off-box">⏸ <strong>Non viene più</strong> dal ' + (p.inattivoDal ? fromISO(p.inattivoDal).getDate() + ' ' + MESI[fromISO(p.inattivoDal).getMonth()] + ' ' + fromISO(p.inattivoDal).getFullYear() : '—') + '<input type="text" id="anOffMotivo" placeholder="Motivo (facoltativo): es. ha concluso, si è trasferito…" value="' + escapeHtml(p.inattivoMotivo || '') + '"></div>' : '') +
       '<div class="form-grid cols3" style="margin-top:12px;"><div><label>Data di nascita' + (anBirth(p) ? ' <span class="sp-meta">· ' + anAge(anBirth(p)) + ' anni</span>' : '') + '</label><input type="date" id="anNascita" value="' + escapeHtml(anBirth(p)) + '">' + (c ? '<div class="nu-formula">uguale a quella dell\'anamnesi</div>' : '') + '</div>' +
       '<div><label>Telefono (WhatsApp)</label><input type="text" id="anTel" value="' + escapeHtml(p.telefono || (c && c.telefono) || '') + '" inputmode="tel"></div>' +
       '<div><label>Email</label><input type="text" id="anMail" value="' + escapeHtml((p.emails || []).join(', ')) + '" placeholder="es. mario.rossi@gmail.com"><div class="nu-formula">gli appuntamenti in agenda con questa email tra gli invitati vengono collegati qui</div></div>' +
@@ -8181,6 +8192,25 @@
     document.getElementById('anMail').addEventListener('change', function () { save(); anSync(); openAnPerson(p.id); var n = (p.spKeys || []).length + (p.ingKeys || []).length; toast('Email salvata' + (n ? ' · collegamenti aggiornati' : '')); });
     document.getElementById('anNascita').addEventListener('change', function (e) { anSetBirth(p, e.target.value); saveAn(); openAnPerson(p.id); toast(e.target.value ? 'Data di nascita salvata' + (c ? ' anche nell\'anamnesi' : '') : 'Data di nascita tolta'); });
     document.getElementById('anDelete').addEventListener('click', function () { save(); anDelete(p); });
+    var om = document.getElementById('anOffMotivo'); if (om) om.addEventListener('change', function () { p.inattivoMotivo = om.value.trim(); saveAn(); });
+    document.getElementById('anOffToggle').addEventListener('click', function () {
+      save();
+      if (!p.inattivo) {
+        showConfirm(p.nome + ' non viene più? Resta in Anagrafica con tutti i suoi dati (in fondo, in grigio): non riceverai più avvisi di check e rinnovi e le sue cartelle in Sedute personal passano a "Interrotto". Puoi riattivarlo quando vuoi.', function () {
+          p.inattivo = true; p.inattivoDal = toISO(todayMidnight());
+          // cartelle PT attive → Interrotto (ricordo quali, per riattivarle)
+          p.inattivoSp = [];
+          (p.spKeys || []).forEach(function (k) { var sc = state.sp.clients[k]; if (sc && (!sc.stato || sc.stato === 'attivo')) { sc.stato = 'interrotto'; sc.statoData = toISO(todayMidnight()); p.inattivoSp.push(k); } });
+          if (p.inattivoSp.length) saveSp();
+          saveAn(); render(); openAnPerson(p.id); toast('⏸ ' + p.nome + ' segnato come "non viene più"');
+        });
+      } else {
+        p.inattivo = false; p.inattivoDal = '';
+        (p.inattivoSp || []).forEach(function (k) { var sc = state.sp.clients[k]; if (sc && sc.stato === 'interrotto') { sc.stato = 'attivo'; sc.statoData = ''; } });
+        if ((p.inattivoSp || []).length) saveSp();
+        p.inattivoSp = []; saveAn(); render(); openAnPerson(p.id); toast('▶ ' + p.nome + ' di nuovo tra i clienti attivi');
+      }
+    });
     var an = document.getElementById('anAliasNew');
     an.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return; e.preventDefault();
@@ -9063,6 +9093,7 @@
     var rows = tabClients().map(function (c) { return { c: c, u: clientUrgency(c) }; })
       .filter(function (x) { return passesFilters(x.c, x.u); })
       .sort(function (a, b) {
+        var oa = clientInattivo(a.c) ? 1 : 0, ob = clientInattivo(b.c) ? 1 : 0; if (oa !== ob) return oa - ob;
         var da = a.u.checkDue === null ? Infinity : a.u.checkDue;
         var db = b.u.checkDue === null ? Infinity : b.u.checkDue;
         return da - db;
@@ -9111,8 +9142,8 @@
         }
       }
       return (
-        '<div class="row ' + u.level + '" data-id="' + c.id + '">' +
-          '<div class="name">' + escapeHtml(c.cliente) + (u.next ? '<span class="tag">' + escapeHtml(u.next.tipoCheck) + '</span>' : '') +
+        '<div class="row ' + (clientInattivo(c) ? 'ok row-off' : u.level) + '" data-id="' + c.id + '">' +
+          '<div class="name">' + escapeHtml(c.cliente) + (clientInattivo(c) ? '<span class="tag tag-off">⏸ Non viene più</span>' : '') + (u.next ? '<span class="tag">' + escapeHtml(u.next.tipoCheck) + '</span>' : '') +
             '<div class="meta">' + (c.noteGenerali ? '"' + escapeHtml(c.noteGenerali) + '"' : 'dal ' + formatItDataShort(c.dataInizioPercorso)) + contattoTag + '</div>' +
           '</div>' +
           '<div class="c-check">' +
@@ -10571,8 +10602,8 @@
       var u = clientUrgency(c);
       var reasons = [];
       var hasScaduto = false;
-      var next = nextPendingCheck(c);
-      if (next && !next.dataFissata) {
+      var next = nextPendingCheck(c), off = clientInattivo(c);
+      if (!off && next && !next.dataFissata) {
         var d = daysUntil(next.dataPrevista);
         var label = next.tipoCheck === 'Visita' ? 'prossima visita' : 'check "' + next.tipoCheck + '"';
         if (d !== null && d < 0) { reasons.push({ text: label + ' da fissare, scaduto da ' + Math.abs(d) + 'g', sev: 'scaduto' }); hasScaduto = true; counts.scadutiCheck++; }
@@ -10586,7 +10617,8 @@
         attesa.push({ id: c.id, cliente: c.cliente, sent: req.date, days: req.days, tab: clientTab(c) });
       } else if (overdue) { reasons.push({ text: req ? 'pagamento scaduto · richiesta inviata ' + req.days + ' giorni fa e non ancora pagato' : 'pagamento scaduto', sev: 'scaduto' }); hasScaduto = true; counts.scadutiPagamento++; }
       else if (payDue) { reasons.push({ text: 'pagamento in scadenza', sev: 'avvicinamento' }); counts.pagamento++; }
-      if (u.renewDue !== null && u.renewDue < 0) { reasons.push({ text: 'rinnovo scaduto', sev: 'scaduto' }); hasScaduto = true; counts.scadutiRinnovo++; }
+      if (off) { /* non viene più: niente check né rinnovi da segnalare (i pagamenti dovuti restano) */ }
+      else if (u.renewDue !== null && u.renewDue < 0) { reasons.push({ text: 'rinnovo scaduto', sev: 'scaduto' }); hasScaduto = true; counts.scadutiRinnovo++; }
       else if (u.renewDue !== null && u.renewDue <= 14) { reasons.push({ text: 'rinnovo vicino', sev: 'avvicinamento' }); counts.rinnovo++; }
       if (reasons.length) {
         details[c.id] = { cliente: c.cliente, reasons: reasons.map(function (r) { return r.text; }), tab: clientTab(c) };
