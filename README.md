@@ -34,7 +34,10 @@ visualizzazioni e altre metriche, clienti portati, contenuto collegato e «cosa 
 
 Numeri dagli screenshot: nella scheda di un contenuto (o da «Da aggiornare» in Panoramica) si caricano o incollano
 gli screenshot degli Insights di Instagram; Claude legge visualizzazioni, interazioni, % da non follower e scrive
-un'analisi nel campo «Analisi di Claude».
+un'analisi nel campo «Analisi di Claude». Dallo screenshot del reel legge anche la retention (% ancora presenti a 3 s,
+a metà e alla fine, più la durata) e le origini delle visualizzazioni (Feed, Tab Reels, Esplora, Profilo): la scheda
+disegna la curva di retention e la Panoramica confronta «Forza dell'hook» e «Da dove arrivano le visualizzazioni»
+tra contenuti top e sotto soglia.
 
 Semaforo automatico dalle visualizzazioni: 🔴 sotto 1.000, 🟢 da 1.000, 🟣 da 3.500 (soglie in Impostazioni).
 

@@ -378,6 +378,18 @@
   .shot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; border: 1.5px dashed var(--soft-2); border-radius: 16px; padding: 14px 16px; }
   .shot:focus { outline: none; border-color: var(--ink-muted); }
   .shot.drop { border-color: var(--ink); background: var(--soft); }
+  details.trend { border: 1px solid var(--border); border-radius: 16px; padding: 12px 16px; }
+  details.trend summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+  details.trend[open] summary { margin-bottom: 12px; }
+  .curve { margin-top: 12px; }
+  .curve svg { display: block; width: 100%; max-width: 440px; height: auto; overflow: visible; }
+  .curve .ax { font-size: 10px; fill: var(--ink-muted); }
+  .curve .pl { font-size: 11px; font-weight: 600; fill: var(--ink); }
+  .stack { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--soft); }
+  .stack span { display: block; height: 100%; }
+  .stack span + span { box-shadow: inset 2px 0 0 var(--surface); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-muted); margin-top: 14px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
   .dropzone { outline: 2px dashed var(--ink-muted); outline-offset: 6px; border-radius: 22px; }
   .shot b { display: block; font-size: 13px; }
   .shot span { font-size: 12px; color: var(--ink-muted); line-height: 1.45; }
@@ -527,6 +539,10 @@
   var LS_KEY = 'mllab-contenuti-v1';
   var TABS = ['panoramica', 'archivio', 'libreria', 'idee', 'calendario', 'playbook', 'spunti', 'impostazioni'];
   var METRICHE = [['views', 'Visualizzazioni'], ['repost', 'Repost'], ['like', 'Mi piace'], ['commenti', 'Commenti'], ['condivisioni', 'Condivisioni'], ['salvataggi', 'Salvataggi'], ['follow', 'Nuovi follower'], ['visiteProfilo', 'Visite al profilo'], ['nonFollower', '% da non follower'], ['clienti', 'Clienti / DM portati']];
+  // dagli Insights del reel: retention (% di persone ancora presenti) e da dove arrivano le visualizzazioni
+  var RETENTION = [['ret3', 'Ancora presenti a 3 s (%)'], ['retMeta', 'A metà video (%)'], ['retFine', 'Alla fine (%)'], ['durata', 'Durata (secondi)']];
+  var ORIGINI = [['oFeed', 'Feed', 'var(--c-reel)'], ['oReels', 'Tab Reels', 'var(--c-car)'], ['oEsplora', 'Esplora', 'var(--c-post)'], ['oProfilo', 'Profilo', 'var(--c-story)']];
+  var TREND = RETENTION.concat(ORIGINI.map(function (o) { return [o[0], 'Da ' + o[1] + ' (%)']; }));
 
   // ---------- stato ----------
   var state = { contenuti: [], spunti: [], crescita: [], settings: clone(DEFAULT_SETTINGS), playbook: { funziona: [], evitare: [], prova: [], aggiornato: '' } };
@@ -560,7 +576,7 @@
     return Object.assign({
       id: uid(), titolo: '', hook: '', testo: '', argomento: '', formato: 'Reel', tipo: '', ospite: 'Nessuno', cta: '',
       fase: 'idea', data: '', link: '', views: '', reach: '', repost: '', like: '', commenti: '', condivisioni: '', salvataggi: '', follow: '', clienti: '',
-      visiteProfilo: '', nonFollower: '', collegato: '', note: '', analisi: '', brainstorm: [], creato: new Date().toISOString()
+      visiteProfilo: '', nonFollower: '', ret3: '', retMeta: '', retFine: '', durata: '', oFeed: '', oReels: '', oEsplora: '', oProfilo: '', collegato: '', note: '', analisi: '', brainstorm: [], creato: new Date().toISOString()
     }, o || {});
   }
   function findC(id) { return state.contenuti.filter(function (c) { return c.id === id; })[0]; }
@@ -1085,6 +1101,37 @@
   }
   function periodoLabel(P) { return P === 'tutto' ? 'da sempre' : P === 365 ? 'ultimi 12 mesi' : 'ultimi ' + P + ' giorni'; }
 
+  var SEMCOL = { top: 'var(--s-top)', ok: 'var(--s-ok)', basso: 'var(--s-low)' };
+  function hookPanel(pubs) {
+    var list = pubs.filter(function (c) { return has(c.ret3); }).sort(function (a, b) { return n(b.ret3) - n(a.ret3); });
+    var h = '<section class="panel"><h3>Forza dell\'hook</h3>';
+    if (list.length < 2) return h + '<p class="hint">Quante persone sono ancora lì dopo 3 secondi, reel per reel. ' + (list.length ? 'Serve almeno un altro reel con la retention.' : 'Carica nella scheda lo screenshot con la retention: Claude legge la percentuale.') + '</p></section>';
+    function g(k) { var x = list.filter(function (c) { return sem(c).k === k; }); return x.length ? fmtP(avg(x, function (c) { return n(c.ret3); })) : ''; }
+    var cmp = [g('top') ? 'top ' + g('top') : '', g('basso') ? 'sotto ' + g('basso') : ''].filter(Boolean).join(' · ');
+    return h + '<p class="hint">% di persone ancora presenti a 3 secondi. Media ' + fmtP(avg(list, function (c) { return n(c.ret3); })) + (cmp ? ' · ' + cmp : '') + '. Colore = esito, a destra le visualizzazioni.</p><div class="hbars">' +
+      list.slice(0, 8).map(function (c) {
+        return '<div class="hbar" data-c="' + esc(c.id) + '" style="cursor:pointer;grid-template-columns:minmax(0,110px) minmax(70px,1fr) auto"><span class="lab" title="' + esc(titoloDi(c)) + '">' + esc(titoloDi(c)) + '</span><span class="track"><span class="fill" style="display:block;width:' + Math.min(100, n(c.ret3)).toFixed(0) + '%;background:' + (SEMCOL[sem(c).k] || 'var(--dark)') + '"></span></span><span class="v">' + fmtP(c.ret3) + ' <span class="muted" style="font-weight:500">· ' + kfmt(c.views) + '</span></span></div>';
+      }).join('') + '</div>' + (list.length > 8 ? '<p class="hint" style="margin:12px 0 0">I primi 8 di ' + list.length + '.</p>' : '') + '</section>';
+  }
+  function originiPanel(pubs) {
+    var list = pubs.filter(function (c) { return ORIGINI.some(function (o) { return has(c[o[0]]); }); });
+    var h = '<section class="panel"><h3>Da dove arrivano le visualizzazioni</h3>';
+    if (!list.length) return h + '<p class="hint">Feed, Tab Reels, Esplora e Profilo a confronto tra i contenuti top e quelli sotto soglia. Carica nella scheda lo screenshot con le origini.</p></section>';
+    var mix = {};
+    var rows = [['top', 'Top 🟣'], ['ok', 'Buoni'], ['basso', 'Sotto 🔴']].map(function (g) {
+      var x = list.filter(function (c) { return sem(c).k === g[0]; });
+      if (!x.length) return '';
+      var v = ORIGINI.map(function (o) { return avg(x, function (c) { return n(c[o[0]]); }); }), tot = sum(v, function (y) { return y; }) || 1;
+      mix[g[0]] = v.map(function (y) { return y / tot * 100; });
+      return '<div class="hbar" style="grid-template-columns:minmax(0,96px) minmax(0,1fr)"><span class="lab">' + g[1] + ' <span class="muted">(' + x.length + ')</span></span><span class="stack" role="img" aria-label="' + esc(g[1] + ': ' + ORIGINI.map(function (o, i) { return o[1] + ' ' + fmtP(mix[g[0]][i]); }).join(', ')) + '">' +
+        ORIGINI.map(function (o, i) { var w = mix[g[0]][i]; return w > 0 ? '<span style="width:' + w.toFixed(1) + '%;background:' + o[2] + '" title="' + esc(o[1] + ' ' + fmtP(w)) + '"></span>' : ''; }).join('') + '</span></div>';
+    }).join('');
+    // Tab Reels + Esplora = persone che non ti seguono ancora
+    function nuovi(k) { return mix[k] ? mix[k][1] + mix[k][2] : null; }
+    var nota = nuovi('top') !== null && nuovi('basso') !== null ? 'Tab Reels ed Esplora (persone nuove): ' + fmtP(nuovi('top')) + ' nei top contro ' + fmtP(nuovi('basso')) + ' nei sotto.' : 'Tab Reels ed Esplora portano persone nuove, Feed e Profilo chi ti segue già.';
+    return h + '<p class="hint">Media delle origini per esito, su ' + list.length + (list.length > 1 ? ' contenuti' : ' contenuto') + '. ' + nota + '</p><div class="hbars">' + rows + '</div>' +
+      '<div class="legend">' + ORIGINI.map(function (o) { return '<span><i style="--c:' + o[2] + '"></i>' + o[1] + '</span>'; }).join('') + '</div></section>';
+  }
   function renderPanoramica(v) {
     var P = ui.periodo;
     var pubs = conViews(state.contenuti).filter(function (c) { return inPeriodo(c, P); });
@@ -1169,6 +1216,8 @@
       (rows.length ? '<div class="hbars">' + rows.map(function (r) {
         return '<div class="hbar" style="grid-template-columns:minmax(0,150px) minmax(0,1fr) 62px"><span class="lab" title="' + esc(r.k) + '">' + esc(r.k) + ' <span class="muted">(' + r.c + (r.top ? ' · ' + r.top + ' 🟣' : '') + ')</span></span><span class="track"><span class="fill" style="display:block;width:' + (r.v / maxV * 100).toFixed(0) + '%' + (ui.dim === 'argomento' ? ';background:' + argCol(r.k) : '') + '"></span></span><span class="v">' + fmtN(r.v) + '</span></div>';
       }).join('') + '</div>' : '<div class="empty" style="padding:20px"><p>Servono contenuti pubblicati con le visualizzazioni.</p></div>') + '</section>';
+
+    if (pubs.length) main += '<div class="grid2" style="margin-top:22px">' + hookPanel(pubs) + originiPanel(pubs) + '</div>';
 
     main += '<div class="grid2" style="margin-top:22px">' +
       '<section class="panel"><h3>Costanza</h3><p class="hint">Contenuti a settimana, ultime 8 settimane. Tratteggio = obiettivo di ' + n(state.settings.frequenza) + '. Solo contenuti con data.</p>' + cadence() + '</section>' +
@@ -1334,11 +1383,16 @@
     if (!p.funziona.length && !p.evitare.length) return '';
     return '\n\nPLAYBOOK DEL PROFILO\nFunziona:\n' + p.funziona.map(function (x) { return '- ' + x; }).join('\n') + '\nDa evitare:\n' + p.evitare.map(function (x) { return '- ' + x; }).join('\n') + (p.prova.length ? '\nDa provare:\n' + p.prova.map(function (x) { return '- ' + x; }).join('\n') : '');
   }
+  function trendCtx(c) {
+    var r = [['ret3', '3s'], ['retMeta', 'metà'], ['retFine', 'fine']].filter(function (k) { return has(c[k[0]]); }).map(function (k) { return k[1] + ' ' + n(c[k[0]]) + '%'; });
+    var o = ORIGINI.filter(function (k) { return has(c[k[0]]); }).map(function (k) { return k[1] + ' ' + n(c[k[0]]) + '%'; });
+    return (r.length ? ' | ancora presenti: ' + r.join(', ') + (has(c.durata) ? ' su ' + n(c.durata) + 's' : '') : '') + (o.length ? ' | origini: ' + o.join(', ') : '');
+  }
   function contenutiCtx(list, max) {
     return list.slice().sort(function (a, b) { return n(b.views) - n(a.views); }).slice(0, max).map(function (c) {
       return '- [' + sem(c).l + ', ' + n(c.views) + ' visual.' + (n(c.clienti) ? ', ' + n(c.clienti) + ' clienti' : '') + '] ' + titoloDi(c) +
         ' | ' + [c.argomento, c.formato, c.tipo, c.ospite && c.ospite !== 'Nessuno' ? 'con ' + c.ospite : 'da solo', c.cta ? 'CTA ' + c.cta : ''].filter(Boolean).join(', ') +
-        (c.hook ? ' | hook: "' + c.hook.slice(0, 110) + '"' : '') + (c.note ? ' | nota: ' + c.note.replace(/\s+/g, ' ').slice(0, 220) : '');
+        (c.hook ? ' | hook: "' + c.hook.slice(0, 110) + '"' : '') + trendCtx(c) + (c.note ? ' | nota: ' + c.note.replace(/\s+/g, ' ').slice(0, 220) : '');
     }).join('\n');
   }
   function aiAnalisi(pubs) {
@@ -1346,7 +1400,7 @@
     ui.aiTextBusy = true; ui.aiText = ''; render();
     var prompt = 'Sei un content strategist esperto di Instagram per personal trainer e coach. Rispondi in italiano, diretto e pratico, senza markdown pesante (titoletti brevi in maiuscolo e trattini).\n\n' + profiloCtx() + playbookCtx() +
       '\n\nContenuti (' + periodoLabel(ui.periodo) + ', ordinati per visualizzazioni; semaforo: Top oltre ' + state.settings.soglie[1] + ', Sotto meno di ' + state.settings.soglie[0] + '):\n' + contenutiCtx(pubs, 60) +
-      '\n\nDammi: 1) COSA FUNZIONA (pattern concreti: argomento, ospite, tipo di video, hook, CTA), 2) COSA NON FUNZIONA, 3) 3 AZIONI PER LA PROSSIMA SETTIMANA, 4) 3 IDEE con hook già scritto. Massimo 380 parole.';
+      '\n\nDammi: 1) COSA FUNZIONA (pattern concreti: argomento, ospite, tipo di video, hook, CTA; se ci sono, usa la retention a 3 secondi per giudicare gli hook e le origini per capire chi ha spinto il contenuto), 2) COSA NON FUNZIONA, 3) 3 AZIONI PER LA PROSSIMA SETTIMANA, 4) 3 IDEE con hook già scritto. Massimo 380 parole.';
     sample(prompt, { onText: function (e) { ui.aiText = e.text; var o = document.getElementById('aiOut'); if (o) o.textContent = e.text; else if (ui.tab === 'panoramica' && !document.getElementById('modalRoot').firstChild) render(); } }).then(function (r) {
       ui.aiText = r.text; ui.aiTextBusy = false; render();
     }, function (e) { ui.aiTextBusy = false; ui.aiText = e && e.text ? e.text : ''; aiErr(e, 'Analisi non riuscita'); render(); });
@@ -1446,6 +1500,7 @@
     var isNew = !findC(c.id), s = state.settings;
     var altri = state.contenuti.filter(function (x) { return x.id !== c.id; }).sort(function (a, b) { return titoloDi(a).localeCompare(titoloDi(b), 'it'); });
     function numF(k, l) { return '<label>' + l + '<input class="field num" type="number" min="0" inputmode="numeric" id="c_' + k + '" value="' + esc(c[k]) + '"></label>'; }
+    function decF(k, l) { return '<label>' + l + '<input class="field num" type="number" min="0" step="any" inputmode="decimal" id="c_' + k + '" value="' + esc(c[k]) + '"></label>'; }
     openModal('<header><h2>' + (isNew ? 'Nuovo contenuto' : esc(titoloDi(c))) + '</h2><div style="display:flex;gap:8px;align-items:center">' + (isNew ? '' : semPill(c)) + '<button class="iconbtn" data-close aria-label="Chiudi">✕</button></div></header>' +
       '<div class="form" style="max-width:none">' +
       '<div class="msec"><h4>Contenuto</h4>' +
@@ -1466,6 +1521,7 @@
       '<div class="msec" id="c_ris"><h4>Risultati</h4>' +
       (sample && imgLimits ? '<div class="shot" id="c_shot" tabindex="0"><div><b>Leggi i numeri dagli screenshot</b><span>Trascina qui, scegli o incolla (⌘V) gli screenshot degli Insights del post: Claude compila i campi e scrive l\'analisi.</span></div><label class="btn small primary" style="cursor:pointer">Scegli screenshot<input type="file" id="c_files" multiple accept="' + esc((imgLimits.mediaTypes || ['image/png', 'image/jpeg']).join(',')) + '" hidden></label><span class="muted" id="c_shotst" style="font-size:12px;flex-basis:100%"></span></div>' : '') +
       '<div class="three">' + METRICHE.map(function (m) { return numF(m[0], m[1]); }).join('') + '</div>' +
+      '<details class="trend" id="c_trend"' + (hasTrend(c) ? ' open' : '') + '><summary>Retention e origini delle visualizzazioni</summary><div class="three">' + TREND.map(function (t) { return decF(t[0], t[1]); }).join('') + '</div><div class="curve" id="c_curve">' + retCurve(c) + '</div></details>' +
       '<label style="display:grid;gap:6px;font-size:12px;font-weight:500;color:var(--ink-muted)">Analisi di Claude<textarea class="field" id="c_analisi" placeholder="Compare qui quando carichi gli screenshot">' + esc(c.analisi) + '</textarea></label></div>' +
       '<div class="msec"><h4>Cosa ho imparato</h4><textarea class="field" id="c_note" placeholder="Perché è andato così? Gancio, montaggio, ospite, CTA, cosa rifaresti…">' + esc(c.note) + '</textarea>' +
       (c.link && /^https?:\/\//.test(c.link) ? '<a href="' + esc(c.link) + '" target="_blank" rel="noopener" style="color:var(--ink);font-size:13px">Apri su Instagram ↗</a>' : '') + '</div>' +
@@ -1476,7 +1532,7 @@
         var o = Object.assign({}, findC(c.id) || c);
         ['titolo', 'hook', 'argomento', 'formato', 'tipo', 'ospite', 'cta', 'collegato', 'fase', 'data', 'link'].forEach(function (k) { o[k] = val(m, 'c_' + k); });
         o.testo = m.querySelector('#c_testo').value; o.note = m.querySelector('#c_note').value; o.analisi = m.querySelector('#c_analisi').value;
-        METRICHE.forEach(function (mm) { var x = val(m, 'c_' + mm[0]); o[mm[0]] = x === '' ? '' : n(x); });
+        METRICHE.concat(TREND).forEach(function (mm) { var x = val(m, 'c_' + mm[0]); o[mm[0]] = x === '' ? '' : n(x); });
         if (!o.titolo && !o.hook) { toast('Scrivi almeno il titolo o l\'hook.'); return null; }
         if (o.fase === 'pubblicato' && !o.data && c.fase !== 'pubblicato') o.data = todayISO();
         return o;
@@ -1493,6 +1549,7 @@
       var del = m.querySelector('#c_del');
       if (del) armDelete(del, function () { removeItem(c.id); closeModal(); render(); toast('Contenuto eliminato'); });
       var ai = m.querySelector('#c_ai'); if (ai) ai.addEventListener('click', function () { aiScript(m, ai); });
+      m.querySelector('#c_trend').addEventListener('input', function () { refreshCurve(m); });
       var fi = m.querySelector('#c_files');
       if (fi) {
         // trascinamento: le immagini lasciate su tutta la scheda vanno a Claude, il riquadro si evidenzia
@@ -1529,6 +1586,39 @@
       img.src = url;
     });
   }
+  function hasTrend(c) { return TREND.some(function (t) { return has(c[t[0]]); }); }
+  function refreshCurve(m) {
+    var o = {}; TREND.forEach(function (t) { o[t[0]] = val(m, 'c_' + t[0]); });
+    m.querySelector('#c_curve').innerHTML = retCurve(o);
+  }
+  // curva di retention dai punti letti negli Insights: 100% all'inizio, poi 3 s, metà e fine
+  function retCurve(c) {
+    var D = has(c.durata) && n(c.durata) > 6 ? n(c.durata) : 0;
+    var pts = [[0, 100, '0 s']];
+    if (has(c.ret3)) pts.push([D ? 3 / D : .12, n(c.ret3), '3 s']);
+    if (has(c.retMeta)) pts.push([.5, n(c.retMeta), 'metà' + (D ? ' · ' + Math.round(D / 2) + ' s' : '')]);
+    if (has(c.retFine)) pts.push([1, n(c.retFine), 'fine' + (D ? ' · ' + Math.round(D) + ' s' : '')]);
+    var pubs = conViews(state.contenuti).filter(function (x) { return has(x.ret3) && x.id !== c.id; });
+    var media = pubs.length ? avg(pubs, function (x) { return n(x.ret3); }) : 0;
+    if (pts.length < 2) return '<p class="hint" style="margin:0">Inserisci le percentuali, o carica lo screenshot con la retention, per vedere la curva.</p>';
+    var W = 320, H = 120, L = 6, R = 6, T = 16, B = 20;
+    function X(f) { return L + f * (W - L - R); } function Y(p) { return T + (100 - Math.max(0, Math.min(100, p))) / 100 * (H - T - B); }
+    var line = pts.map(function (q) { return X(q[0]).toFixed(1) + ',' + Y(q[1]).toFixed(1); }).join(' ');
+    var last = pts[pts.length - 1];
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Curva di retention: ' + esc(pts.slice(1).map(function (q) { return q[2] + ' ' + q[1] + '%'; }).join(', ')) + '">' +
+      '<line x1="' + X(0) + '" x2="' + X(1) + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="var(--border)"/>' +
+      (media ? '<line x1="' + X(0) + '" x2="' + X(1) + '" y1="' + Y(media).toFixed(1) + '" y2="' + Y(media).toFixed(1) + '" stroke="var(--ink-muted)" stroke-dasharray="3 4"/>' : '') +
+      '<polygon points="' + X(0) + ',' + Y(0) + ' ' + line + ' ' + X(last[0]).toFixed(1) + ',' + Y(0) + '" fill="var(--soft)"/>' +
+      '<polyline points="' + line + '" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+      pts.map(function (q, i) {
+        var x = X(q[0]), anc = i === 0 ? 'start' : q[0] >= .99 ? 'end' : 'middle';
+        return '<circle cx="' + x.toFixed(1) + '" cy="' + Y(q[1]).toFixed(1) + '" r="3.5" fill="var(--ink)"/>' +
+          (i ? '<text class="pl" x="' + x.toFixed(1) + '" y="' + (Y(q[1]) - 8).toFixed(1) + '" text-anchor="' + anc + '">' + fmtP(q[1]) + '</text>' : '') +
+          '<text class="ax" x="' + x.toFixed(1) + '" y="' + (H - 4) + '" text-anchor="' + anc + '">' + esc(q[2]) + '</text>';
+      }).join('') + '</svg>' +
+      (media ? '<p class="hint" style="margin:6px 0 0">Tratteggio: media del profilo a 3 s, ' + fmtP(media) + ' su ' + pubs.length + ' reel.</p>' : '');
+  }
+  function fmtP(v) { return n(v).toLocaleString('it-IT', { maximumFractionDigits: 1 }) + '%'; }
   function readShots(m, c, files) {
     var st = m.querySelector('#c_shotst');
     var max = (imgLimits && imgLimits.maxCount) || 4;
@@ -1537,14 +1627,15 @@
     var pubs = conViews(state.contenuti).filter(function (x) { return x.id !== c.id; });
     var media = pubs.length ? Math.round(avg(pubs, function (x) { return n(x.views); })) : 0;
     var conSalv = pubs.filter(function (x) { return has(x.salvataggi); });
+    var conRet = pubs.filter(function (x) { return has(x.ret3); });
     var prompt = 'Questi sono screenshot degli Insights di Instagram di UN contenuto del profilo di un personal trainer. Leggi i numeri esattamente come sono scritti.\n\n' +
       'Contenuto: ' + titoloDi(val(m, 'c_titolo') ? { titolo: val(m, 'c_titolo') } : c) + (val(m, 'c_hook') ? '\nHook: ' + val(m, 'c_hook') : '') +
       '\nArgomento: ' + (val(m, 'c_argomento') || '-') + ' · Formato: ' + (val(m, 'c_formato') || '-') + ' · Tipo di video: ' + (val(m, 'c_tipo') || '-') + ' · Ospite: ' + (val(m, 'c_ospite') || 'Nessuno') + ' · CTA: ' + (val(m, 'c_cta') || '-') +
       '\n\nMedia del profilo: ' + (media ? media + ' visualizzazioni' : 'non disponibile') + (conSalv.length ? ', ' + Math.round(avg(conSalv, function (x) { return n(x.salvataggi); })) + ' salvataggi' : '') +
-      '. Soglie: sotto ' + state.settings.soglie[0] + ' visualizzazioni è sotto la media del profilo, da ' + state.settings.soglie[1] + ' è un top.' + playbookCtx() +
-      '\n\nRegole di lettura: "views" è il totale delle Visualizzazioni (il primo numero grande della sezione Visualizzazioni). "repost" sono i Repost (ripubblicazioni del contenuto), solo se compaiono. "nonFollower" è la percentuale di visualizzazioni da non follower (numero senza %). "visiteProfilo" è Attività del profilo o Visite al profilo. "follow" sono i Follow dalla sezione Profilo. Se un dato non si vede negli screenshot metti null, non inventarlo.' +
-      '\n\nPoi scrivi "analisi": 3-4 frasi in italiano, dirette, senza markdown: com\'è andato rispetto alla media del profilo, cosa dicono i numeri (es. molti non follower = il contenuto raggiunge persone nuove; salvataggi alti = contenuto utile; pochi follow = manca una CTA forte), e una cosa concreta da ripetere o cambiare la prossima volta.' +
-      '\n\nRispondi SOLO con JSON: {"views":0,"repost":null,"like":0,"commenti":0,"salvataggi":0,"condivisioni":0,"follow":0,"visiteProfilo":0,"nonFollower":0,"analisi":"..."}';
+      (conRet.length ? ', ' + fmtP(avg(conRet, function (x) { return n(x.ret3); })) + ' di persone ancora presenti a 3 secondi' : '') + '. Soglie: sotto ' + state.settings.soglie[0] + ' visualizzazioni è sotto la media del profilo, da ' + state.settings.soglie[1] + ' è un top.' + playbookCtx() +
+      '\n\nRegole di lettura: "views" è il totale delle Visualizzazioni (il primo numero grande della sezione Visualizzazioni). "repost" sono i Repost (ripubblicazioni del contenuto), solo se compaiono. "nonFollower" è la percentuale di visualizzazioni da non follower (numero senza %). "visiteProfilo" è Attività del profilo o Visite al profilo. "follow" sono i Follow dalla sezione Profilo. Retention (grafico delle persone ancora presenti nel tempo): "ret3" è la % a 3 secondi (o il "tasso di visualizzazione oltre 3 secondi" se compare), "retMeta" la % a metà della durata, "retFine" la % alla fine; leggile dal grafico al meglio, all\'unità. "durata" è la durata del video in secondi (l\'ultimo valore dell\'asse del tempo o la durata indicata). Origini delle visualizzazioni (fonti principali): "oFeed" Feed, "oReels" Tab Reels, "oEsplora" Esplora, "oProfilo" Profilo, in percentuale senza %. Se un dato non si vede negli screenshot metti null, non inventarlo.' +
+      '\n\nPoi scrivi "analisi": 3-4 frasi in italiano, dirette, senza markdown: com\'è andato rispetto alla media del profilo, cosa dicono i numeri (es. molti non follower = il contenuto raggiunge persone nuove; salvataggi alti = contenuto utile; pochi follow = manca una CTA forte), e una cosa concreta da ripetere o cambiare la prossima volta. Se c\'è la retention, di\' se l\'hook ha tenuto rispetto alla media del profilo e dove si perdono le persone; se ci sono le origini, di\' chi ha spinto il contenuto (Tab Reels ed Esplora = persone nuove, Feed e Profilo = chi ti segue già).' +
+      '\n\nRispondi SOLO con JSON: {"views":0,"repost":null,"like":0,"commenti":0,"salvataggi":0,"condivisioni":0,"follow":0,"visiteProfilo":0,"nonFollower":0,"ret3":null,"retMeta":null,"retFine":null,"durata":null,"oFeed":null,"oReels":null,"oEsplora":null,"oProfilo":null,"analisi":"..."}';
     Promise.all(files.map(function (f) { return shrinkImage(f, imgLimits && imgLimits.maxBytes); })).then(function (blobs) {
       return sample.json(prompt, { images: blobs, modelTier: 'default', cache: false });
     }).then(function (r) {
@@ -1555,6 +1646,15 @@
         var el = m.querySelector('#c_' + k); if (!el) return;
         el.value = Math.round(Number(String(v).replace(/[^0-9.,]/g, '').replace(',', '.'))); filled++;
       });
+      var trend = 0;
+      TREND.forEach(function (t) {
+        var v = r && r[t[0]];
+        if (v === null || v === undefined || v === '') return;
+        v = Number(String(v).replace(/[^0-9.,]/g, '').replace(',', '.'));
+        if (!isFinite(v) || (t[0] !== 'durata' && v > 100)) return;
+        m.querySelector('#c_' + t[0]).value = Math.round(v * 10) / 10; filled++; trend++;
+      });
+      if (trend) { m.querySelector('#c_trend').open = true; refreshCurve(m); }
       if (r && r.analisi) m.querySelector('#c_analisi').value = String(r.analisi);
       var fase = m.querySelector('#c_fase'); if (fase && filled && fase.value !== 'pubblicato') fase.value = 'pubblicato';
       st.textContent = filled ? 'Fatto: ' + filled + ' campi compilati. Controlla i numeri e premi Salva.' : 'Non ho trovato numeri leggibili negli screenshot.';
@@ -1747,10 +1847,10 @@
   function csvCell(v) { v = String(v == null ? '' : v); return /[";\n,]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
   function csvContenuti(delim, bom) {
     delim = delim || ';';
-    var h = ['Titolo', 'Hook', 'Argomento', 'Formato', 'Tipo di video', 'Ospite', 'CTA', 'Fase', 'Esito', 'Data', 'Link', 'Visualizzazioni', 'Repost', 'Mi piace', 'Commenti', 'Condivisioni', 'Salvataggi', 'Nuovi follower', 'Visite al profilo', '% da non follower', 'Clienti', 'Testo', 'Note', 'Analisi'];
+    var h = ['Titolo', 'Hook', 'Argomento', 'Formato', 'Tipo di video', 'Ospite', 'CTA', 'Fase', 'Esito', 'Data', 'Link', 'Visualizzazioni', 'Repost', 'Mi piace', 'Commenti', 'Condivisioni', 'Salvataggi', 'Nuovi follower', 'Visite al profilo', '% da non follower', 'Ancora presenti a 3 s %', 'A metà %', 'Alla fine %', 'Durata (s)', '% da Feed', '% da Tab Reels', '% da Esplora', '% da Profilo', 'Clienti', 'Testo', 'Note', 'Analisi'];
     var list = state.contenuti.slice().sort(function (a, b) { var x = a.data || a.creato || '', y = b.data || b.creato || ''; return x < y ? 1 : x > y ? -1 : 0; });
     var lines = [h.join(delim)].concat(list.map(function (c) {
-      return [c.titolo, c.hook, c.argomento, c.formato, c.tipo, c.ospite, c.cta, (FASI.filter(function (f) { return f.id === c.fase; })[0] || {}).nome, sem(c).l, c.data, c.link, c.views, c.repost, c.like, c.commenti, c.condivisioni, c.salvataggi, c.follow, c.visiteProfilo, c.nonFollower, c.clienti, c.testo, c.note, c.analisi].map(csvCell).join(delim);
+      return [c.titolo, c.hook, c.argomento, c.formato, c.tipo, c.ospite, c.cta, (FASI.filter(function (f) { return f.id === c.fase; })[0] || {}).nome, sem(c).l, c.data, c.link, c.views, c.repost, c.like, c.commenti, c.condivisioni, c.salvataggi, c.follow, c.visiteProfilo, c.nonFollower, c.ret3, c.retMeta, c.retFine, c.durata, c.oFeed, c.oReels, c.oEsplora, c.oProfilo, c.clienti, c.testo, c.note, c.analisi].map(csvCell).join(delim);
     }));
     return (bom === false ? '' : '\uFEFF') + lines.join('\n');
   }
@@ -2181,7 +2281,7 @@
     ui.pbBusy = true; render();
     var prompt = 'Sei un content strategist esperto di Instagram per personal trainer. Analizza TUTTI i contenuti di questo profilo, con numeri, caratteristiche e note dell\'autore, e scrivi il playbook del profilo in italiano.\n\n' + profiloCtx() +
       '\n\nContenuti (semaforo: Top oltre ' + state.settings.soglie[1] + ' visualizzazioni, Sotto meno di ' + state.settings.soglie[0] + '):\n' + contenutiCtx(conViews(state.contenuti), 120) +
-      '\n\nRegole concrete e specifiche per questo profilo, ognuna di massimo 25 parole, ognuna basata su un pattern che vedi nei dati (cita il dato tra parentesi, es. "(media 4.900 contro 1.100)"). Rispondi SOLO con JSON: {"funziona":["5-7 regole"],"evitare":["4-6 regole"],"prova":["3-5 esperimenti da testare"]}';
+      '\n\nRegole concrete e specifiche per questo profilo, ognuna di massimo 25 parole, ognuna basata su un pattern che vedi nei dati (cita il dato tra parentesi, es. "(media 4.900 contro 1.100)"). Dove ci sono la retention (ancora presenti a 3 secondi, a metà, alla fine) e le origini delle visualizzazioni, usale per regole su hook, durata e distribuzione. Rispondi SOLO con JSON: {"funziona":["5-7 regole"],"evitare":["4-6 regole"],"prova":["3-5 esperimenti da testare"]}';
     sample.json(prompt, { modelTier: 'complex' }).then(function (r) {
       var p = state.playbook;
       ['funziona', 'evitare', 'prova'].forEach(function (k) { if (r && Array.isArray(r[k])) p[k] = r[k].map(String).filter(Boolean); });
