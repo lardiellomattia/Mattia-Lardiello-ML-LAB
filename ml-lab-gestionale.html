@@ -4399,9 +4399,11 @@
       // movimenti di cassa: ogni acconto nel suo giorno, il saldo nel giorno in cui l'hai segnato
       var cum = 0;
       p.cash = p.acconti.map(function (a) { cum += a.amount || 0; return { amount: a.amount || 0, date: a.date ? fromISO(a.date) : p.date, kind: (p.amount > 0 && cum >= p.amount) ? 'saldo' : 'acconto' }; });
-      // "Saldato" senza data: conta nel mese del pagamento (o dell'ultimo acconto). Per un'altra data usa "+ Acconto" con la data giusta
+      // "Saldato": conta nel giorno in cui è stato pagato (paidOn, scelto quando premi Saldato e modificabile);
+      // i saldi vecchi senza data restano nel mese del pacchetto (o dell'ultimo acconto), come prima
       var lastAcc = p.cash.length ? p.cash[p.cash.length - 1].date : null;
-      if (ov.paid && p.amount > acc) p.cash.push({ amount: p.amount - acc, date: lastAcc && lastAcc > p.date ? lastAcc : p.date, kind: acc ? 'saldo' : 'pagamento' });
+      p.paidOn = ov.paid && ov.paidOn ? ov.paidOn : '';
+      if (ov.paid && p.amount > acc) p.cash.push({ amount: p.amount - acc, date: ov.paidOn ? fromISO(ov.paidOn) : (lastAcc && lastAcc > p.date ? lastAcc : p.date), kind: acc ? 'saldo' : 'pagamento' });
       // sedute del pacchetto: dalla sua 1ª PT fino alla 1ª PT successiva
       p.done = 0; p.covered = null;
       if (p.pacchetto > 1) {
@@ -4813,7 +4815,10 @@
       }).join('');
       return '<div class="spf-pay sp-' + p.status + '"><div style="flex:1;min-width:0;"><strong>' + p.kind + '</strong><div class="sp-meta">' + spDateShort(p.date) + ' · <span class="sp-badge sp-badge-' + p.status + '">' + badge + '</span></div>' +
         (accList ? '<div class="spf-accs">' + accList + '<div class="spf-acc spf-res"><span>' + (p.paid ? 'Saldato' : 'Residuo da saldare') + '</span><strong>' + spEuro(p.residuo) + '</strong><span></span></div></div>' : '') +
-        cover + (p.paid ? '' : '<div class="spf-acc-add"><input type="number" min="1" step="1" placeholder="€ acconto" data-accamt="' + eid + '"><input type="date" data-accdate="' + eid + '" value="' + toISO(todayMidnight()) + '"><button class="btn small" data-accadd="' + eid + '">+ Acconto</button></div>') +
+        cover + (function () {
+          var sc = p.paid ? (p.cash || []).filter(function (x) { return x.kind === 'saldo' || x.kind === 'pagamento'; }).pop() : null;
+          return sc ? '<div class="ing-paid-on">💶 ' + (p.acconti.length ? 'saldo' : 'pagato') + ' il <input type="date" data-paidon="' + eid + '" value="' + toISO(sc.date) + '"><span class="sp-meta"> · conta negli incassi di ' + MESI[sc.date.getMonth()] + (sc.date.getFullYear() !== todayMidnight().getFullYear() ? ' ' + sc.date.getFullYear() : '') + '</span></div>' : '';
+        })() + (p.paid ? '' : '<div class="spf-acc-add"><input type="number" min="1" step="1" placeholder="€ acconto" data-accamt="' + eid + '"><input type="date" data-accdate="' + eid + '" value="' + toISO(todayMidnight()) + '" title="Giorno del pagamento: vale per + Acconto e per ✓ Saldato"><button class="btn small" data-accadd="' + eid + '">+ Acconto</button></div>') +
         '<input type="text" class="spf-pnote" data-pnote="' + eid + '" placeholder="Nota sul pagamento…" value="' + escapeHtml(p.note) + '"></div>' +
         '<div class="spf-pay-side"><label class="spf-amt-lbl">Importo pacchetto</label><div class="spf-amt"><span>€</span><input type="number" min="0" step="1" data-pamt="' + eid + '" value="' + (p.amount || '') + '" placeholder="0"></div>' +
         (p.paid ? '<button class="btn small ghost" data-unpay="' + eid + '">Annulla</button>' : '<button class="btn small sp-pay-btn" data-pay="' + eid + '">✓ Saldato</button>') + '</div></div>';
@@ -4824,10 +4829,17 @@
     if (tg) tg.addEventListener('click', function () { spFolderAllPays = !spFolderAllPays; openSpFolder(key); });
     var ov = document.getElementById('spFolderOverlay');
     Array.prototype.forEach.call(ov.querySelectorAll('[data-pay]'), function (b) {
-      b.addEventListener('click', function () { var id = b.getAttribute('data-pay'); var o = state.sp.pay[id] || {}; o.paid = true; o.paidAt = new Date().toISOString(); state.sp.pay[id] = o; saveSp(); toast('Segnato come pagato'); finRerender(); openSpFolder(key); });
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-pay'), o = state.sp.pay[id] || {}, di = ov.querySelector('[data-accdate="' + id + '"]'), day = (di && di.value) || toISO(todayMidnight());
+        o.paid = true; o.paidAt = new Date().toISOString(); o.paidOn = day; state.sp.pay[id] = o; saveSp();
+        toast('Saldato il ' + spDateShort(fromISO(day)) + ' · conta negli incassi di ' + MESI[fromISO(day).getMonth()]); finRerender(); openSpFolder(key);
+      });
+    });
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-paidon]'), function (inp) {
+      inp.addEventListener('change', function () { if (!inp.value) return; var id = inp.getAttribute('data-paidon'), o = state.sp.pay[id] || {}; o.paidOn = inp.value; state.sp.pay[id] = o; saveSp(); toast('Data del pagamento aggiornata · incasso di ' + MESI[fromISO(inp.value).getMonth()]); finRerender(); openSpFolder(key); });
     });
     Array.prototype.forEach.call(ov.querySelectorAll('[data-unpay]'), function (b) {
-      b.addEventListener('click', function () { var id = b.getAttribute('data-unpay'); var o = state.sp.pay[id] || {}; o.paid = false; o.paidAt = null; state.sp.pay[id] = o; saveSp(); finRerender(); openSpFolder(key); });
+      b.addEventListener('click', function () { var id = b.getAttribute('data-unpay'); var o = state.sp.pay[id] || {}; o.paid = false; o.paidAt = null; o.paidOn = null; state.sp.pay[id] = o; saveSp(); finRerender(); openSpFolder(key); });
     });
     Array.prototype.forEach.call(ov.querySelectorAll('[data-pnote]'), function (t) {
       t.addEventListener('change', function () { var id = t.getAttribute('data-pnote'); var o = state.sp.pay[id] || {}; o.note = t.value; state.sp.pay[id] = o; saveSp(); });
@@ -5742,7 +5754,7 @@
             o.acconti.push({ amount: parseFloat(inp.acconto.importo), date: inp.acconto.data ? String(inp.acconto.data).slice(0, 10) : toISO(todayMidnight()) });
             state.sp.pay[pay.id] = o; done.push('acconto ' + inp.acconto.importo + ' € su ' + pay.kind);
           }
-          if (inp.saldato) { if (!pay) throw new Error('nessun pacchetto da saldare'); var o2 = state.sp.pay[pay.id] || {}; o2.paid = true; o2.paidAt = new Date().toISOString(); state.sp.pay[pay.id] = o2; done.push(pay.kind + ' saldato'); }
+          if (inp.saldato) { if (!pay) throw new Error('nessun pacchetto da saldare'); var o2 = state.sp.pay[pay.id] || {}; o2.paid = true; o2.paidAt = new Date().toISOString(); o2.paidOn = toISO(todayMidnight()); state.sp.pay[pay.id] = o2; done.push(pay.kind + ' saldato'); }
           if (!done.length) return 'Nessuna modifica indicata.';
           saveSp(); asMark(); finRerender(); renderTabs();
           return s.name + ': ' + done.join(', ');
