@@ -1254,6 +1254,11 @@
   .vp-amt input { width: 70px; padding: 5px 8px !important; font-weight: 700; }
   .visit-pay input[type="date"] { padding: 5px 8px !important; font-size: 12.5px !important; }
   .vp-due { font-weight: 700; color: var(--urgent); font-size: 12px; }
+  .visit-pay.parte, .visit-set.parte { background: #EEF4FF; border-color: #C9D8F5; }
+  .vp-parte { font-weight: 700; color: #3949AB; font-size: 12px; }
+  .visit-pay label.ap-check, .visit-set label.ap-check { flex: 0 0 auto; width: auto; white-space: nowrap; justify-content: flex-start; }
+  .visit-set { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: #FFF8E3; border: 1px solid #F6DFA6; border-radius: 12px; padding: 10px 12px; font-size: 13px; margin: 0 0 12px; }
+  .visit-set label { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; color: var(--ink-muted); }
 
   .well-box { margin-top: 14px; background: #FFFFFF; border: 1px solid #F6DFA6; border-radius: 16px; padding: 14px 16px; }
   .well-title { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 8px; }
@@ -1851,6 +1856,14 @@
       <div>
         <label>Ogni quante settimane lo rivedi</label>
         <input type="number" id="nv_cadenza" min="1" step="0.5" value="7">
+      </div>
+      <div>
+        <label>Prezzo a visita (€)</label>
+        <input type="text" id="nv_prezzo" inputmode="decimal" placeholder="70">
+      </div>
+      <div>
+        <label>Come paga</label>
+        <label class="ap-check" style="margin-top:8px;"><input type="checkbox" id="nv_parte"> 💶 Contanti · incasso a parte</label>
       </div>
       <div>
         <label>Data ultimo contatto</label>
@@ -4931,7 +4944,7 @@
         if (!k.pagato && !k.dataEffettiva && !k.dataFissata) return;
         var amt = k.importo != null && k.importo !== '' ? fnParseAmount(k.importo) : (c.prezzoVisita != null ? fnParseAmount(c.prezzoVisita) : 70);
         if (!amt) return;
-        out.push({ id: c.id, name: c.cliente, date: d, amount: amt, paid: !!k.pagato, source: 'Visite', kind: 'Visita #' + k.numero + (k.dataEffettiva ? '' : ' (fissata)'), visit: true });
+        out.push({ id: c.id, name: c.cliente, date: d, amount: amt, paid: !!k.pagato, source: 'Visite', kind: 'Visita #' + k.numero + (k.dataEffettiva ? '' : ' (fissata)'), visit: true, aParte: k.aParte != null ? !!k.aParte : !!c.aParte });
       });
     });
     return out.concat(affItems());
@@ -5026,7 +5039,7 @@
     var t = {}; FN_SOURCES.forEach(function (s) { t[s[0]] = { inc: 0, sosp: 0 }; });
     d.pays.forEach(function (p) { if (p.aParte) return; var k = p.kind === 'Consulenza' ? 'cons' : 'pt'; t[k].inc += spCashIn(p, m); if (spInMonth(p.date, m)) t[k].sosp += p.residuo; });
     ingItems().forEach(function (x) { if (x.paid) { if (spInMonth(ingPayDay(x), m)) t.ing.inc += x.amount; } else if (spInMonth(x.date, m)) t.ing.sosp += x.amount; });
-    d.coach.forEach(function (r) { if (!spInMonth(r.date, m)) return; var k = r.source === 'Visite' ? 'vis' : (r.aff ? 'aff' : 'coach'); if (r.paid) t[k].inc += r.amount; else t[k].sosp += r.amount; });
+    d.coach.forEach(function (r) { if (r.aParte || !spInMonth(r.date, m)) return; var k = r.source === 'Visite' ? 'vis' : (r.aff ? 'aff' : 'coach'); if (r.paid) t[k].inc += r.amount; else t[k].sosp += r.amount; });
     return t;
   }
   var fnPrevCache = {};
@@ -5042,7 +5055,7 @@
     var tot = 0;
     spPayments(items).forEach(function (p) { if (!p.aParte && spInMonth(p.date, m)) tot += p.amount; });
     spForecast(items, new Date(spAddMonths(m, 1).getTime() - 1), m).list.forEach(function (e) { if (spInMonth(e.date, m) && !(state.sp.clients[e.key] && state.sp.clients[e.key].aParte)) tot += e.amount; });
-    fnCoachingItems().forEach(function (r) { if (spInMonth(r.date, m)) tot += r.amount; });
+    fnCoachingItems().forEach(function (r) { if (!r.aParte && spInMonth(r.date, m)) tot += r.amount; });
     ingPrev.forEach(function (x) { if (spInMonth(x.date, m)) tot += x.amount; });
     fnPrevCache[key] = tot;
     return tot;
@@ -5065,7 +5078,7 @@
     var m = fnView.month, rows = [];
     var d = fnCompute();
     d.pays.forEach(function (p) { (p.cash || []).forEach(function (x) { if (spInMonth(x.date, m) && x.amount) rows.push([x.date, p.name, p.kind === 'Consulenza' ? 'Consulenze' : 'Sedute PT', p.kind + ' (' + x.kind + ')', x.amount, p.aParte ? 'sì' : '']); }); });
-    d.coach.forEach(function (r) { if (r.paid && spInMonth(r.date, m)) rows.push([r.date, r.name, r.source === 'Visite' ? 'Solo visite' : (r.aff ? 'Affitti' : 'Coaching'), r.kind, r.amount, '']); });
+    d.coach.forEach(function (r) { if (r.paid && spInMonth(r.date, m)) rows.push([r.date, r.name, r.source === 'Visite' ? 'Solo visite' : (r.aff ? 'Affitti' : 'Coaching'), r.kind, r.amount, r.aParte ? 'sì' : '']); });
     ingItems().forEach(function (x) { if (x.paid && x.amount && spInMonth(ingPayDay(x), m)) rows.push([ingPayDay(x), x.name, 'Ingressi', 'Ingresso del ' + x.date.getDate() + ' ' + MESI[x.date.getMonth()].slice(0, 3), x.amount, '']); });
     rows.sort(function (a, b) { return a[0] - b[0]; });
     var num = function (v) { return String(Math.round(v * 100) / 100).replace('.', ','); };
@@ -5085,6 +5098,7 @@
     if (finState.status !== 'ok') { statsEl.innerHTML = ''; return; }
     var d = fnCompute(), m = fnView.month, inc = 0, sosp = 0, est = 0, parte = 0;
     d.pays.forEach(function (p) { if (p.aParte) parte += spCashIn(p, m); });
+    d.coach.forEach(function (r) { if (r.aParte && r.paid && spInMonth(r.date, m)) parte += r.amount; });
     var st = fnSourceTotals(d, m);
     FN_SOURCES.forEach(function (s) { inc += st[s[0]].inc; sosp += st[s[0]].sosp; });
     d.est.forEach(function (e) { if (spInMonth(e.date, m) && !(state.sp.clients[e.key] && state.sp.clients[e.key].aParte)) est += e.amount; });
@@ -5143,7 +5157,7 @@
     var ingPer = {};
     ingItems().forEach(function (x) { var inM = spInMonth(x.date, fnView.month), payM = x.paid && spInMonth(ingPayDay(x), fnView.month); if (!inM && !payM) return; var k = x.name.toLowerCase(); var g = ingPer[k] || (ingPer[k] = { name: x.name, n: 0, tot: 0, paid: 0, last: x.date }); if (inM) g.n++; g.tot += (x.paid ? (payM ? x.amount : 0) : x.amount); if (payM) g.paid += x.amount; if (x.date > g.last) g.last = x.date; });
     Object.keys(ingPer).forEach(function (k) { var g = ingPer[k]; rows.push({ name: g.name, ing: true, date: g.last, kind: g.n ? 'Ingressi · ' + g.n + (g.n === 1 ? ' entrata' : ' entrate') : 'Ingresso di ' + MESI[g.last.getMonth()] + ' pagato in questo mese', inc: g.paid, due: g.tot - g.paid, src: g.paid >= g.tot ? 'Pagato' : (g.paid ? 'In parte' : 'Da incassare'), cls: g.paid >= g.tot ? 'ok' : (g.paid ? 'acc' : 'cal'), freq: null }); });
-    d.coach.forEach(function (r) { if (spInMonth(r.date, fnView.month)) rows.push({ name: r.name, coachId: r.aff ? null : r.id, aff: !!r.aff, date: r.date, kind: r.kind, inc: r.paid ? r.amount : 0, due: r.paid ? 0 : r.amount, src: r.paid ? 'Pagato' : 'Da incassare', cls: r.paid ? 'ok' : 'cal', freq: null }); });
+    d.coach.forEach(function (r) { if (spInMonth(r.date, fnView.month)) rows.push({ name: r.name, coachId: r.aff ? null : r.id, aff: !!r.aff, date: r.date, kind: r.kind, inc: r.paid ? r.amount : 0, due: r.paid ? 0 : r.amount, aParte: !!r.aParte, src: (r.aParte ? '💶 ' : '') + (r.paid ? 'Pagato' : 'Da incassare'), cls: r.aParte ? 'parte' : (r.paid ? 'ok' : 'cal'), freq: null }); });
     d.pays.forEach(function (p) {
       var inM = spInMonth(p.date, fnView.month), cashM = spCashIn(p, fnView.month);
       if (!inM && !cashM) return;
@@ -5175,11 +5189,11 @@
       var sm = months[fnView.seg.i], k = fnView.seg.k, list = [];
       if (k === 'inc') {
         d.pays.forEach(function (p) { if (p.aParte) return; var v = spCashIn(p, sm); if (v) list.push({ n: p.name, t: p.kind, d: p.date, a: v }); });
-        d.coach.forEach(function (r) { if (r.paid && spInMonth(r.date, sm)) list.push({ n: r.name, t: r.kind, d: r.date, a: r.amount }); });
+        d.coach.forEach(function (r) { if (!r.aParte && r.paid && spInMonth(r.date, sm)) list.push({ n: r.name, t: r.kind, d: r.date, a: r.amount }); });
         ingItems().forEach(function (x) { if (x.paid && x.amount && spInMonth(ingPayDay(x), sm)) list.push({ n: x.name, t: 'Ingresso del ' + x.date.getDate() + ' ' + MESI[x.date.getMonth()].slice(0, 3), d: ingPayDay(x), a: x.amount }); });
       } else if (k === 'sosp') {
         d.pays.forEach(function (p) { if (!p.aParte && spInMonth(p.date, sm) && p.residuo) list.push({ n: p.name, t: p.kind + (p.paidSum ? ' (resto dopo acconto)' : ''), d: p.date, a: p.residuo }); });
-        d.coach.forEach(function (r) { if (!r.paid && spInMonth(r.date, sm)) list.push({ n: r.name, t: r.kind, d: r.date, a: r.amount }); });
+        d.coach.forEach(function (r) { if (!r.aParte && !r.paid && spInMonth(r.date, sm)) list.push({ n: r.name, t: r.kind, d: r.date, a: r.amount }); });
         ingItems().forEach(function (x) { if (!x.paid && x.amount && spInMonth(x.date, sm)) list.push({ n: x.name, t: 'Ingresso' + (x.future ? ' (prenotato)' : ''), d: x.date, a: x.amount }); });
       } else {
         d.est.forEach(function (e) { if (spInMonth(e.date, sm) && !(state.sp.clients[e.key] && state.sp.clients[e.key].aParte)) list.push({ n: e.name, t: e.kind.replace(' (stima)', ''), d: e.date, a: e.amount, est: true }); });
@@ -5677,8 +5691,8 @@
         state.clients.push(client); saveClients(); asMark(); asAfterWrite();
         return 'Creata la cartella di ' + nome + ' in ' + (client.tipoCliente === 'visita' ? 'Solo visite' : 'Percorsi coaching') + (client.checks.length ? ' con ' + client.checks.length + ' check' : '');
       } },
-    { name: 'modifica_cliente', description: 'Modifica i dati di una cartella cliente esistente: data_rinnovo, data_inizio, cadenza_settimane, servizio, data_ultimo_contatto, aggiungi_nota (testo aggiunto alle note), sposta_in ("coaching" o "visita").',
-      inputSchema: { type: 'object', properties: { nome: { type: 'string' }, data_rinnovo: { type: 'string' }, data_inizio: { type: 'string' }, cadenza_settimane: { type: 'number' }, servizio: { type: 'string' }, data_ultimo_contatto: { type: 'string' }, aggiungi_nota: { type: 'string' }, sposta_in: { type: 'string', enum: ['coaching', 'visita'] } }, required: ['nome'] },
+    { name: 'modifica_cliente', description: 'Modifica i dati di una cartella cliente esistente: data_rinnovo, data_inizio, cadenza_settimane, servizio, data_ultimo_contatto, aggiungi_nota (testo aggiunto alle note), sposta_in ("coaching" o "visita"), prezzo_visita (€ per visita, Solo visite), contanti (true = paga in contanti, incasso a parte).',
+      inputSchema: { type: 'object', properties: { nome: { type: 'string' }, data_rinnovo: { type: 'string' }, data_inizio: { type: 'string' }, cadenza_settimane: { type: 'number' }, servizio: { type: 'string' }, data_ultimo_contatto: { type: 'string' }, aggiungi_nota: { type: 'string' }, sposta_in: { type: 'string', enum: ['coaching', 'visita'] }, prezzo_visita: { type: 'number' }, contanti: { type: 'boolean' } }, required: ['nome'] },
       execute: function (inp) {
         var c = asFindAppClient(inp.nome), done = [];
         if (inp.data_rinnovo) { c.dataRinnovo = String(inp.data_rinnovo).slice(0, 10); done.push('rinnovo ' + c.dataRinnovo); }
@@ -5688,6 +5702,8 @@
         if (inp.data_ultimo_contatto) { c.dataUltimoContatto = String(inp.data_ultimo_contatto).slice(0, 10); done.push('ultimo contatto'); }
         if (inp.aggiungi_nota) { c.noteGenerali = (c.noteGenerali ? c.noteGenerali + '\n' : '') + inp.aggiungi_nota; done.push('nota'); }
         if (inp.sposta_in) { c.tipoCliente = inp.sposta_in; done.push('spostato in ' + (inp.sposta_in === 'visita' ? 'Solo visite' : 'Percorsi coaching')); }
+        if (inp.prezzo_visita != null && !isNaN(parseFloat(inp.prezzo_visita))) { c.prezzoVisita = parseFloat(inp.prezzo_visita); done.push('prezzo a visita € ' + c.prezzoVisita); }
+        if (inp.contanti != null) { c.aParte = !!inp.contanti; done.push(c.aParte ? 'contanti (incasso a parte)' : 'incasso normale'); }
         if (!done.length) return 'Nessuna modifica indicata.';
         saveClients(); asMark(); asAfterWrite();
         return c.cliente + ': aggiornato ' + done.join(', ');
@@ -9371,6 +9387,8 @@
       document.getElementById('nv_servizio').value = '';
       document.getElementById('nv_dataUltimaVisita').value = '';
       document.getElementById('nv_cadenza').value = 7;
+      document.getElementById('nv_prezzo').value = '';
+      document.getElementById('nv_parte').checked = false;
       document.getElementById('nv_dataUltimoContatto').value = '';
       document.getElementById('nv_note').value = '';
       newVisitaOverlay.classList.add('open');
@@ -9406,6 +9424,9 @@
       dataUltimoContatto: document.getElementById('nv_dataUltimoContatto').value, daRicontattare: false,
       pacchetto: { tipoPagamento: 'A visita', note: '', rate: [] }, tipoCliente: 'visita'
     };
+    var nvPrezzo = parseFloat(String(document.getElementById('nv_prezzo').value).replace(',', '.'));
+    if (!isNaN(nvPrezzo)) client.prezzoVisita = nvPrezzo;
+    if (document.getElementById('nv_parte').checked) client.aParte = true;
     state.clients.push(client);
     saveClients();
     newVisitaOverlay.classList.remove('open');
@@ -9659,13 +9680,21 @@
     var checksSorted = c.checks.slice().sort(function (a, b) { return a.numero - b.numero; });
 
     var isVisitaC = clientTab(c) === 'visita' || (c.pacchetto && c.pacchetto.tipoPagamento === 'A visita');
+    // contanti / incasso a parte: la singola visita può differire dall'impostazione del cliente
+    var vpParte = function (chk) { return chk.aParte != null ? !!chk.aParte : !!c.aParte; };
+    var vsetHtml = '<div class="visit-set' + (c.aParte ? ' parte' : '') + '"><span class="vp-lbl">💶 Prezzo a visita</span>' +
+      '<label><span class="vp-amt">€ <input type="text" class="vs-prezzo" inputmode="decimal" placeholder="70" value="' + (c.prezzoVisita != null ? escapeHtml(String(c.prezzoVisita)) : '') + '"></span></label>' +
+      '<label class="ap-check" style="margin:0;"><input type="checkbox" class="vs-parte"' + (c.aParte ? ' checked' : '') + '> Paga in contanti · incasso a parte</label>' +
+      '<span class="ap-hint" style="margin:0;">vale per le prossime visite; ogni visita si può cambiare sotto. L\'incasso a parte non entra nell\'incassato del mese.</span></div>';
     var vpHtml = function (chk) {
             var amt = chk.importo != null && chk.importo !== '' ? chk.importo : (c.prezzoVisita != null ? c.prezzoVisita : 70);
-            return '<div class="visit-pay' + (chk.pagato ? ' paid' : '') + '"><span class="vp-lbl">💶 Pagamento visita</span>' +
+            var ap = vpParte(chk);
+            return '<div class="visit-pay' + (chk.pagato ? ' paid' : '') + (ap ? ' parte' : '') + '"><span class="vp-lbl">💶 Pagamento visita</span>' +
               '<label>Importo <span class="vp-amt">€ <input type="text" class="chk-importo" inputmode="decimal" value="' + escapeHtml(String(amt)) + '"></span></label>' +
               '<label class="ap-check" style="margin:0;"><input type="checkbox" class="chk-pagato"' + (chk.pagato ? ' checked' : '') + '> Pagata</label>' +
               '<label>il <input type="date" class="chk-datapag" value="' + (chk.dataPagamento || '') + '"></label>' +
-              (chk.pagato ? '' : (chk.dataEffettiva ? '<span class="vp-due">da incassare</span>' : '')) + '</div>';
+              '<label class="ap-check" style="margin:0;"><input type="checkbox" class="chk-parte"' + (ap ? ' checked' : '') + '> Contanti (a parte)</label>' +
+              (chk.pagato ? (ap ? '<span class="vp-parte">💶 incasso a parte</span>' : '') : (chk.dataEffettiva ? '<span class="vp-due">da incassare</span>' : '')) + '</div>';
     };
     var checkRowHtml = function (chk) {
       var stato = checkStato(chk);
@@ -9781,7 +9810,7 @@
         '<div class="form-grid"><div class="full"><label>Note pagamento</label><textarea id="pk_note" class="note-area">' + escapeHtml(p.note || '') + '</textarea></div></div>' +
         (p.tipoPagamento === 'A rate'
           ? '<div style="margin-top:14px;"><h3 style="font-size:14px;">Rate <button class="btn tiny primary" id="addRataBtn">+ Aggiungi rata</button></h3>' + (rateHtml || '<div class="no-items">Nessuna rata.</div>') + '</div>'
-          : '<div class="no-items" style="margin-top:10px;">Pagamento raccolto a ogni visita, nessuna rata pianificata.</div>') +
+          : '<div style="margin-top:10px;">' + vsetHtml + '</div>') +
         '<div class="modal-actions"><button class="btn tiny danger" id="deletePacchettoBtn">Elimina pacchetto</button><div></div></div>'
       );
     }
@@ -9861,6 +9890,7 @@
       '<div class="folder-tab-panel' + (ft === 'check' ? ' active' : '') + '" data-fpanel="check">' +
         '<div class="section-block">' +
           '<h3>' + (c.sequenzaTipi.length === 1 && c.sequenzaTipi[0] === 'Visita' ? 'Visite' : 'Piano dei check') + ' <button class="btn tiny primary" id="addCheckBtn">+ Aggiungi check</button></h3>' +
+          (isVisitaC ? vsetHtml : '') +
           (checksHtml || '<div class="no-items">Nessun check da fare: aggiungine uno o registra il rinnovo.</div>') + doneHtml +
         '</div>' +
       '</div>' +
@@ -9973,6 +10003,8 @@
       if (vpA) vpA.addEventListener('change', function (e) { var v = String(e.target.value).replace(',', '.').trim(); chk.importo = v === '' ? null : parseFloat(v); if (chk.importo != null && !isNaN(chk.importo)) c.prezzoVisita = chk.importo; saveClients(); });
       if (vpP) vpP.addEventListener('change', function (e) { chk.pagato = e.target.checked; if (chk.pagato && !chk.dataPagamento) chk.dataPagamento = chk.dataEffettiva || toISO(todayMidnight()); if (chk.importo == null) chk.importo = c.prezzoVisita != null ? c.prezzoVisita : 70; saveClients(); toast(chk.pagato ? 'Visita segnata come pagata' : 'Visita da incassare'); renderFolder(c.id); });
       if (vpD) vpD.addEventListener('change', function (e) { chk.dataPagamento = e.target.value; saveClients(); });
+      var vpC = rowEl.querySelector('.chk-parte');
+      if (vpC) vpC.addEventListener('change', function (e) { chk.aParte = e.target.checked; saveClients(); toast(chk.aParte ? '💶 Visita in contanti: incasso a parte' : 'Visita nell\'incassato del mese'); renderFolder(c.id); });
 
       q('.chk-prevista').addEventListener('change', function (e) {
         applyDateChange(c, chk, 'dataPrevista', e.target.value, rowEl.querySelector('.chk-shift').checked);
@@ -10055,6 +10087,17 @@
     if (createPkBtn) createPkBtn.addEventListener('click', function () {
       c.pacchetto = emptyPacchetto();
       saveClients(); renderFolder(c.id); render();
+    });
+
+    Array.prototype.forEach.call(folderOverlay.querySelectorAll('.vs-prezzo'), function (inp) {
+      inp.addEventListener('change', function () {
+        var v = parseFloat(String(inp.value).replace(',', '.'));
+        if (isNaN(v)) delete c.prezzoVisita; else c.prezzoVisita = v;
+        saveClients(); toast(isNaN(v) ? 'Prezzo a visita tolto (uso € 70)' : 'Prezzo a visita: € ' + v + ' per le prossime visite'); renderFolder(c.id);
+      });
+    });
+    Array.prototype.forEach.call(folderOverlay.querySelectorAll('.vs-parte'), function (cb) {
+      cb.addEventListener('change', function () { c.aParte = cb.checked; saveClients(); toast(c.aParte ? '💶 ' + c.cliente + ': paga in contanti, incasso a parte' : c.cliente + ': torna nell\'incassato del mese'); renderFolder(c.id); render(); });
     });
 
     if (c.pacchetto) {
