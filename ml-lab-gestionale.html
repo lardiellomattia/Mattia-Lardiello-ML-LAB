@@ -1021,7 +1021,11 @@
   .mis-d { display: block; font-size: 11px; color: var(--ink-muted); }
   .mis-col-acts { display: inline-flex; gap: 2px; margin-left: 4px; }
   .mis-col-acts button { border: 0; background: none; cursor: pointer; font-size: 13px; padding: 0 2px; }
-  .mis-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: -4px 0 12px; }
+  .mis-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: -4px 0 12px; }
+  .mis-drop-hint { font-size: 12px; color: var(--ink-muted); }
+  .mis-drop { transition: outline-color .15s, background .15s; outline: 2px dashed transparent; outline-offset: 4px; border-radius: 12px; }
+  .mis-drop.mis-over { outline-color: var(--accent); background: var(--accent-soft); }
+  @media (hover: none) { .mis-drop-hint { display: none; } }
   .nu-mis { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--surface-2); border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
   .nu-mis strong { font-weight: 700; }
   @media (max-width: 760px) { .mis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -7713,7 +7717,27 @@
   function misPickPdf(c, onSaved) {
     var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/pdf,.pdf'; inp.style.display = 'none'; document.body.appendChild(inp);
     inp.addEventListener('change', function () {
-      var file = inp.files && inp.files[0]; inp.remove(); if (!file) return;
+      var file = inp.files && inp.files[0]; inp.remove(); if (file) misReadFile(c, file, onSaved);
+    });
+    inp.click();
+  }
+  // trascina il PDF su una zona: stesso percorso del tasto Importa
+  function misDropBind(el, c, onSaved) {
+    if (!el) return;
+    var depth = 0;
+    el.addEventListener('dragenter', function (e) { if (!e.dataTransfer || Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') === -1) return; e.preventDefault(); depth++; el.classList.add('mis-over'); });
+    el.addEventListener('dragover', function (e) { if (!e.dataTransfer || Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') === -1) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+    el.addEventListener('dragleave', function () { depth = Math.max(0, depth - 1); if (!depth) el.classList.remove('mis-over'); });
+    el.addEventListener('drop', function (e) {
+      e.preventDefault(); depth = 0; el.classList.remove('mis-over');
+      var files = e.dataTransfer && e.dataTransfer.files, file = files && files[0]; if (!file) return;
+      if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') { toast('Trascina il PDF della visita di CoachPlus'); return; }
+      misReadFile(c, file, onSaved);
+    });
+  }
+  // un file lasciato fuori dalle zone non deve aprirsi al posto dell'app
+  ['dragover', 'drop'].forEach(function (ev) { window.addEventListener(ev, function (e) { if (e.defaultPrevented || !e.dataTransfer || Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') === -1) return; e.preventDefault(); if (ev === 'drop') toast('Trascina il PDF sul riquadro Misure o in Raccolta dati'); }); });
+  function misReadFile(c, file, onSaved) {
       toast('📄 Leggo il PDF…');
       file.arrayBuffer().then(pdfLines).then(function (lines) {
         var m = misParseCoachPlus(lines);
@@ -7724,8 +7748,6 @@
         if (same) { m.id = same.id; info += ' Esiste già una misura del ' + misDate(m.data) + ': salvando la sostituisci.'; }
         misOpenForm(c, m, onSaved, info, warn);
       }).catch(function (e) { toast('Non riesco a leggere il PDF: ' + ((e && e.message) || 'errore')); });
-    });
-    inp.click();
   }
   function misOpenForm(c, m, onSaved, info, warn) {
     m = m ? JSON.parse(JSON.stringify(m)) : { pliche: {}, circ: {}, data: toISO(todayMidnight()), fonte: 'manuale' };
@@ -7766,8 +7788,8 @@
   document.getElementById('misOverlay').addEventListener('click', function (e) { if (e.target.id === 'misOverlay') e.target.classList.remove('open'); });
   function misPanelHtml(c) {
     var L = misList(c);
-    var head = '<h3>📏 Misure e pliche</h3><div class="mis-btns"><button class="btn small primary" data-misimport>📥 Importa PDF CoachPlus</button><button class="btn small" data-misadd>+ Misura a mano</button></div>';
-    if (!L.length) return '<div class="section-block">' + head + '<div class="no-items">Nessuna misura. Da CoachPlus scarica il PDF della visita e importalo qui: peso, pliche, massa grassa e circonferenze si compilano da soli.</div></div>';
+    var head = '<h3>📏 Misure e pliche</h3><div class="mis-btns"><button class="btn small primary" data-misimport>📥 Importa PDF CoachPlus</button><button class="btn small" data-misadd>+ Misura a mano</button><span class="mis-drop-hint">oppure trascina qui il PDF</span></div>';
+    if (!L.length) return '<div class="section-block mis-drop">' + head + '<div class="no-items">Nessuna misura. Da CoachPlus scarica il PDF della visita e importalo qui: peso, pliche, massa grassa e circonferenze si compilano da soli.</div></div>';
     var row = function (label, get, dec, unit) {
       var vals = L.map(get); if (vals.every(function (v) { return v == null; })) return '';
       return '<tr><td>' + label + '</td>' + vals.map(function (v, i) {
@@ -7780,13 +7802,14 @@
     var pk = misKeys(MIS_PLICHE, L.map(function (m) { return m.pliche; })), ck = misKeys(MIS_CIRC, L.map(function (m) { return m.circ; }));
     var pr = pk.map(function (k) { return row(k, function (m) { return m.pliche && m.pliche[k] != null ? m.pliche[k] : null; }, 1); }).join('');
     var cr = ck.map(function (k) { return row(k, function (m) { return m.circ && m.circ[k] != null ? m.circ[k] : null; }, 1); }).join('');
-    return '<div class="section-block">' + head +
+    return '<div class="section-block mis-drop">' + head +
       '<div class="nu-table-wrap"><table class="nu-table mis-table"><thead><tr><th></th>' + L.map(function (m) { return '<th>' + misDate(m.data) + '<span class="mis-col-acts"><button data-misedit="' + m.id + '" title="Modifica">✎</button><button data-misdel="' + m.id + '" title="Elimina">🗑</button></span>' + (m.fonte === 'CoachPlus' ? '<span class="mis-d">CoachPlus</span>' : '') + '</th>'; }).join('') + '</tr></thead><tbody>' +
         row('Peso', function (m) { return m.peso; }, 1, ' kg') + row('Massa grassa', function (m) { return m.mgPct; }, 1, '%') + row('Massa grassa kg', function (m) { return m.mgKg; }, 1) + row('Massa magra kg', function (m) { return m.mmKg; }, 1) +
         row('Σ pliche (mm)', misSum, 1) + (pr ? grp('Pliche (mm)') + pr : '') + (cr ? grp('Circonferenze (cm)') + cr : '') +
       '</tbody></table></div><div class="ap-hint" style="margin-top:6px;">Più recente a sinistra; sotto ogni valore la differenza con la misura precedente.</div></div>';
   }
   function misWire(root, c) {
+    Array.prototype.forEach.call(root.querySelectorAll('.mis-drop'), function (z) { misDropBind(z, c); });
     Array.prototype.forEach.call(root.querySelectorAll('[data-misimport]'), function (b) { b.addEventListener('click', function () { misPickPdf(c); }); });
     Array.prototype.forEach.call(root.querySelectorAll('[data-misadd]'), function (b) { b.addEventListener('click', function () { misOpenForm(c, null); }); });
     Array.prototype.forEach.call(root.querySelectorAll('[data-misedit]'), function (b) { b.addEventListener('click', function () { var m = (c.misure || []).filter(function (x) { return x.id === b.getAttribute('data-misedit'); })[0]; if (m) misOpenForm(c, m); }); });
@@ -7799,8 +7822,8 @@
   function nuMisHtml(f) {
     var c = f.clientId && getClient(f.clientId); if (!c) return '';
     var last = misList(c)[0];
-    return '<div class="nu-mis">📏 ' + (last ? 'Ultima misura di ' + escapeHtml(c.cliente) + ': <strong>' + misDate(last.data) + '</strong>' + (last.peso != null ? ' · ' + misFmt(last.peso, 1) + ' kg' : '') + (last.mgPct != null ? ' · BF ' + misFmt(last.mgPct, 2) + '%' : '') + (misSum(last) != null ? ' · Σ pliche ' + misFmt(misSum(last), 1) + ' mm' : '') +
-      ' <button class="btn small" id="nuMisUse">⤵ Usa peso e BF%</button>' : 'Nessuna misura di ' + escapeHtml(c.cliente) + '.') + ' <button class="btn small" id="nuMisImp">📥 Importa PDF CoachPlus</button></div>';
+    return '<div class="nu-mis mis-drop">📏 ' + (last ? 'Ultima misura di ' + escapeHtml(c.cliente) + ': <strong>' + misDate(last.data) + '</strong>' + (last.peso != null ? ' · ' + misFmt(last.peso, 1) + ' kg' : '') + (last.mgPct != null ? ' · BF ' + misFmt(last.mgPct, 2) + '%' : '') + (misSum(last) != null ? ' · Σ pliche ' + misFmt(misSum(last), 1) + ' mm' : '') +
+      ' <button class="btn small" id="nuMisUse">⤵ Usa peso e BF%</button>' : 'Nessuna misura di ' + escapeHtml(c.cliente) + '.') + ' <button class="btn small" id="nuMisImp">📥 Importa PDF CoachPlus</button><span class="mis-drop-hint">o trascina qui il PDF</span></div>';
   }
   function nuMisFill(f, m) {
     f.raccolta = f.raccolta || {};
@@ -7811,7 +7834,9 @@
   function nuMisWire(f, body) {
     var c = f.clientId && getClient(f.clientId); if (!c) return;
     var u = body.querySelector('#nuMisUse'); if (u) u.addEventListener('click', function () { var last = misList(c)[0]; if (last) nuMisFill(f, last); });
-    var im = body.querySelector('#nuMisImp'); if (im) im.addEventListener('click', function () { misPickPdf(c, function (e) { var cur = nuGet(nuOpenId); if (cur && cur.id === f.id) nuMisFill(cur, e); }); });
+    var after = function (e) { var cur = nuGet(nuOpenId); if (cur && cur.id === f.id) nuMisFill(cur, e); };
+    var im = body.querySelector('#nuMisImp'); if (im) im.addEventListener('click', function () { misPickPdf(c, after); });
+    misDropBind(body.querySelector('.nu-mis'), c, after);
   }
   // ---- Storico a lato del piano: protocolli del cliente (settimane e giorni) e ultimi check, senza chiudere la cartella
   var nuHistOpen = {};
