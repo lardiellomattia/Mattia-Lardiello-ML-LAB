@@ -1033,7 +1033,7 @@
   #bsOverlay { z-index: 58; padding: 16px; }
   .bs-modal { max-width: 1180px !important; width: 98vw; padding: 18px !important; }
   .bs-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-  .bs-head h2 { margin: 0; flex: 1; min-width: 200px; font-size: 20px; }
+  .bs-head h2 { margin: 0; flex: 1 1 180px; min-width: 0; font-size: 18px; }
   .bs-head select { width: auto; padding: 6px 10px !important; }
   .bs-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
   .bs-seg button { border: 0; background: none; padding: 6px 12px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; color: var(--ink-muted); }
@@ -1066,6 +1066,14 @@
   .bs-zone em small { display: block; font-size: 10.5px; color: var(--ink-muted); }
   .bs-reg { font-size: 12.5px; line-height: 1.5; }
   .bs-note { font-size: 11.5px; color: var(--ink-muted); }
+  .bs-cmp-lbl { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-muted); margin: 0; }
+  .bs-seg button:disabled { opacity: .4; cursor: not-allowed; }
+  .bs-cmp { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .bs-cmp th, .bs-cmp td { padding: 4px 4px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+  .bs-cmp th:first-child, .bs-cmp td:first-child { text-align: left; }
+  .bs-cmp th { font-size: 11.5px; color: var(--ink-muted); font-weight: 600; }
+  .bs-good { color: var(--ok); font-weight: 700; } .bs-bad { color: var(--urgent); font-weight: 700; } .bs-eq { color: var(--ink-muted); }
+  .bs-cap { font-size: 13px; color: #FFBF00; }
   @media (max-width: 900px) { .bs-main { grid-template-columns: 1fr; } .bs-stage { height: 470px; } #bsOverlay { padding: 0; } .bs-modal { width: 100vw; border-radius: 0 !important; } }
   /* storico del cliente a lato del piano */
   .nu-hist { position: fixed; top: 0; right: 0; bottom: 0; width: 400px; max-width: 100vw; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -10px 0 30px rgba(0,0,0,0.16); z-index: 55; transform: translateX(105%); transition: transform .2s ease; display: flex; flex-direction: column; }
@@ -7977,8 +7985,8 @@
     });
     return { parts: parts, anchors: anchors };
   }
-  function bsZoneValues(L, idx) {
-    var m = L[idx], prev = L[idx + 1] || null, out = {};
+  function bsZoneValues(L, idx, cmp) {
+    var m = L[idx], prev = cmp != null ? L[cmp] || null : null, out = {};
     Object.keys((m && m.pliche) || {}).forEach(function (z) { var v = m.pliche[z]; if (v == null) return; out[z] = { v: v, d: prev && prev.pliche && prev.pliche[z] != null ? v - prev.pliche[z] : null }; });
     return out;
   }
@@ -7996,9 +8004,22 @@
     }
     g.setAttribute('color', new T.BufferAttribute(col, 3)); g.attributes.color.needsUpdate = true;
   }
-  function bsSideHtml(c, L, idx, mode) {
-    var m = L[idx], vals = bsZoneValues(L, idx), zones = Object.keys(vals).sort(function (a, b) { return vals[b].v - vals[a].v; });
-    var sum = misSum(m), maxV = zones.length ? vals[zones[0]].v : 1, prev = L[idx + 1];
+  // confronto tra due misure: prima (più vecchia) → dopo, con la differenza
+  function bsCmpHtml(L, idx, cmp) {
+    if (cmp == null || !L[cmp]) return '';
+    var a = cmp > idx ? L[cmp] : L[idx], b = cmp > idx ? L[idx] : L[cmp];
+    var dd = function (x, y, dec, inv) { if (x == null || y == null) return '<td></td>'; var d = y - x; if (Math.abs(d) < Math.pow(10, -(dec || 1)) / 2) return '<td class="bs-eq">=</td>'; return '<td class="' + ((d < 0) !== !!inv ? 'bs-good' : 'bs-bad') + '">' + (d > 0 ? '+' : '−') + misFmt(Math.abs(d), dec) + '</td>'; };
+    var row = function (l, x, y, dec, unit, inv) { if (x == null && y == null) return ''; return '<tr><td>' + l + '</td><td>' + (x == null ? '—' : misFmt(x, dec) + (unit || '')) + '</td><td>' + (y == null ? '—' : misFmt(y, dec) + (unit || '')) + '</td>' + dd(x, y, dec, inv) + '</tr>'; };
+    var zones = misKeys(MIS_PLICHE, [a.pliche || {}, b.pliche || {}]).filter(function (z) { return (a.pliche || {})[z] != null || (b.pliche || {})[z] != null; });
+    var days = a.data && b.data ? Math.round((fromISO(b.data) - fromISO(a.data)) / 86400000) : null;
+    return '<div class="bs-card"><h4>Confronto ' + misDate(a.data) + ' → ' + misDate(b.data) + (days ? ' <span class="bs-note">(' + days + ' giorni)</span>' : '') + '</h4><table class="bs-cmp"><thead><tr><th></th><th>' + misDate(a.data) + '</th><th>' + misDate(b.data) + '</th><th>Δ</th></tr></thead><tbody>' +
+      row('Peso', a.peso, b.peso, 1, ' kg') + row('Massa grassa', a.mgPct, b.mgPct, 1, '%') + row('Massa magra kg', a.mmKg, b.mmKg, 1, '', true) + row('Σ pliche', misSum(a), misSum(b), 1, ' mm') +
+      zones.map(function (z) { return row(z, (a.pliche || {})[z], (b.pliche || {})[z], 1, ''); }).join('') +
+      '</tbody></table><div class="bs-note" style="margin-top:6px;">Verde: migliorato · rosso: peggiorato (per la massa magra vale il contrario).</div></div>';
+  }
+  function bsSideHtml(c, L, idx, mode, cmp) {
+    var m = L[idx], vals = bsZoneValues(L, idx, cmp), zones = Object.keys(vals).sort(function (a, b) { return vals[b].v - vals[a].v; });
+    var sum = misSum(m), maxV = zones.length ? vals[zones[0]].v : 1, prev = cmp != null ? L[cmp] : null;
     var kp = '<div class="bs-card"><div class="bs-kpis"><div><strong>' + (m.peso != null ? misFmt(m.peso, 1) : '—') + '</strong><span>kg</span></div><div><strong>' + (m.mgPct != null ? misFmt(m.mgPct, 1) + '%' : '—') + '</strong><span>massa grassa</span></div><div><strong>' + (sum != null ? misFmt(sum, 1) : '—') + '</strong><span>Σ pliche mm</span></div></div>' +
       (prev ? '<div class="bs-note" style="margin-top:6px;text-align:center;">confronto con ' + misDate(prev.data) + (prev.mgPct != null && m.mgPct != null ? ' · massa grassa ' + (m.mgPct - prev.mgPct > 0 ? '+' : '−') + misFmt(Math.abs(m.mgPct - prev.mgPct), 1) + ' punti' : '') + '</div>' : '') + '</div>';
     if (!zones.length) return kp + '<div class="bs-card"><div class="no-items">Questa misura non ha pliche: la mappa resta neutra.</div></div>';
@@ -8012,28 +8033,30 @@
     var top = Object.keys(reg).filter(function (r) { return reg[r] != null; }).sort(function (a, b) { return reg[b] - reg[a]; });
     var regHtml = '<div class="bs-card"><h4>Dove si concentra</h4><div class="bs-reg">' + top.map(function (r, i) { return (i === 0 ? '🔴 ' : i === 1 ? '🟠 ' : '🟢 ') + names[r] + ': media <strong>' + misFmt(reg[r], 1) + ' mm</strong>'; }).join('<br>') +
       (top.length ? '<div style="margin-top:6px;">Zona più carica: <strong>' + escapeHtml(zones[0]) + '</strong> (' + escapeHtml(BS_ZONE_INFO[zones[0]] || '') + ', ' + misFmt(vals[zones[0]].v, 1) + ' mm)' + (zones.length > 1 ? ', poi <strong>' + escapeHtml(zones[1]) + '</strong>' : '') + '.</div>' : '') + '</div></div>';
-    return kp + '<div class="bs-card"><h4>Zone dalla più alla meno grassa</h4>' + rows + '</div>' + regHtml +
+    return kp + (mode === 'heat' ? '' : bsCmpHtml(L, idx, cmp)) + '<div class="bs-card"><h4>Zone dalla più alla meno grassa · ' + misDate(m.data) + '</h4>' + rows + '</div>' + regHtml + (mode === 'heat' ? bsCmpHtml(L, idx, cmp) : '') +
       '<div class="bs-note">Mappa indicativa: i colori sono interpolati tra i punti in cui hai misurato le pliche, non è una scansione reale del corpo. Le zone non misurate restano grigie. Proporzioni da altezza e circonferenze della misura.</div>';
   }
   function bsOpen(c, misId) {
     var L = misList(c); if (!L.length) { toast('Prima carica una misura con le pliche'); return; }
     var idx = Math.max(0, L.map(function (m) { return m.id; }).indexOf(misId));
     bsClose(true);
-    bs = { c: c, L: L, idx: idx, mode: 'heat', sex: bsSesso(c), rotY: 0, tgtY: 0, rotX: 0.05, auto: true, dist: null };
+    bs = { c: c, L: L, idx: idx, cmp: L[idx + 1] ? idx + 1 : (idx > 0 ? idx - 1 : null), mode: 'heat', sex: bsSesso(c), rotY: 0, tgtY: 0, rotX: 0.05, auto: true, dist: null };
     var ov = document.getElementById('bsOverlay'), md = document.getElementById('bsModal');
     md.innerHTML = '<div class="bs-head"><h2>🧍 Body scanner · ' + escapeHtml(c.cliente) + '</h2>' +
       '<select id="bsMis" class="form-input">' + L.map(function (m, i) { return '<option value="' + i + '"' + (i === idx ? ' selected' : '') + '>Misura del ' + misDate(m.data) + '</option>'; }).join('') + '</select>' +
       '<span class="bs-seg" id="bsSex"><button data-bssex="F">Donna</button><button data-bssex="M">Uomo</button></span>' +
-      '<span class="bs-seg" id="bsMode"><button data-bsmode="heat">Spessore pliche</button><button data-bsmode="delta">Variazione</button></span>' +
+      '<label class="bs-cmp-lbl">confronta con <select id="bsCmp" class="form-input"></select></label>' +
+      '<span class="bs-seg" id="bsMode"><button data-bsmode="heat">Spessore pliche</button><button data-bsmode="delta">Variazione</button><button data-bsmode="side">Affiancati</button></span>' +
       '<button class="btn small ghost" id="bsClose">✕ Chiudi</button></div>' +
       '<div class="bs-main"><div class="bs-stage" id="bsStage"><div class="bs-msg" id="bsMsg">Preparo il modello 3D…</div><div class="bs-labels" id="bsLabels"></div>' +
       '<div class="bs-views"><button data-bsview="0">Fronte</button><button data-bsview="180">Retro</button><button data-bsview="90">Lato sx</button><button data-bsview="-90">Lato dx</button><button data-bsview="auto" class="on">⟳ Ruota</button></div>' +
       '<div class="bs-legend" id="bsLegend"></div></div><div class="bs-side" id="bsSide"></div></div>';
     ov.classList.add('open');
     document.getElementById('bsClose').addEventListener('click', function () { bsClose(); });
-    document.getElementById('bsMis').addEventListener('change', function (e) { bs.idx = parseInt(e.target.value, 10); bsRefresh(true); });
+    document.getElementById('bsMis').addEventListener('change', function (e) { bs.idx = parseInt(e.target.value, 10); if (bs.cmp === bs.idx) bs.cmp = bs.L[bs.idx + 1] ? bs.idx + 1 : (bs.idx > 0 ? bs.idx - 1 : null); bsRefresh(true); });
+    document.getElementById('bsCmp').addEventListener('change', function (e) { bs.cmp = e.target.value === '' ? null : parseInt(e.target.value, 10); bsRefresh(true); });
     md.querySelectorAll('[data-bssex]').forEach(function (b) { b.addEventListener('click', function () { bs.sex = b.getAttribute('data-bssex'); bs.c.sesso = bs.sex; saveClients(); bsRefresh(true); }); });
-    md.querySelectorAll('[data-bsmode]').forEach(function (b) { b.addEventListener('click', function () { bs.mode = b.getAttribute('data-bsmode'); bsRefresh(false); }); });
+    md.querySelectorAll('[data-bsmode]').forEach(function (b) { b.addEventListener('click', function () { var nm = b.getAttribute('data-bsmode'), rb = (nm === 'side') !== (bs.mode === 'side'); bs.mode = nm; bsRefresh(rb); }); });
     md.querySelectorAll('[data-bsview]').forEach(function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-bsview'); bs.auto = v === 'auto'; if (!bs.auto) { var t = -parseFloat(v) * Math.PI / 180, cur = bs.rotY; bs.tgtY = cur + Math.atan2(Math.sin(t - cur), Math.cos(t - cur)); bs.rotX = 0.05; } bsMarkView(); }); });
     document.getElementById('bsSide').addEventListener('click', function (e) { var z = e.target.closest('[data-bszone]'); if (z) bsFace(z.getAttribute('data-bszone')); });
     bsRefresh(true);
@@ -8051,9 +8074,12 @@
     var md = document.getElementById('bsModal');
     md.querySelectorAll('[data-bssex]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-bssex') === bs.sex); });
     md.querySelectorAll('[data-bsmode]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-bsmode') === bs.mode); });
-    var hasPrev = !!bs.L[bs.idx + 1]; var db = md.querySelector('[data-bsmode="delta"]'); db.disabled = !hasPrev; db.title = hasPrev ? 'Verde: pliche diminuite · rosso: aumentate, rispetto alla misura precedente' : 'Serve una misura precedente';
-    if (!hasPrev && bs.mode === 'delta') { bs.mode = 'heat'; return bsRefresh(rebuild); }
-    document.getElementById('bsSide').innerHTML = bsSideHtml(bs.c, bs.L, bs.idx, bs.mode);
+    var cs = document.getElementById('bsCmp');
+    cs.innerHTML = '<option value="">— nessuna —</option>' + bs.L.map(function (m, i) { return i === bs.idx ? '' : '<option value="' + i + '"' + (i === bs.cmp ? ' selected' : '') + '>' + misDate(m.data) + (i > bs.idx ? ' (prima)' : ' (dopo)') + '</option>'; }).join('');
+    var hasCmp = bs.cmp != null && !!bs.L[bs.cmp];
+    ['delta', 'side'].forEach(function (k) { var b = md.querySelector('[data-bsmode="' + k + '"]'); b.disabled = !hasCmp; b.title = hasCmp ? (k === 'delta' ? 'Verde: pliche diminuite · rosso: aumentate, rispetto alla misura scelta in "confronta con"' : 'Le due misure una accanto all\'altra: a sinistra la più vecchia') : 'Scegli una misura in "confronta con"'; });
+    if (!hasCmp && bs.mode !== 'heat') { var wasSide = bs.mode === 'side'; bs.mode = 'heat'; return bsRefresh(rebuild || wasSide); }
+    document.getElementById('bsSide').innerHTML = bsSideHtml(bs.c, bs.L, bs.idx, bs.mode, hasCmp ? bs.cmp : null);
     document.getElementById('bsLegend').innerHTML = bs.mode === 'delta'
       ? '<strong>Variazione pliche</strong><div class="bar" style="background:linear-gradient(90deg,' + BS_DELTA.map(function (s) { return bsCss(s[1]) + ' ' + s[0] * 100 + '%'; }).join(',') + ');"></div><div class="ends"><span>−6 mm</span><span>=</span><span>+6 mm</span></div>'
       : '<strong>Spessore plica</strong><div class="bar" style="background:linear-gradient(90deg,' + BS_HEAT.map(function (s) { return bsCss(s[1]) + ' ' + s[0] * 100 + '%'; }).join(',') + ');"></div><div class="ends"><span>4 mm</span><span>16</span><span>28+ mm</span></div>';
@@ -8090,8 +8116,8 @@
       if (w !== bs.w || h !== bs.h) { bs.w = w; bs.h = h; R.setSize(w, h, false); bs.cam.aspect = w / h; bs.cam.updateProjectionMatrix(); }
       if (bs.auto) bs.tgtY += 0.006;
       bs.rotY += (bs.tgtY - bs.rotY) * 0.12;
-      var H = bs.H, d = H * 2.15 * (bs.zoom || 1) * Math.max(1, 0.75 / (w / h));
-      bs.group.rotation.y = bs.rotY; bs.group.rotation.x = bs.rotX * 0.35;
+      var H = bs.H, d = H * 2.15 * (bs.zoom || 1) * Math.max(1, (bs.g2 ? 1.45 : 0.75) / (w / h));
+      [bs.group, bs.g2 && bs.g2.group].forEach(function (g) { if (g) { g.rotation.y = bs.rotY; g.rotation.x = bs.rotX * 0.35; } });
       bs.cam.position.set(0, H * 0.52 + Math.sin(bs.rotX) * H * 0.4, d); bs.cam.lookAt(0, H * 0.5, 0);
       var tt = (Date.now() % 3600) / 3600; bs.scan.position.y = H * (tt < 0.5 ? tt * 2 : 2 - tt * 2) * 1.02; bs.scan.material.opacity = 0.1 + 0.06 * Math.sin(tt * Math.PI * 2);
       R.render(bs.scene, bs.cam);
@@ -8101,56 +8127,85 @@
   }
   function bsBuildScene() {
     var T = bs.T; if (!T) return;
-    if (bs.group) { bs.scene.remove(bs.group); bs.group.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); }
+    [bs.group, bs.g2 && bs.g2.group].forEach(function (g) { if (g) { bs.scene.remove(g); g.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); } });
+    bs.g2 = null;
     if (bs.scan) { bs.scene.remove(bs.scan); bs.scan.geometry.dispose(); bs.scan.material.dispose(); }
     if (bs.grid) { bs.scene.remove(bs.grid); bs.grid.geometry.dispose(); bs.grid.material.dispose(); }
-    var H = bsHeight(), m = bs.L[bs.idx], body = bsBuild(T, m, bs.sex, H);
-    bs.H = H; bs.anchors = body.anchors; bs.group = new T.Group(); bs.meshes = [];
-    body.parts.forEach(function (pt) {
-      var mesh = new T.Mesh(pt.geo, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.08 }));
-      mesh.userData.part = pt.name.replace(/^foot.*/, 'foot'); bs.group.add(mesh); bs.meshes.push(mesh);
-      bs.group.add(new T.Mesh(pt.geo, new T.MeshBasicMaterial({ color: 0x8fe9ff, wireframe: true, transparent: true, opacity: 0.05, depthWrite: false })));
-    });
-    bs.scene.add(bs.group);
-    bs.scan = new T.Mesh(new T.RingGeometry(0, H * 0.22, 64), new T.MeshBasicMaterial({ color: 0x5fe3ff, transparent: true, opacity: 0.12, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending }));
+    var H = bsHeight(), side = bs.mode === 'side' && bs.cmp != null && bs.L[bs.cmp];
+    var mk = function (m) {
+      var body = bsBuild(T, m, bs.sex, H), g = new T.Group(), meshes = [];
+      body.parts.forEach(function (pt) {
+        var mesh = new T.Mesh(pt.geo, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.08 }));
+        mesh.userData.part = pt.name.replace(/^foot.*/, 'foot'); g.add(mesh); meshes.push(mesh);
+        g.add(new T.Mesh(pt.geo, new T.MeshBasicMaterial({ color: 0x8fe9ff, wireframe: true, transparent: true, opacity: 0.05, depthWrite: false })));
+      });
+      bs.scene.add(g); return { group: g, meshes: meshes, anchors: body.anchors, m: m };
+    };
+    var main = mk(bs.L[bs.idx]);
+    bs.H = H; bs.anchors = main.anchors; bs.group = main.group; bs.meshes = main.meshes;
+    if (side) {
+      // a sinistra la misura più vecchia (indice più alto: l'elenco va dalla più recente)
+      var off = H * 0.3, mainRight = bs.idx < bs.cmp;
+      bs.g2 = mk(bs.L[bs.cmp]);
+      bs.group.position.x = mainRight ? off : -off; bs.g2.group.position.x = mainRight ? -off : off; bs.mainRight = mainRight;
+    }
+    bs.scan = new T.Mesh(new T.RingGeometry(0, H * (side ? 0.52 : 0.22), 64), new T.MeshBasicMaterial({ color: 0x5fe3ff, transparent: true, opacity: 0.12, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending }));
     bs.scan.rotation.x = -Math.PI / 2; bs.scene.add(bs.scan);
-    bs.grid = new T.GridHelper(H * 0.9, 18, 0x2a8bb0, 0x1b3646); bs.grid.material.transparent = true; bs.grid.material.opacity = 0.35; bs.scene.add(bs.grid);
+    bs.grid = new T.GridHelper(H * (side ? 1.6 : 0.9), side ? 32 : 18, 0x2a8bb0, 0x1b3646); bs.grid.material.transparent = true; bs.grid.material.opacity = 0.35; bs.scene.add(bs.grid);
     bsRepaint();
   }
   function bsRepaint() {
     if (!bs || !bs.T || !bs.meshes) return;
-    var vals = bsZoneValues(bs.L, bs.idx);
+    var cmp = bs.cmp != null && bs.L[bs.cmp] ? bs.cmp : null, vals = bsZoneValues(bs.L, bs.idx, cmp), pm = bs.mode === 'side' ? 'heat' : bs.mode;
     bs.vals = vals;
-    bs.meshes.forEach(function (mesh) { bsPaint(bs.T, mesh, mesh.userData.part, bs.anchors, vals, bs.mode, bs.H); });
+    bs.meshes.forEach(function (mesh) { bsPaint(bs.T, mesh, mesh.userData.part, bs.anchors, vals, pm, bs.H); });
+    if (bs.g2) { bs.g2.vals = bsZoneValues(bs.L, bs.cmp, bs.idx); bs.g2.meshes.forEach(function (mesh) { bsPaint(bs.T, mesh, mesh.userData.part, bs.g2.anchors, bs.g2.vals, 'heat', bs.H); }); }
   }
   // etichette sulle zone misurate, solo dal lato che guarda verso di te
   function bsLabels() {
     var lay = document.getElementById('bsLabels'); if (!lay || !bs.vals) return;
-    var T = bs.T, best = {}, cp = bs.cam.position, w = bs.w, h = bs.h;
-    bs.anchors.forEach(function (a) {
-      var o = bs.vals[a.zone]; if (!o || (bs.mode === 'delta' && o.d == null)) return;
-      var wp = a.p.clone().applyMatrix4(bs.group.matrixWorld), wn = a.n.clone().applyMatrix3(new T.Matrix3().getNormalMatrix(bs.group.matrixWorld)).normalize();
-      var f = wn.dot(cp.clone().sub(wp).normalize());
-      if (f > 0.2 && (!best[a.zone] || f > best[a.zone].f)) best[a.zone] = { f: f, wp: wp };
-    });
+    var T = bs.T, cp = bs.cam.position, w = bs.w, h = bs.h, items = [], pm = bs.mode === 'side' ? 'heat' : bs.mode;
+    var collect = function (g, anchors, vals, forced, withDelta) {
+      var best = {};
+      anchors.forEach(function (a) {
+        var o = vals[a.zone]; if (!o || (pm === 'delta' && o.d == null)) return;
+        var wp = a.p.clone().applyMatrix4(g.matrixWorld), wn = a.n.clone().applyMatrix3(new T.Matrix3().getNormalMatrix(g.matrixWorld)).normalize();
+        var f = wn.dot(cp.clone().sub(wp).normalize());
+        if (f > 0.2 && (!best[a.zone] || f > best[a.zone].f)) best[a.zone] = { f: f, wp: wp };
+      });
+      Object.keys(best).forEach(function (z) {
+        var sp = best[z].wp.clone().project(bs.cam), x = (sp.x + 1) / 2 * w, y = (1 - sp.y) / 2 * h, right = forced != null ? forced : x >= w / 2;
+        if (forced == null) { if (right && x > w - 135) right = false; if (!right && x < 135) right = true; }
+        items.push({ z: z, o: vals[z], x: x, y: y, ty: y, right: right, delta: withDelta });
+      });
+    };
+    var caps = '';
+    if (bs.g2) {
+      // la differenza sta sul modello più recente (a destra), rispetto a quello più vecchio
+      collect(bs.group, bs.anchors, bs.vals, bs.mainRight, bs.mainRight); collect(bs.g2.group, bs.g2.anchors, bs.g2.vals, !bs.mainRight, !bs.mainRight);
+      // data e massa grassa sopra ogni modello
+      [[bs.group, bs.L[bs.idx]], [bs.g2.group, bs.L[bs.cmp]]].forEach(function (q) {
+        var sp = new T.Vector3(0, bs.H * 1.04, 0).applyMatrix4(q[0].matrixWorld).project(bs.cam);
+        caps += '<div class="bs-lbl bs-cap" style="left:' + ((sp.x + 1) / 2 * w).toFixed(0) + 'px;top:' + ((1 - sp.y) / 2 * h).toFixed(0) + 'px;transform:translate(-50%,-100%);">' + misDate(q[1].data) + (q[1].mgPct != null ? ' · ' + misFmt(q[1].mgPct, 1) + '%' : '') + '</div>';
+      });
+    } else collect(bs.group, bs.anchors, bs.vals, null, false);
     // pallino sul punto vero; testo spostato in verticale se due etichette si sovrappongono
-    var items = Object.keys(best).map(function (z) { var sp = best[z].wp.clone().project(bs.cam), x = (sp.x + 1) / 2 * w, y = (1 - sp.y) / 2 * h; var right = x >= w / 2; if (right && x > w - 135) right = false; if (!right && x < 135) right = true; return { z: z, x: x, y: y, ty: y, right: right }; });
     // il testo parte oltre il pallino più esterno dello stesso lato, così non copre gli altri punti
     var edgeR = Math.max.apply(null, items.filter(function (it) { return it.right; }).map(function (it) { return it.x; }).concat([-1e9])), edgeL = Math.min.apply(null, items.filter(function (it) { return !it.right; }).map(function (it) { return it.x; }).concat([1e9]));
     [true, false].forEach(function (side) { var g = items.filter(function (it) { return it.right === side; }).sort(function (a, b) { return a.y - b.y; }); for (var i = 1; i < g.length; i++) if (g[i].ty < g[i - 1].ty + 18) g[i].ty = g[i - 1].ty + 18; });
-    var html = '';
+    var html = caps, slim = bs.g2 && w < 600;
     items.forEach(function (it) {
-      var z = it.z, o = bs.vals[z], v = bs.mode === 'delta' ? o.d : o.v, col = bsCss(bsColor(v, bs.mode)), fl = bs.flash && bs.flash.zone === z && Date.now() < bs.flash.until;
-      var txt = escapeHtml(z) + ' · ' + (bs.mode === 'delta' ? (v > 0 ? '+' : v < 0 ? '−' : '') + misFmt(Math.abs(v), 1) : misFmt(v, 1)) + ' mm';
+      var z = it.z, o = it.o, v = pm === 'delta' ? o.d : o.v, col = bsCss(bsColor(v, pm)), fl = bs.flash && bs.flash.zone === z && Date.now() < bs.flash.until;
+      var txt = escapeHtml(z) + ' · ' + (pm === 'delta' ? (v > 0 ? '+' : v < 0 ? '−' : '') + misFmt(Math.abs(v), 1) : misFmt(v, 1)) + ' mm' + (it.delta && o.d != null && Math.abs(o.d) >= 0.1 ? ' <span style="color:' + (o.d < 0 ? '#3EE08F' : '#FF7A6E') + ';">(' + (o.d > 0 ? '+' : '−') + misFmt(Math.abs(o.d), 1) + ')</span>' : '');
       html += '<div class="bs-lbl" style="left:' + it.x.toFixed(0) + 'px;top:' + it.y.toFixed(0) + 'px;transform:translate(-50%,-50%);"><i style="background:' + col + ';margin:0;"></i></div>' +
-        '<div class="bs-lbl" style="left:' + (it.right ? Math.min(w - 135, edgeR) + 10 : Math.max(135, edgeL) - 10).toFixed(0) + 'px;top:' + it.ty.toFixed(0) + 'px;transform:translate(' + (it.right ? '0' : '-100%') + ',-50%);' + (fl ? 'color:#FFBF00;font-size:13px;' : '') + '">' + txt + '</div>';
+        (slim ? '' : '<div class="bs-lbl" style="left:' + (it.right ? Math.min(w - 135, edgeR) + 10 : Math.max(135, edgeL) - 10).toFixed(0) + 'px;top:' + it.ty.toFixed(0) + 'px;transform:translate(' + (it.right ? '0' : '-100%') + ',-50%);' + (fl ? 'color:#FFBF00;font-size:13px;' : '') + '">' + txt + '</div>');
     });
     if (html !== bs.lastLbl) { lay.innerHTML = html; bs.lastLbl = html; }
   }
   function bsClose(silent) {
     if (bs) {
       if (bs.raf) cancelAnimationFrame(bs.raf);
-      if (bs.group) bs.group.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+      [bs.group, bs.g2 && bs.g2.group].forEach(function (g) { if (g) g.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); });
       if (bs.R) { bs.R.dispose(); if (bs.R.forceContextLoss) bs.R.forceContextLoss(); }
       bs = null;
     }
