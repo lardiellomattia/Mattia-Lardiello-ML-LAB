@@ -1004,7 +1004,33 @@
   .nu-modal { max-width: 1080px !important; width: 96vw; }
   .nu-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
   .nu-head-fields { display: grid; grid-template-columns: 1.8fr 1.5fr 1fr 1fr; gap: 10px; flex: 1 1 620px; }
-  .nu-head-btns { display: flex; gap: 6px; }
+  .nu-head-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  /* storico del cliente a lato del piano */
+  .nu-hist { position: fixed; top: 0; right: 0; bottom: 0; width: 400px; max-width: 100vw; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -10px 0 30px rgba(0,0,0,0.16); z-index: 55; transform: translateX(105%); transition: transform .2s ease; display: flex; flex-direction: column; }
+  .nu-hist.open { transform: none; }
+  .nu-hist-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--border); font-family: 'Montserrat', sans-serif; font-size: 15px; }
+  .nu-hist-body { flex: 1; overflow-y: auto; padding: 12px 14px 30px; }
+  .nh-title { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); margin: 14px 0 8px; }
+  .nh-title:first-child { margin-top: 0; }
+  .nh-prot { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+  .nh-prot.cur { border-color: var(--accent); }
+  .nh-prot-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; background: none; border: 0; padding: 10px 12px; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+  .nh-kpi { text-align: right; font-weight: 700; white-space: nowrap; }
+  .nh-cur { font-size: 11px; font-weight: 700; background: var(--accent-soft); border-radius: 999px; padding: 1px 7px; }
+  .nh-prot-body { padding: 0 12px 12px; border-top: 1px solid var(--border); }
+  .nh-week { margin-top: 8px; }
+  .nh-wk-btn { width: 100%; display: flex; gap: 8px; align-items: center; background: var(--surface-2); border: 0; border-radius: 8px; padding: 7px 10px; cursor: pointer; font: inherit; font-size: 12.5px; color: inherit; text-align: left; }
+  .nh-wk-btn span { flex: 1; color: var(--ink-muted); }
+  .nh-wk-btn em { font-style: normal; }
+  .nh-days { font-size: 11.5px; margin: 6px 0; table-layout: fixed; }
+  .nh-days th, .nh-days td { padding: 3px 1px; min-width: 0; }
+  .nh-days th:first-child { width: 40px; padding-right: 4px; }
+  .nh-note { margin-top: 8px; font-size: 12.5px; white-space: pre-wrap; color: var(--ink-muted); }
+  .nh-check { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+  .nh-check .an-kv span { width: 110px; }
+  #nuHistBtn.on { background: var(--accent); color: var(--accent-ink); }
+  @media (min-width: 1000px) { body.nuhist-on #nuOverlay { padding-right: 416px; } body.nuhist-on #nuOverlay .nu-modal { width: 100%; } }
+  @media (max-width: 760px) { .nu-hist { top: auto; height: 68vh; width: 100vw; border-left: 0; border-top: 1px solid var(--border); border-radius: 18px 18px 0 0; transform: translateY(105%); } .nu-hist-body { padding-bottom: 100px; } }
   .nu-weeks { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
   .nu-week { border: 1px solid var(--border); background: #FFFFFF; border-radius: 999px; padding: 6px 12px; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px; cursor: pointer; color: var(--ink-muted); }
   .nu-week.filled { color: var(--ink); border-color: #F6DFA6; background: #FFF8E3; }
@@ -7329,7 +7355,7 @@
       '<div><label>Assegnata a</label><select id="nuClient" class="form-input"><option value="">— nessun cliente —</option>' + opt('coaching', 'Percorsi coaching') + opt('visita', 'Solo visite') + '</select></div>' +
       '<div><label>Inizio protocollo</label><input type="date" id="nuInizio" value="' + (f.dataInizio || (f.creato ? f.creato.slice(0, 10) : '')) + '"></div>' +
       '<div><label>Tipo</label><select id="nuTipo" class="form-input">' + ['Normocalorica', 'Ipocalorica', 'Ipercalorica', 'Reverse', 'Reset'].map(function (t) { return '<option' + (f.tipo === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div></div>' +
-      '<div class="nu-head-btns"><button class="btn small" id="nuGoClient" style="display:none;"></button><button class="btn small di-btn" id="nuDiario" style="display:none;"></button><button class="btn small" data-calc title="Calcolatrice">🧮 Calcolatrice</button><button class="btn small nu-save" id="nuSaveBtn">💾 Salva</button><button class="btn small" id="nuPdfBtn">📄 PDF per il cliente</button><button class="btn small nu-assign" id="nuAssignBtn">📁 Assegna al cliente</button><button class="btn small" id="nuDupBtn">⧉ Duplica</button><button class="btn small ghost nu-del" id="nuDelBtn">🗑 Elimina</button><button class="btn small ghost" id="nuCloseBtn">✕ Chiudi</button></div>';
+      '<div class="nu-head-btns"><button class="btn small" id="nuGoClient" style="display:none;"></button><button class="btn small di-btn" id="nuDiario" style="display:none;"></button><button class="btn small" id="nuHistBtn" title="Protocolli precedenti e ultimi check del cliente, senza chiudere il piano">🕘 Storico</button><button class="btn small" data-calc title="Calcolatrice">🧮 Calcolatrice</button><button class="btn small nu-save" id="nuSaveBtn">💾 Salva</button><button class="btn small" id="nuPdfBtn">📄 PDF per il cliente</button><button class="btn small nu-assign" id="nuAssignBtn">📁 Assegna al cliente</button><button class="btn small" id="nuDupBtn">⧉ Duplica</button><button class="btn small ghost nu-del" id="nuDelBtn">🗑 Elimina</button><button class="btn small ghost" id="nuCloseBtn">✕ Chiudi</button></div>';
     document.getElementById('nuNome').addEventListener('input', function (e) { f.nome = e.target.value || 'Senza nome'; nuTouch(f); });
     var nuAssignSync = function () {
       var sel = document.getElementById('nuClient').value, btn = document.getElementById('nuAssignBtn');
@@ -7360,10 +7386,11 @@
     document.getElementById('nuDupBtn').addEventListener('click', function () { nuDuplicate(f.id); });
     document.getElementById('nuDelBtn').addEventListener('click', function () { nuDelete(f.id); });
     document.getElementById('nuCloseBtn').addEventListener('click', nuClose);
+    document.getElementById('nuHistBtn').addEventListener('click', function () { nuHistToggle(); });
     nuRenderBody();
     ov.classList.add('open');
   }
-  function nuClose() { saveNu(true); pushUndoCheckpoint(); document.getElementById('nuOverlay').classList.remove('open'); nuOpenId = null; if (state.activeTab === 'nutrizione') { renderNutriStats(); renderNutriList(); } if (state.openFolderId) renderFolder(state.openFolderId); }
+  function nuClose() { nuHistToggle(false); saveNu(true); pushUndoCheckpoint(); document.getElementById('nuOverlay').classList.remove('open'); nuOpenId = null; if (state.activeTab === 'nutrizione') { renderNutriStats(); renderNutriList(); } if (state.openFolderId) renderFolder(state.openFolderId); }
   function nuRenderBody() {
     var f = nuGet(nuOpenId); if (!f) return;
     var tabs = [['settimane', 'Piano ' + f.weeks.length + ' settimane'], ['pasti', 'Ripartizione pasti'], ['consigli', 'Integrazione e alimenti'], ['raccolta', 'Raccolta dati'], ['track', '📈 Tracciamento']];
@@ -7378,6 +7405,7 @@
     body.innerHTML = html;
     body.querySelectorAll('[data-nutab]').forEach(function (b) { b.addEventListener('click', function () { nuTab = b.getAttribute('data-nutab'); nuRenderBody(); }); });
     nuWire(f, body);
+    nuHistRender();
   }
   function nuWeeksHtml(f) {
     var w = f.weeks[nuWeek], st = nuWeekStats(w);
@@ -7580,6 +7608,82 @@
     var sum = (first.kcal && last.kcal && list.length > 1) ? '<div class="nu-track-sum">Dal primo protocollo: kcal ' + nuFmt(first.kcal) + ' → <strong>' + nuFmt(last.kcal) + '</strong>' + (first.peso && last.peso ? ' · peso ' + nuFmt(first.peso, 1) + ' → <strong>' + nuFmt(last.peso, 1) + ' kg</strong>' : '') + (first.vm && last.vm ? ' · velocità metabolica ' + nuFmt(first.vm, 1) + ' → <strong>' + nuFmt(last.vm, 1) + ' kcal/kg</strong> (' + (last.vm >= first.vm ? '+' : '−') + nuFmt(Math.abs((last.vm - first.vm) / first.vm * 100)) + '%)' : '') + '</div>' : '';
     return sum + chart + '<div class="nu-table-wrap"><table class="nu-table nu-track"><thead><tr><th class="nu-left">Protocollo</th><th>Inizio</th><th>Peso</th><th>BF%</th><th>Kcal/die</th><th>Macro medi (g)</th><th>Vel. metab. kcal/kg</th><th>LBW kcal/kg</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<div class="ap-hint" style="margin-top:6px;">Ogni cartella nutrizionale assegnata al cliente è un protocollo. Per un tracciamento corretto compila in ogni cartella la data di inizio e, in Raccolta dati, peso e BF% di quel momento.</div>';
+  }
+  // ---- Storico a lato del piano: protocolli del cliente (settimane e giorni) e ultimi check, senza chiudere la cartella
+  var nuHistOpen = {};
+  function nuHistHtml(f) {
+    var c = f.clientId && getClient(f.clientId);
+    if (!c) return '<div class="no-items">Assegna questa cartella a un cliente (in alto, "Assegnata a") per vedere il suo storico.</div>';
+    var dt = function (iso) { return iso ? fromISO(iso.slice(0, 10)).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: '2-digit' }) : '—'; };
+    var list = (state.nutri || []).filter(function (x) { return x.clientId === f.clientId; }).map(function (x) { return { f: x, m: nuMetrics(x) }; })
+      .sort(function (a, b) { return (b.m.date || '').localeCompare(a.m.date || ''); });
+    var prot = list.map(function (o) {
+      var x = o.f, m = o.m, cur = x.id === f.id, open = !!nuHistOpen[x.id];
+      var weeks = x.weeks.map(function (w, i) { return { w: w, i: i, s: nuWeekStats(w) }; }).filter(function (o2) { return o2.s.filled; });
+      var body = '';
+      if (open) {
+        body = weeks.length ? weeks.map(function (o2) {
+          var key = x.id + '|' + o2.i, wOpen = !!nuHistOpen[key];
+          return '<div class="nh-week"><button class="nh-wk-btn" data-nhw="' + key + '"><strong>' + (o2.i + 1) + ' WEEK</strong><span>C ' + nuFmt(o2.s.c) + ' · P ' + nuFmt(o2.s.p) + ' · G ' + nuFmt(o2.s.g) + ' · ' + nuFmt(o2.s.kcal) + ' kcal</span><em>' + (wOpen ? '▴' : '▾') + '</em></button>' +
+            (wOpen ? '<div class="nu-table-wrap"><table class="nu-table nh-days"><thead><tr><th></th>' + NU_DAYS.map(function (d) { return '<th>' + d + '</th>'; }).join('') + '</tr></thead><tbody>' +
+              [['c', 'C'], ['p', 'P'], ['g', 'G']].map(function (r) { return '<tr><th>' + r[1] + '</th>' + o2.w.days.map(function (d) { return '<td>' + escapeHtml(d[r[0]] || '') + '</td>'; }).join('') + '</tr>'; }).join('') +
+              '<tr class="nu-kcal"><th>kcal</th>' + o2.w.days.map(function (d) { return '<td>' + (nuKcal(d) || '') + '</td>'; }).join('') + '</tr></tbody></table></div>' +
+              (cur ? '' : '<button class="btn tiny" data-nhcopy="' + key + '">⤵ Copia nella ' + (nuWeek + 1) + ' WEEK del piano aperto</button>') : '') + '</div>';
+        }).join('') : '<div class="sp-meta" style="margin-top:8px;">Nessuna settimana compilata.</div>';
+        body = '<div class="sp-meta" style="margin-top:8px;">' + (m.kcal ? 'Medie: C ' + nuFmt(m.c) + ' · P ' + nuFmt(m.p) + ' · G ' + nuFmt(m.g) + ' g' + (m.vm ? ' · vel. metab. ' + nuFmt(m.vm, 1) + ' kcal/kg' : '') : '') + '</div>' + body +
+          (x.note ? '<div class="nh-note">📝 ' + escapeHtml(x.note) + '</div>' : '');
+      }
+      return '<div class="nh-prot' + (cur ? ' cur' : '') + '"><button class="nh-prot-btn" data-nhp="' + x.id + '"><div><strong>' + escapeHtml(x.nome) + '</strong>' + (cur ? ' <span class="nh-cur">aperto ora</span>' : '') +
+        '<div class="sp-meta">' + escapeHtml(x.tipo || '') + ' · dal ' + dt(m.date) + ' · ' + weeks.length + ' sett.</div></div>' +
+        '<div class="nh-kpi">' + (m.kcal ? nuFmt(m.kcal) + ' kcal' : '—') + ' ' + (open ? '▴' : '▾') + '<div class="sp-meta">' + [m.peso ? nuFmt(m.peso, 1) + ' kg' : '', m.bf ? nuFmt(m.bf, 1) + '%' : ''].filter(Boolean).join(' · ') + '</div></div></button>' +
+        (open ? '<div class="nh-prot-body">' + body + '</div>' : '') + '</div>';
+    }).join('');
+    var L = FIELDS_CHECK_TPL.map(function (x) { return x.l; });
+    var SHOW = [['Come è andato questo protocollo?', 'Andamento'], ['Quanti pasti extra ti sei concess* durante la settimana', 'Pasti extra'], ['Fame', 'Fame (5 = poca)'], ['Energia', 'Energia'], ['Fase attuale', 'Fase'], ['Metodologia', 'Metodologia'], ['Quale sarà l\'obiettivo del prossimo mesociclo?', 'Obiettivo']];
+    var cds = (c.checkDettagliati || []).slice().sort(function (a, b) { return (b.dataCreazione || '').localeCompare(a.dataCreazione || ''); }).slice(0, 3);
+    var checks = cds.map(function (cd) {
+      var v = cd.valori || {}, di = L.indexOf('Data'), d = v[di] && v[di].r;
+      var rows = SHOW.map(function (x) { var k = L.indexOf(x[0]), val = k >= 0 && v[k] ? richToText(v[k].r || '') : ''; return val ? '<div class="an-kv"><span>' + x[1] + '</span><strong>' + escapeHtml(val) + '</strong></div>' : ''; }).join('');
+      return '<div class="nh-check"><strong>' + escapeHtml(cd.nome || 'Check') + '</strong> <span class="sp-meta">' + dt(d || cd.dataCreazione) + '</span>' + (rows || '<div class="sp-meta">Nessun dato compilato.</div>') + '</div>';
+    }).join('');
+    return '<div class="nh-title">Protocolli (' + list.length + ')</div>' + prot +
+      '<div class="nh-title">Ultimi check dettagliati</div>' + (checks || '<div class="no-items">Nessun check dettagliato nella cartella del cliente.</div>');
+  }
+  function nuHistToggle(force) {
+    var el = document.getElementById('nuHist');
+    if (!el) { if (force === false) return; el = document.createElement('div'); el.id = 'nuHist'; el.className = 'nu-hist'; document.body.appendChild(el); el.addEventListener('click', nuHistClick); }
+    var on = force != null ? !!force : !el.classList.contains('open');
+    if (on) {
+      // la prima volta apro il protocollo precedente più recente
+      var f = nuGet(nuOpenId);
+      if (f && f.clientId && !Object.keys(nuHistOpen).length) {
+        var prev = (state.nutri || []).filter(function (x) { return x.clientId === f.clientId && x.id !== f.id; }).map(function (x) { return { id: x.id, d: nuMetrics(x).date || '' }; }).sort(function (a, b) { return b.d.localeCompare(a.d); })[0];
+        if (prev) nuHistOpen[prev.id] = true;
+      }
+    }
+    el.classList.toggle('open', on); document.body.classList.toggle('nuhist-on', on);
+    var b = document.getElementById('nuHistBtn'); if (b) b.classList.toggle('on', on);
+    if (on) nuHistRender();
+  }
+  function nuHistRender() {
+    var el = document.getElementById('nuHist'); if (!el || !el.classList.contains('open')) return;
+    var f = nuGet(nuOpenId); if (!f) { nuHistToggle(false); return; }
+    var sc = el.querySelector('.nu-hist-body'), top = sc ? sc.scrollTop : 0;
+    el.innerHTML = '<div class="nu-hist-head"><strong>🕘 Storico' + (f.clientId ? ' di ' + escapeHtml(nuClientName(f.clientId)) : '') + '</strong><button class="btn small ghost" data-nhclose>✕ Chiudi</button></div><div class="nu-hist-body">' + nuHistHtml(f) + '</div>';
+    el.querySelector('.nu-hist-body').scrollTop = top;
+  }
+  function nuHistClick(e) {
+    var t = e.target.closest('[data-nhclose],[data-nhp],[data-nhw],[data-nhcopy]'); if (!t) return;
+    if (t.hasAttribute('data-nhclose')) { nuHistToggle(false); return; }
+    var k = t.getAttribute('data-nhp') || t.getAttribute('data-nhw');
+    if (k) { nuHistOpen[k] = !nuHistOpen[k]; nuHistRender(); return; }
+    var parts = t.getAttribute('data-nhcopy').split('|'), src = nuGet(parts[0]), f = nuGet(nuOpenId), w = src && src.weeks[parseInt(parts[1], 10)];
+    if (!w || !f) return;
+    var go = function () {
+      var cur = nuGet(nuOpenId) || f; cur.weeks[nuWeek].days = JSON.parse(JSON.stringify(w.days)); nuTouch(cur); nuTab = 'settimane'; nuRenderBody();
+      toast('⤵ Copiata la ' + (parseInt(parts[1], 10) + 1) + ' WEEK di "' + src.nome + '" nella ' + (nuWeek + 1) + ' WEEK');
+    };
+    if (nuWeekStats(f.weeks[nuWeek]).filled) showConfirm('La ' + (nuWeek + 1) + ' WEEK del piano aperto ha già dei valori: li sostituisco con quelli di "' + src.nome + '"?', go, 'Sostituisci'); else go();
   }
   function nuRaccoltaHtml(f) {
     var r = f.raccolta || {};
@@ -9283,8 +9387,9 @@
   // --- Conferma personalizzata (più affidabile di window.confirm nell'app installata) ---
   var confirmOverlay = document.getElementById('confirmOverlay');
   var confirmPending = null;
-  function showConfirm(message, onConfirm) {
+  function showConfirm(message, onConfirm, okLabel) {
     document.getElementById('confirmTitle').textContent = message;
+    document.getElementById('confirmOkBtn').textContent = okLabel || 'Elimina';
     confirmPending = onConfirm;
     confirmOverlay.classList.add('open');
   }
