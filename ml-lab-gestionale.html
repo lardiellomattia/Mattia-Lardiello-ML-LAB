@@ -1005,6 +1005,26 @@
   .nu-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
   .nu-head-fields { display: grid; grid-template-columns: 1.8fr 1.5fr 1fr 1fr; gap: 10px; flex: 1 1 620px; }
   .nu-head-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  /* misure e pliche (import PDF CoachPlus) */
+  #misOverlay { z-index: 58; }
+  .mis-modal { max-width: 760px !important; }
+  .mis-info { background: var(--accent-soft); border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
+  .mis-info.warn { background: var(--warning-soft); }
+  .mis-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 10px; }
+  .mis-grid label { font-size: 12px; }
+  .mis-grid input { padding: 7px 9px !important; }
+  .mis-sec { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13px; margin: 16px 0 8px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .mis-sec span { font-weight: 600; color: var(--ink-muted); font-size: 12px; }
+  .mis-table th, .mis-table td { white-space: nowrap; }
+  .mis-table td:first-child, .mis-table th:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); z-index: 1; }
+  .mis-table .mis-grp td { background: var(--surface-2); font-weight: 700; font-size: 12px; text-align: left; }
+  .mis-d { display: block; font-size: 11px; color: var(--ink-muted); }
+  .mis-col-acts { display: inline-flex; gap: 2px; margin-left: 4px; }
+  .mis-col-acts button { border: 0; background: none; cursor: pointer; font-size: 13px; padding: 0 2px; }
+  .mis-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: -4px 0 12px; }
+  .nu-mis { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--surface-2); border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
+  .nu-mis strong { font-weight: 700; }
+  @media (max-width: 760px) { .mis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   /* storico del cliente a lato del piano */
   .nu-hist { position: fixed; top: 0; right: 0; bottom: 0; width: 400px; max-width: 100vw; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -10px 0 30px rgba(0,0,0,0.16); z-index: 55; transform: translateX(105%); transition: transform .2s ease; display: flex; flex-direction: column; }
   .nu-hist.open { transform: none; }
@@ -1739,6 +1759,14 @@
     <div class="nu-head" id="nuHead"></div>
     <div class="nu-saved" id="nuSaved">Le modifiche si salvano da sole mentre scrivi</div>
     <div id="nuBody"></div>
+  </div>
+</div>
+
+<!-- Modal misure e pliche -->
+<div class="overlay" id="misOverlay">
+  <div class="modal mis-modal">
+    <h2 id="misTitle">Misure e pliche</h2>
+    <div id="misBody"></div>
   </div>
 </div>
 
@@ -2675,7 +2703,7 @@
   }
   // mentre scrivi, i dati in arrivo dagli altri dispositivi aspettano: non sovrascrivono mai quello che hai davanti
   function isEditingNow() {
-    var ids = ['folderOverlay', 'spFolderOverlay', 'nuOverlay', 'anOverlay', 'trOverlay', 'apOverlay', 'consulenzaOverlay', 'newClientOverlay', 'newVisitaOverlay'];
+    var ids = ['folderOverlay', 'misOverlay', 'spFolderOverlay', 'nuOverlay', 'anOverlay', 'trOverlay', 'apOverlay', 'consulenzaOverlay', 'newClientOverlay', 'newVisitaOverlay'];
     if (ids.some(function (id) { var el = document.getElementById(id); return el && el.classList.contains('open'); })) return true;
     var ae = document.activeElement, tag = ae && ae.tagName;
     return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
@@ -7405,6 +7433,7 @@
     body.innerHTML = html;
     body.querySelectorAll('[data-nutab]').forEach(function (b) { b.addEventListener('click', function () { nuTab = b.getAttribute('data-nutab'); nuRenderBody(); }); });
     nuWire(f, body);
+    nuMisWire(f, body);
     nuHistRender();
   }
   function nuWeeksHtml(f) {
@@ -7609,6 +7638,181 @@
     return sum + chart + '<div class="nu-table-wrap"><table class="nu-table nu-track"><thead><tr><th class="nu-left">Protocollo</th><th>Inizio</th><th>Peso</th><th>BF%</th><th>Kcal/die</th><th>Macro medi (g)</th><th>Vel. metab. kcal/kg</th><th>LBW kcal/kg</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<div class="ap-hint" style="margin-top:6px;">Ogni cartella nutrizionale assegnata al cliente è un protocollo. Per un tracciamento corretto compila in ogni cartella la data di inizio e, in Raccolta dati, peso e BF% di quel momento.</div>';
   }
+  // ---- MISURE E PLICHE: storico per cliente (c.misure), import dal PDF "Visita" di CoachPlus o inserimento a mano
+  var MIS_PLICHE = ['Pettorale', 'Ascellare', 'Sottoscapolare', 'Tricipitale', 'Bicipitale', 'Soprailiaca', 'Addominale', 'Coscia', 'Polpaccio'];
+  var MIS_CIRC = ['Collo', 'Spalle', 'Addome', 'Vita', 'Fianchi', 'Braccio dx', 'Braccio sx', 'Avambraccio dx', 'Avambraccio sx', 'Polso dx', 'Polso sx', 'Prossimale coscia dx', 'Prossimale coscia sx', 'Mediana coscia dx', 'Mediana coscia sx', 'Distale coscia dx', 'Distale coscia sx', 'Polpaccio dx', 'Polpaccio sx', 'Caviglia dx', 'Caviglia sx'];
+  var PDFJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/', pdfjsLoading = null;
+  function misList(c) { return ((c && c.misure) || []).slice().sort(function (a, b) { return (b.data || '').localeCompare(a.data || ''); }); }
+  function misNum(v) { if (v == null) return null; v = String(v).replace(',', '.').trim(); if (v === '' || v === '-') return null; var n = parseFloat(v); return isNaN(n) ? null : n; }
+  function misFmt(v, dec) { return v == null ? '—' : (Math.round(v * Math.pow(10, dec || 0)) / Math.pow(10, dec || 0)).toLocaleString('it-IT'); }
+  function misSum(m) { var t = 0, n = 0; Object.keys(m.pliche || {}).forEach(function (k) { if (m.pliche[k] != null) { t += m.pliche[k]; n++; } }); return n ? t : null; }
+  function misDate(iso) { return iso ? fromISO(iso).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: '2-digit' }) : '—'; }
+  function misKeys(std, list) { var extra = []; list.forEach(function (m) { Object.keys(m || {}).forEach(function (k) { if (std.indexOf(k) === -1 && extra.indexOf(k) === -1) extra.push(k); }); }); return std.concat(extra); }
+  function loadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    if (pdfjsLoading) return pdfjsLoading;
+    pdfjsLoading = new Promise(function (res, rej) {
+      var sc = document.createElement('script'); sc.src = PDFJS_URL + 'pdf.min.js';
+      sc.onload = function () { if (!window.pdfjsLib) { pdfjsLoading = null; rej(new Error('lettore PDF non disponibile')); return; } window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_URL + 'pdf.worker.min.js'; res(window.pdfjsLib); };
+      sc.onerror = function () { pdfjsLoading = null; rej(new Error('non riesco a caricare il lettore PDF, controlla la connessione')); };
+      document.head.appendChild(sc);
+    });
+    return pdfjsLoading;
+  }
+  // testo del PDF riga per riga (pezzi sulla stessa altezza, da sinistra a destra)
+  function pdfLines(buf) {
+    return loadPdfJs().then(function (lib) { return lib.getDocument({ data: new Uint8Array(buf), isEvalSupported: false }).promise; }).then(function (doc) {
+      var lines = [], chain = Promise.resolve();
+      for (var i = 1; i <= doc.numPages; i++) (function (n) {
+        chain = chain.then(function () { return doc.getPage(n); }).then(function (pg) { return pg.getTextContent(); }).then(function (tc) {
+          var rows = [];
+          tc.items.forEach(function (it) {
+            if (!it.str || !it.str.trim()) return;
+            var y = it.transform[5], r = rows.filter(function (q) { return Math.abs(q.y - y) < 3; })[0];
+            if (!r) { r = { y: y, its: [] }; rows.push(r); }
+            r.its.push({ x: it.transform[4], s: it.str });
+          });
+          rows.sort(function (a, b) { return b.y - a.y; }).forEach(function (r) { lines.push(r.its.sort(function (a, b) { return a.x - b.x; }).map(function (q) { return q.s; }).join(' ').replace(/\s+/g, ' ').trim()); });
+        });
+      })(i);
+      return chain.then(function () { return lines; });
+    });
+  }
+  // PDF "Visita" di CoachPlus: ogni dato è "valore Etichetta (unità)", "-" se non rilevato
+  function misParseCoachPlus(lines) {
+    var m = { fonte: 'CoachPlus', pliche: {}, circ: {} };
+    var cap = function (t) { t = t.trim(); return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(); };
+    lines.forEach(function (l, i) {
+      var h = l.match(/^(.*?)\s*VISITA\s+(\d{1,2})\s+([a-zà-ù]+)\s+(\d{4})/i);
+      if (h) { m.nome = h[1].trim(); var mi = MESI.indexOf(h[3].toLowerCase()); if (mi >= 0) m.data = h[4] + '-' + pad2(mi + 1) + '-' + pad2(parseInt(h[2], 10)); }
+      if (/Livello attivit/i.test(l)) { var laf = l.split(/Livello attivit/i)[0].trim(); if (laf && laf !== '-') m.laf = laf; }
+      var re = /(-|\d+(?:[.,]\d+)?)\s+([^()]+?)\s*\((mm|cm|kg)\)/gi, x;
+      while ((x = re.exec(l))) {
+        var v = misNum(x[1]), lab = x[2].replace(/\s+/g, ' ').trim(), u = x[3].toLowerCase();
+        if (u === 'mm') { if (v != null) m.pliche[cap(lab.replace(/^plica\s+/i, ''))] = v; }
+        else if (/^peso$/i.test(lab)) m.peso = v;
+        else if (/^altezza$/i.test(lab)) m.altezza = v;
+        else if (/^peso desiderabile$/i.test(lab)) { /* non serve */ }
+        else if (v != null && u === 'cm') m.circ[cap(lab)] = v;
+      }
+      if (/Massa magra\s*%/i.test(l) && /Massa grassa\s*%/i.test(l)) {
+        var pc = (lines[i + 1] || '').match(/\d+(?:[.,]\d+)?(?=\s*%)/g) || [], kg = (lines[i + 2] || '').match(/\d+(?:[.,]\d+)?(?=\s*kg\b)/gi) || [];
+        var magraPrima = l.search(/Massa magra/i) < l.search(/Massa grassa/i), a = magraPrima ? 0 : 1, b = 1 - a;
+        if (pc.length >= 2) { m.mmPct = misNum(pc[a]); m.mgPct = misNum(pc[b]); }
+        if (kg.length >= 2) { m.mmKg = misNum(kg[a]); m.mgKg = misNum(kg[b]); }
+      }
+    });
+    return m;
+  }
+  function misSameName(a, b) {
+    var t = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(Boolean); };
+    var x = t(a), y = t(b); if (!x.length || !y.length) return true;
+    var inc = function (p, q) { return p.every(function (w) { return q.indexOf(w) !== -1; }); };
+    return inc(x, y) || inc(y, x);
+  }
+  function misPickPdf(c, onSaved) {
+    var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/pdf,.pdf'; inp.style.display = 'none'; document.body.appendChild(inp);
+    inp.addEventListener('change', function () {
+      var file = inp.files && inp.files[0]; inp.remove(); if (!file) return;
+      toast('📄 Leggo il PDF…');
+      file.arrayBuffer().then(pdfLines).then(function (lines) {
+        var m = misParseCoachPlus(lines);
+        if (m.peso == null && !Object.keys(m.pliche).length && !Object.keys(m.circ).length) throw new Error('non sembra il PDF di una visita CoachPlus');
+        var info = '📥 Dati letti dal PDF di CoachPlus' + (m.nome ? ' (' + escapeHtml(m.nome) + (m.data ? ', visita del ' + misDate(m.data) : '') + ')' : '') + ': controlla e salva.', warn = false;
+        if (m.nome && !misSameName(m.nome, c.cliente)) { info = '⚠️ Il PDF è di <strong>' + escapeHtml(m.nome) + '</strong>, ma stai salvando nella cartella di <strong>' + escapeHtml(c.cliente) + '</strong>. Controlla prima di salvare.'; warn = true; }
+        var same = (c.misure || []).filter(function (x) { return m.data && x.data === m.data; })[0];
+        if (same) { m.id = same.id; info += ' Esiste già una misura del ' + misDate(m.data) + ': salvando la sostituisci.'; }
+        misOpenForm(c, m, onSaved, info, warn);
+      }).catch(function (e) { toast('Non riesco a leggere il PDF: ' + ((e && e.message) || 'errore')); });
+    });
+    inp.click();
+  }
+  function misOpenForm(c, m, onSaved, info, warn) {
+    m = m ? JSON.parse(JSON.stringify(m)) : { pliche: {}, circ: {}, data: toISO(todayMidnight()), fonte: 'manuale' };
+    m.pliche = m.pliche || {}; m.circ = m.circ || {};
+    var inp = function (k, l, v, attr, type) { return '<div><label>' + l + '</label><input type="' + (type || 'text') + '" ' + attr + '="' + escapeHtml(k) + '" value="' + (v == null ? '' : escapeHtml(String(v).replace('.', type === 'date' ? '.' : ','))) + '"' + (type ? '' : ' inputmode="decimal"') + '></div>'; };
+    var pk = misKeys(MIS_PLICHE, [m.pliche]), ck = misKeys(MIS_CIRC, [m.circ]);
+    document.getElementById('misTitle').textContent = (m.id ? 'Misura del ' + misDate(m.data) : 'Nuova misura') + ' · ' + c.cliente;
+    document.getElementById('misBody').innerHTML = (info ? '<div class="mis-info' + (warn ? ' warn' : '') + '">' + info + '</div>' : '') +
+      '<div class="mis-grid">' + inp('data', 'Data', m.data, 'data-mf', 'date') + inp('peso', 'Peso (kg)', m.peso, 'data-mf') + inp('altezza', 'Altezza (cm)', m.altezza, 'data-mf') +
+        '<div><label>Livello attività</label><input type="text" data-mf="laf" value="' + escapeHtml(m.laf || '') + '"></div>' +
+        inp('mgPct', 'Massa grassa %', m.mgPct, 'data-mf') + inp('mmPct', 'Massa magra %', m.mmPct, 'data-mf') + inp('mgKg', 'Massa grassa (kg)', m.mgKg, 'data-mf') + inp('mmKg', 'Massa magra (kg)', m.mmKg, 'data-mf') + '</div>' +
+      '<div class="mis-sec">Pliche (mm)<span id="misSum"></span></div><div class="mis-grid">' + pk.map(function (k) { return inp(k, k, m.pliche[k], 'data-mp'); }).join('') + '</div>' +
+      '<div class="mis-sec">Circonferenze (cm)</div><div class="mis-grid">' + ck.map(function (k) { return inp(k, k, m.circ[k], 'data-mc'); }).join('') + '</div>' +
+      '<div style="margin-top:12px;"><label>Note</label><textarea class="note-area" id="misNote">' + escapeHtml(m.note || '') + '</textarea></div>' +
+      '<div class="ap-hint">Se lasci vuoti i kg, li calcolo da peso e massa grassa %. Le pliche che non rilevi lasciale vuote.</div>' +
+      '<div class="modal-actions"><div></div><div class="right"><button class="btn ghost" id="misCancel">Annulla</button><button class="btn primary" id="misSave">Salva misura</button></div></div>';
+    var ov = document.getElementById('misOverlay'), body = document.getElementById('misBody');
+    var upSum = function () { var t = 0, n = 0; body.querySelectorAll('[data-mp]').forEach(function (el) { var v = misNum(el.value); if (v != null) { t += v; n++; } }); document.getElementById('misSum').textContent = n ? 'Σ ' + n + ' pliche: ' + misFmt(t, 1) + ' mm' : ''; };
+    body.querySelectorAll('[data-mp]').forEach(function (el) { el.addEventListener('input', upSum); }); upSum();
+    document.getElementById('misCancel').addEventListener('click', function () { ov.classList.remove('open'); });
+    document.getElementById('misSave').addEventListener('click', function () {
+      var e = { id: m.id || uid(), fonte: m.fonte || 'manuale', pliche: {}, circ: {}, note: document.getElementById('misNote').value.trim() };
+      body.querySelectorAll('[data-mf]').forEach(function (el) { var k = el.getAttribute('data-mf'); e[k] = k === 'data' || k === 'laf' ? el.value.trim() : misNum(el.value); });
+      body.querySelectorAll('[data-mp]').forEach(function (el) { var v = misNum(el.value); if (v != null) e.pliche[el.getAttribute('data-mp')] = v; });
+      body.querySelectorAll('[data-mc]').forEach(function (el) { var v = misNum(el.value); if (v != null) e.circ[el.getAttribute('data-mc')] = v; });
+      if (!e.data) { toast('Manca la data della misura'); return; }
+      if (e.peso != null && e.mgPct != null) { if (e.mgKg == null) e.mgKg = Math.round(e.peso * e.mgPct) / 100; if (e.mmKg == null) e.mmKg = Math.round((e.peso - e.mgKg) * 100) / 100; }
+      if (e.mgPct != null && e.mmPct == null) e.mmPct = Math.round((100 - e.mgPct) * 100) / 100;
+      e.salvato = new Date().toISOString();
+      c.misure = (c.misure || []).filter(function (x) { return x.id !== e.id; }); c.misure.push(e);
+      saveClients(); ov.classList.remove('open');
+      toast('📏 Misura del ' + misDate(e.data) + ' salvata nella cartella di ' + c.cliente);
+      if (state.openFolderId === c.id) renderFolder(c.id);
+      if (onSaved) onSaved(e);
+    });
+    ov.classList.add('open');
+  }
+  document.getElementById('misOverlay').addEventListener('click', function (e) { if (e.target.id === 'misOverlay') e.target.classList.remove('open'); });
+  function misPanelHtml(c) {
+    var L = misList(c);
+    var head = '<h3>📏 Misure e pliche</h3><div class="mis-btns"><button class="btn small primary" data-misimport>📥 Importa PDF CoachPlus</button><button class="btn small" data-misadd>+ Misura a mano</button></div>';
+    if (!L.length) return '<div class="section-block">' + head + '<div class="no-items">Nessuna misura. Da CoachPlus scarica il PDF della visita e importalo qui: peso, pliche, massa grassa e circonferenze si compilano da soli.</div></div>';
+    var row = function (label, get, dec, unit) {
+      var vals = L.map(get); if (vals.every(function (v) { return v == null; })) return '';
+      return '<tr><td>' + label + '</td>' + vals.map(function (v, i) {
+        var prev = null; for (var j = i + 1; j < vals.length; j++) if (vals[j] != null) { prev = vals[j]; break; }
+        var d = v != null && prev != null ? v - prev : null;
+        return '<td>' + (v == null ? '—' : misFmt(v, dec) + (unit || '')) + (d != null && Math.abs(d) >= Math.pow(10, -(dec || 0)) ? '<span class="mis-d">' + (d > 0 ? '+' : '−') + misFmt(Math.abs(d), dec) + '</span>' : '') + '</td>';
+      }).join('') + '</tr>';
+    };
+    var grp = function (t) { return '<tr class="mis-grp"><td colspan="' + (L.length + 1) + '">' + t + '</td></tr>'; };
+    var pk = misKeys(MIS_PLICHE, L.map(function (m) { return m.pliche; })), ck = misKeys(MIS_CIRC, L.map(function (m) { return m.circ; }));
+    var pr = pk.map(function (k) { return row(k, function (m) { return m.pliche && m.pliche[k] != null ? m.pliche[k] : null; }, 1); }).join('');
+    var cr = ck.map(function (k) { return row(k, function (m) { return m.circ && m.circ[k] != null ? m.circ[k] : null; }, 1); }).join('');
+    return '<div class="section-block">' + head +
+      '<div class="nu-table-wrap"><table class="nu-table mis-table"><thead><tr><th></th>' + L.map(function (m) { return '<th>' + misDate(m.data) + '<span class="mis-col-acts"><button data-misedit="' + m.id + '" title="Modifica">✎</button><button data-misdel="' + m.id + '" title="Elimina">🗑</button></span>' + (m.fonte === 'CoachPlus' ? '<span class="mis-d">CoachPlus</span>' : '') + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        row('Peso', function (m) { return m.peso; }, 1, ' kg') + row('Massa grassa', function (m) { return m.mgPct; }, 1, '%') + row('Massa grassa kg', function (m) { return m.mgKg; }, 1) + row('Massa magra kg', function (m) { return m.mmKg; }, 1) +
+        row('Σ pliche (mm)', misSum, 1) + (pr ? grp('Pliche (mm)') + pr : '') + (cr ? grp('Circonferenze (cm)') + cr : '') +
+      '</tbody></table></div><div class="ap-hint" style="margin-top:6px;">Più recente a sinistra; sotto ogni valore la differenza con la misura precedente.</div></div>';
+  }
+  function misWire(root, c) {
+    Array.prototype.forEach.call(root.querySelectorAll('[data-misimport]'), function (b) { b.addEventListener('click', function () { misPickPdf(c); }); });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-misadd]'), function (b) { b.addEventListener('click', function () { misOpenForm(c, null); }); });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-misedit]'), function (b) { b.addEventListener('click', function () { var m = (c.misure || []).filter(function (x) { return x.id === b.getAttribute('data-misedit'); })[0]; if (m) misOpenForm(c, m); }); });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-misdel]'), function (b) { b.addEventListener('click', function () {
+      var id = b.getAttribute('data-misdel'), m = (c.misure || []).filter(function (x) { return x.id === id; })[0]; if (!m) return;
+      showConfirm('Eliminare la misura del ' + misDate(m.data) + '?', function () { c.misure = c.misure.filter(function (x) { return x.id !== id; }); saveClients(); renderFolder(c.id); toast('Misura eliminata'); });
+    }); });
+  }
+  // nella Raccolta dati del piano: ultima misura del cliente e import diretto
+  function nuMisHtml(f) {
+    var c = f.clientId && getClient(f.clientId); if (!c) return '';
+    var last = misList(c)[0];
+    return '<div class="nu-mis">📏 ' + (last ? 'Ultima misura di ' + escapeHtml(c.cliente) + ': <strong>' + misDate(last.data) + '</strong>' + (last.peso != null ? ' · ' + misFmt(last.peso, 1) + ' kg' : '') + (last.mgPct != null ? ' · BF ' + misFmt(last.mgPct, 2) + '%' : '') + (misSum(last) != null ? ' · Σ pliche ' + misFmt(misSum(last), 1) + ' mm' : '') +
+      ' <button class="btn small" id="nuMisUse">⤵ Usa peso e BF%</button>' : 'Nessuna misura di ' + escapeHtml(c.cliente) + '.') + ' <button class="btn small" id="nuMisImp">📥 Importa PDF CoachPlus</button></div>';
+  }
+  function nuMisFill(f, m) {
+    f.raccolta = f.raccolta || {};
+    if (m.peso != null) f.raccolta.peso = String(m.peso).replace('.', ',');
+    if (m.mgPct != null) f.raccolta.bf = String(m.mgPct).replace('.', ',');
+    nuTouch(f); nuRenderBody(); toast('Peso e BF% del ' + misDate(m.data) + ' copiati nella Raccolta dati');
+  }
+  function nuMisWire(f, body) {
+    var c = f.clientId && getClient(f.clientId); if (!c) return;
+    var u = body.querySelector('#nuMisUse'); if (u) u.addEventListener('click', function () { var last = misList(c)[0]; if (last) nuMisFill(f, last); });
+    var im = body.querySelector('#nuMisImp'); if (im) im.addEventListener('click', function () { misPickPdf(c, function (e) { var cur = nuGet(nuOpenId); if (cur && cur.id === f.id) nuMisFill(cur, e); }); });
+  }
   // ---- Storico a lato del piano: protocolli del cliente (settimane e giorni) e ultimi check, senza chiudere la cartella
   var nuHistOpen = {};
   function nuHistHtml(f) {
@@ -7646,7 +7850,9 @@
       var rows = SHOW.map(function (x) { var k = L.indexOf(x[0]), val = k >= 0 && v[k] ? richToText(v[k].r || '') : ''; return val ? '<div class="an-kv"><span>' + x[1] + '</span><strong>' + escapeHtml(val) + '</strong></div>' : ''; }).join('');
       return '<div class="nh-check"><strong>' + escapeHtml(cd.nome || 'Check') + '</strong> <span class="sp-meta">' + dt(d || cd.dataCreazione) + '</span>' + (rows || '<div class="sp-meta">Nessun dato compilato.</div>') + '</div>';
     }).join('');
+    var mis = misList(c).slice(0, 3).map(function (m) { return '<div class="an-kv"><span>' + misDate(m.data) + '</span><strong>' + [m.peso != null ? misFmt(m.peso, 1) + ' kg' : '', m.mgPct != null ? 'BF ' + misFmt(m.mgPct, 1) + '%' : '', misSum(m) != null ? 'Σ pliche ' + misFmt(misSum(m), 1) : ''].filter(Boolean).join(' · ') + '</strong></div>'; }).join('');
     return '<div class="nh-title">Protocolli (' + list.length + ')</div>' + prot +
+      '<div class="nh-title">Ultime misure</div>' + (mis ? '<div class="nh-check">' + mis + '</div>' : '<div class="no-items">Nessuna misura: importala dal PDF di CoachPlus in Raccolta dati o nella cartella del cliente.</div>') +
       '<div class="nh-title">Ultimi check dettagliati</div>' + (checks || '<div class="no-items">Nessun check dettagliato nella cartella del cliente.</div>');
   }
   function nuHistToggle(force) {
@@ -7688,7 +7894,7 @@
   function nuRaccoltaHtml(f) {
     var r = f.raccolta || {};
     var inp = function (k, l) { return '<div><label>' + l + '</label><input type="text" class="nu-rc" data-nurc="' + k + '" value="' + escapeHtml(r[k] || '') + '" inputmode="decimal"></div>'; };
-    return '<div class="nu-sec"><div class="nu-sec-title">Raccolta dati · da compilare</div><div class="nu-grid4">' + NU_RACCOLTA.map(function (x) { return inp(x[0], x[1]); }).join('') + '</div></div>' +
+    return nuMisHtml(f) + '<div class="nu-sec"><div class="nu-sec-title">Raccolta dati · da compilare</div><div class="nu-grid4">' + NU_RACCOLTA.map(function (x) { return inp(x[0], x[1]); }).join('') + '</div></div>' +
       '<div class="nu-sec"><div class="nu-sec-title">Calcoli</div><div class="nu-grid4" id="nuCalcBox">' + nuCalcHtml(f) + '</div></div>' +
       '<div class="nu-sec"><div class="nu-sec-title">Controllo obiettivi</div><div class="nu-grid4">' + NU_OBIETTIVI.map(function (x) { return inp(x[0], x[1]); }).join('') + '<div id="nuObjBox" style="display:contents;">' + nuObjHtml(f) + '</div></div></div>' +
       '<div class="nu-sec"><div class="nu-sec-title">Velocità metabolica</div><div class="nu-grid4" id="nuVm">' + nuVmHtml(f) + '</div></div>' +
@@ -9925,6 +10131,7 @@
     var FOLDER_TABS = [
       { key: 'anagrafica', label: 'Pacchetto attivo' },
       { key: 'check', label: c.sequenzaTipi.length === 1 && c.sequenzaTipi[0] === 'Visita' ? 'Visite' : 'Check' },
+      { key: 'misure', label: '📏 Misure' },
       { key: 'pagamenti', label: 'Pagamenti' },
       { key: 'anamnesi', label: 'Anamnesi' }
     ];
@@ -10000,6 +10207,8 @@
         '</div>' +
       '</div>' +
 
+      '<div class="folder-tab-panel' + (ft === 'misure' ? ' active' : '') + '" data-fpanel="misure">' + misPanelHtml(c) + '</div>' +
+
       '<div class="folder-tab-panel' + (ft === 'pagamenti' ? ' active' : '') + '" data-fpanel="pagamenti">' +
         '<div class="section-block">' +
           '<h3>Pacchetto e pagamenti</h3>' +
@@ -10015,6 +10224,7 @@
   }
 
   function wireFolderEvents(c) {
+    misWire(folderModal, c);
     var ctb = document.getElementById('contactTodayBtn');
     if (ctb) ctb.addEventListener('click', function () { c.dataUltimoContatto = toISO(todayMidnight()); c.daRicontattare = false; saveClients(); toast('Ultimo contatto: oggi'); renderFolder(c.id); render(); });
     var apb = document.getElementById('anamPdfBtn'); if (apb) apb.addEventListener('click', function (e) { e.stopPropagation(); ffDownloadPdf('Anamnesi', c.cliente, formatItData(c.dataInizioPercorso), FIELDS_ANAMNESI, (c.anamnesi && c.anamnesi.valori) || {}); });
