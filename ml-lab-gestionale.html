@@ -1007,6 +1007,32 @@
   .nu-head-btns { display: flex; gap: 6px; flex-wrap: wrap; }
   /* misure e pliche (import PDF CoachPlus) */
   #misOverlay { z-index: 59; }
+  /* agenda veloce sopra la cartella cliente */
+  #agOverlay { z-index: 55; } #apOverlay { z-index: 57; }
+  .ag-modal { max-width: 1180px !important; width: 98vw; }
+  .ag-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+  .ag-head h2 { margin: 0; flex: 1 1 260px; font-size: 18px; }
+  .ag-sub { font-size: 13px; color: var(--ink-muted); margin-bottom: 10px; }
+  .ag-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+  .ag-day { border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 5px; min-height: 160px; background: var(--surface); }
+  .ag-day.today { border-color: var(--ink); }
+  .ag-day.prev { background: var(--accent-soft); border-color: var(--accent); }
+  .ag-day.past { opacity: .55; }
+  .ag-dh { display: flex; justify-content: space-between; align-items: baseline; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px; }
+  .ag-dh .dn { font-size: 18px; }
+  .ag-tag { font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 1px 7px; background: var(--accent); color: var(--accent-ink); }
+  .ag-tag.fx { background: var(--ink); color: var(--bg); }
+  .ag-ev { font-size: 11.5px; line-height: 1.3; border-left: 3px solid #0B8043; padding: 2px 5px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .ag-ev b { font-weight: 700; }
+  .ag-ev.chk { border-left-color: var(--accent); }
+  .ag-free { font-size: 11.5px; color: var(--ink-muted); }
+  .ag-acts { margin-top: auto; display: flex; flex-direction: column; gap: 4px; }
+  .ag-acts .btn { width: 100%; justify-content: center; }
+  .ag-msg { padding: 30px; text-align: center; color: var(--ink-muted); }
+  .cf-fiss label { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .ag-open-btn { flex: 0 0 auto; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 0 5px; font-size: 11px; line-height: 15px; cursor: pointer; white-space: nowrap; }
+  .ag-open-btn:hover { background: var(--accent-soft); }
+  @media (max-width: 900px) { .ag-grid { grid-template-columns: 1fr; } .ag-day { min-height: 0; } .ag-acts { flex-direction: row; } }
   .mis-datebar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 6px 0 2px; font-size: 12px; color: var(--ink-muted); }
   .mis-datebar button { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 3px 9px; font: inherit; font-size: 12px; cursor: pointer; color: var(--ink); }
   .mis-datebar button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
@@ -1816,6 +1842,11 @@
     <div class="nu-saved" id="nuSaved">Le modifiche si salvano da sole mentre scrivi</div>
     <div id="nuBody"></div>
   </div>
+</div>
+
+<!-- Agenda veloce (per fissare un check senza chiudere la cartella) -->
+<div class="overlay" id="agOverlay">
+  <div class="modal ag-modal" id="agModal"></div>
 </div>
 
 <!-- Modal misure e pliche -->
@@ -2764,7 +2795,7 @@
   }
   // mentre scrivi, i dati in arrivo dagli altri dispositivi aspettano: non sovrascrivono mai quello che hai davanti
   function isEditingNow() {
-    var ids = ['folderOverlay', 'misOverlay', 'bsOverlay', 'spFolderOverlay', 'nuOverlay', 'anOverlay', 'trOverlay', 'apOverlay', 'consulenzaOverlay', 'newClientOverlay', 'newVisitaOverlay'];
+    var ids = ['folderOverlay', 'misOverlay', 'bsOverlay', 'agOverlay', 'spFolderOverlay', 'nuOverlay', 'anOverlay', 'trOverlay', 'apOverlay', 'consulenzaOverlay', 'newClientOverlay', 'newVisitaOverlay'];
     if (ids.some(function (id) { var el = document.getElementById(id); return el && el.classList.contains('open'); })) return true;
     var ae = document.activeElement, tag = ae && ae.tagName;
     return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
@@ -3877,6 +3908,83 @@
   }
   var apOverlay = document.getElementById('apOverlay');
   var apEditing = null;
+  // ---- AGENDA VELOCE: la settimana di Google Calendar sopra la cartella, per scegliere la data del check
+  var ag = null, agCache = {};
+  function agOpen(c, chk) {
+    var ref = fromISO(chk.dataFissata || chk.dataPrevista || toISO(todayMidnight()));
+    ag = { c: c, chk: chk, ws: apWeekStartOf(ref) };
+    document.getElementById('agOverlay').classList.add('open');
+    agRender(); agLoad();
+  }
+  function agClose() { ag = null; document.getElementById('agOverlay').classList.remove('open'); }
+  function agKey() { return toISO(ag.ws); }
+  function agLoad(force) {
+    var k = agKey();
+    if (agCache[k] && !force && Date.now() - agCache[k].at < 60000) { agRender(); return; }
+    agCache[k] = agCache[k] || { status: 'loading' };
+    if (force) agCache[k].status = 'loading';
+    agRender();
+    apGetMcp().then(function (mcp) {
+      if (!mcp) throw { code: 'unavailable' };
+      return mcp.callTool(GC_SERVER, 'list_events', { startTime: fromISO(k).toISOString(), endTime: addDays(fromISO(k), 7).toISOString(), orderBy: 'startTime', pageSize: 250 });
+    }).then(function (res) {
+      var p = (res && res.payload) || {};
+      agCache[k] = { status: 'ok', at: Date.now(), events: (p.events || []).filter(function (e) { return e.status !== 'cancelled' && !apIsDeclined(e); }) };
+      if (ag && agKey() === k) agRender();
+    }).catch(function (e) { agCache[k] = { status: 'error', error: e, at: Date.now() }; if (ag && agKey() === k) agRender(); });
+  }
+  function agRender() {
+    if (!ag) return;
+    var c = ag.c, chk = ag.chk, ws = ag.ws, we = addDays(ws, 6), data = agCache[agKey()] || { status: 'loading' };
+    var WD = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM'], todayIso = toISO(todayMidnight());
+    var range = ws.getDate() + (ws.getMonth() !== we.getMonth() ? ' ' + MESI[ws.getMonth()].slice(0, 3) : '') + ' – ' + we.getDate() + ' ' + MESI[we.getMonth()] + ' ' + we.getFullYear();
+    var dShort = function (iso) { var d = fromISO(iso); return GIORNI[d.getDay()].slice(0, 3) + ' ' + d.getDate() + ' ' + MESI[d.getMonth()].slice(0, 3); };
+    // check già fissati nell'app (anche di altri clienti), così vedi quanti ne hai in quel giorno
+    var appChecks = {};
+    (state.clients || []).forEach(function (cl) { (cl.checks || []).forEach(function (k) { var d = k.dataFissata; if (!d || k.dataEffettiva || (cl.id === c.id && k.id === chk.id)) return; (appChecks[d] = appChecks[d] || []).push((k.tipoCheck || 'Check') + ' · ' + cl.cliente); }); });
+    var byDay = {};
+    (data.events || []).forEach(function (e) {
+      if (e.start && e.start.dateTime) { var k = toISO(new Date(e.start.dateTime)); (byDay[k] = byDay[k] || []).push(e); }
+      else if (e.start && e.start.date) { var sd = fromISO(e.start.date), ed = e.end && e.end.date ? fromISO(e.end.date) : addDays(sd, 1); for (var d = new Date(sd); d < ed; d = addDays(d, 1)) { var k2 = toISO(d); (byDay[k2] = byDay[k2] || []).push(e); } }
+    });
+    var body;
+    if (data.status === 'error') body = '<div class="ag-msg">Calendario non disponibile: ' + apErrorText(data.error) + '<br><button class="btn small" id="agRetry" style="margin-top:10px;">Riprova</button></div>';
+    else body = '<div class="ag-grid">' + [0, 1, 2, 3, 4, 5, 6].map(function (i) {
+      var d = addDays(ws, i), iso = toISO(d), evs = (byDay[iso] || []).slice().sort(function (a, b) { return ((a.start.dateTime || '') > (b.start.dateTime || '')) ? 1 : -1; });
+      var list = evs.map(function (e) {
+        var t = e.start.dateTime ? apTime(e.start.dateTime) + '–' + apTime(e.end.dateTime) : 'tutto il giorno';
+        return '<div class="ag-ev" style="border-left-color:' + apColorOf(e) + ';"><b>' + t + '</b> ' + escapeHtml((e.summary || '(senza titolo)').trim()) + '</div>';
+      }).join('') + (appChecks[iso] || []).map(function (x) { return '<div class="ag-ev chk">📋 ' + escapeHtml(x) + '</div>'; }).join('');
+      var tags = (iso === chk.dataPrevista ? '<span class="ag-tag">prevista</span>' : '') + (iso === chk.dataFissata ? '<span class="ag-tag fx">fissata</span>' : '');
+      return '<div class="ag-day' + (iso === todayIso ? ' today' : '') + (iso === chk.dataPrevista ? ' prev' : '') + (iso < todayIso ? ' past' : '') + '"><div class="ag-dh"><span>' + WD[i] + ' <span class="dn">' + d.getDate() + '</span></span>' + tags + '</div>' +
+        (data.status === 'loading' && !data.events ? '<div class="ag-free">…</div>' : (list || '<div class="ag-free">Libero</div>')) +
+        '<div class="ag-acts"><button class="btn small primary" data-agfix="' + iso + '">Fissa qui</button><button class="btn small" data-agnew="' + iso + '" title="Fissa il check e crea l\'appuntamento su Google Calendar">＋ Appuntamento</button></div></div>';
+    }).join('') + '</div>';
+    document.getElementById('agModal').innerHTML = '<div class="ag-head"><h2>📅 Agenda · ' + escapeHtml((chk.tipoCheck || 'Check') + ' #' + chk.numero) + ' di ' + escapeHtml(c.cliente) + '</h2>' +
+      '<button class="btn small" id="agPrev">‹</button><button class="btn small" id="agToday">Oggi</button><button class="btn small" id="agNext">›</button><strong style="font-size:14px;">' + range + '</strong>' +
+      '<button class="btn small ghost" id="agReload" title="Aggiorna">↻</button><a class="btn small ghost" href="https://calendar.google.com/calendar/r/week/' + ws.getFullYear() + '/' + (ws.getMonth() + 1) + '/' + ws.getDate() + '" target="_blank" rel="noopener">Google Calendar ↗</a><button class="btn small ghost" id="agClose">✕ Chiudi</button></div>' +
+      '<div class="ag-sub">' + (chk.dataPrevista ? 'Prevista: <strong>' + dShort(chk.dataPrevista) + '</strong>' : 'Nessuna data prevista') + (chk.dataFissata ? ' · fissata: <strong>' + dShort(chk.dataFissata) + '</strong>' : '') + (data.status === 'loading' ? ' · <span class="ap-status">Caricamento da Google…</span>' : '') + '</div>' + body;
+    var md = document.getElementById('agModal');
+    var go = function (n) { ag.ws = n; agRender(); agLoad(); };
+    md.querySelector('#agPrev').addEventListener('click', function () { go(addDays(ag.ws, -7)); });
+    md.querySelector('#agNext').addEventListener('click', function () { go(addDays(ag.ws, 7)); });
+    md.querySelector('#agToday').addEventListener('click', function () { go(apWeekStartOf(todayMidnight())); });
+    md.querySelector('#agReload').addEventListener('click', function () { agLoad(true); });
+    md.querySelector('#agClose').addEventListener('click', agClose);
+    var rt = md.querySelector('#agRetry'); if (rt) rt.addEventListener('click', function () { agLoad(true); });
+    var fix = function (iso) {
+      var sh = document.querySelector('#folderOverlay .check-row[data-check="' + chk.id + '"] .chk-shift');
+      applyDateChange(c, chk, 'dataFissata', iso, !!(sh && sh.checked));
+      saveClients(); if (state.openFolderId === c.id) renderFolder(c.id); render();
+      toast('📅 ' + (chk.tipoCheck || 'Check') + ' #' + chk.numero + ' di ' + c.cliente + ' fissato ' + dShort(iso));
+    };
+    md.querySelectorAll('[data-agfix]').forEach(function (b) { b.addEventListener('click', function () { fix(b.getAttribute('data-agfix')); agClose(); }); });
+    md.querySelectorAll('[data-agnew]').forEach(function (b) { b.addEventListener('click', function () {
+      var iso = b.getAttribute('data-agnew'), d = fromISO(iso); fix(iso); agClose(); d.setHours(9, 0, 0, 0);
+      openApModal(null, d); document.getElementById('ap_summary').value = (chk.tipoCheck || 'Check') + ' ' + c.cliente;
+    }); });
+  }
+  document.getElementById('agOverlay').addEventListener('click', function (e) { if (e.target.id === 'agOverlay') agClose(); });
   function openApModal(ev, presetStart) {
     apEditing = ev;
     document.getElementById('apModalTitle').textContent = ev ? 'Modifica appuntamento' : 'Nuovo appuntamento';
@@ -10485,7 +10593,7 @@
           '<div class="num">#' + chk.numero + '</div>' +
           '<div class="mini-field cf-tipo"><label>Tipo</label><select class="form-input chk-tipo">' + TIPI.map(function (t) { return '<option' + (t === chk.tipoCheck ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div>' +
           '<div class="mini-field cf-prev"><label>Data prevista</label><input type="date" class="chk-prevista" value="' + (chk.dataPrevista || '') + '"></div>' +
-          '<div class="mini-field cf-fiss"><label>Data fissata</label><input type="date" class="chk-fissata" value="' + (chk.dataFissata || '') + '"></div>' +
+          '<div class="mini-field cf-fiss"><label>Data fissata <button type="button" class="ag-open-btn chk-agenda" title="Apri l\'agenda della settimana senza chiudere la cartella" aria-label="Apri agenda">📅</button></label><input type="date" class="chk-fissata" value="' + (chk.dataFissata || '') + '"></div>' +
           '<div class="mini-field cf-eff"><label>Data svolta</label><input type="date" class="chk-effettiva" value="' + (chk.dataEffettiva || '') + '"></div>' +
           '<div class="mini-field cf-note"><label>Note check</label><textarea class="chk-note note-area">' + escapeHtml(chk.note || '') + '</textarea></div>' +
           '<div class="row-btns">' +
@@ -10789,6 +10897,7 @@
         applyDateChange(c, chk, 'dataPrevista', e.target.value, rowEl.querySelector('.chk-shift').checked);
         saveClients(); renderFolder(c.id); render();
       });
+      var agb = rowEl.querySelector('.chk-agenda'); if (agb) agb.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); agOpen(c, chk); });
       q('.chk-fissata').addEventListener('change', function (e) {
         applyDateChange(c, chk, 'dataFissata', e.target.value, rowEl.querySelector('.chk-shift').checked);
         saveClients(); renderFolder(c.id); render();
