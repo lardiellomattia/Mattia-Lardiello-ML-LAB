@@ -1043,6 +1043,7 @@
   .ag-bar-l { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .ag-bar-r { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .ag-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 4px 2px 10px; font-weight: 700; font-size: 12.5px; }
+  .ag-chip input[type="time"] { width: auto; padding: 1px 4px !important; font: inherit; font-size: 12.5px; font-weight: 700; border: 1px solid var(--accent); border-radius: 6px; background: var(--surface); }
   .ag-chip button { border: 0; background: var(--surface); border-radius: 999px; font: inherit; font-size: 11.5px; padding: 1px 7px; cursor: pointer; }
   .ag-hint { color: var(--ink-muted); }
   .ag-dur { display: inline-flex; align-items: center; gap: 5px; margin: 0; font-size: 12px; color: var(--ink-muted); }
@@ -4000,8 +4001,8 @@
     // barra delle proposte: le salvo nel check, così quando la cliente risponde le ritrovi qui
     var P = chk.proposte;
     var bar = '<div class="ag-bar"><div class="ag-bar-l"><strong>💬 Proposte</strong> ' + (P.length ? P.map(function (pr, pi) {
-      return '<span class="ag-chip">' + dShort(pr.data) + (pr.ora ? ' ' + pr.ora : '') + ' <button data-agok="' + pi + '" title="La cliente ha scelto questa: fissa il check">✓ Fissa</button><button data-agdel="' + pi + '" title="Togli">✕</button></span>';
-    }).join('') : '<span class="ag-hint">Tocca uno spazio libero nella griglia per proporre data e ora (puoi sceglierne più di una).</span>') + '</div>' +
+      return '<span class="ag-chip">' + dShort(pr.data) + ' <input type="time" step="300" data-agtime="' + pi + '" value="' + (pr.ora || '') + '" title="Orario esatto: puoi scrivere anche 19:10"> <button data-agok="' + pi + '" title="La cliente ha scelto questa: fissa il check">✓ Fissa</button><button data-agdel="' + pi + '" title="Togli">✕</button></span>';
+    }).join('') : '<span class="ag-hint">Tocca uno spazio libero nella griglia per proporre data e ora (a quarti d\'ora; l\'orario esatto lo correggi qui). Puoi sceglierne più di una.</span>') + '</div>' +
       '<div class="ag-bar-r"><label class="ag-dur">Durata <select id="agDur">' + [30, 45, 60, 90].map(function (m) { return '<option value="' + m + '"' + (m === dur ? ' selected' : '') + '>' + m + ' min</option>'; }).join('') + '</select></label>' +
       (P.length ? '<button class="btn small" id="agCopy">📋 Copia messaggio</button><button class="btn small primary" id="agWa">💬 Proponi su WhatsApp</button>' : '') + '</div></div>';
     document.getElementById('agModal').innerHTML = '<div class="ag-head"><h2>📅 Agenda · ' + escapeHtml((chk.tipoCheck || 'Check') + ' #' + chk.numero) + ' di ' + escapeHtml(c.cliente) + '</h2>' +
@@ -4032,10 +4033,10 @@
       var en = new Date(dt.getTime() + dur * 60000); document.getElementById('ap_end').value = pad2(en.getHours()) + ':' + pad2(en.getMinutes());
     };
     md.querySelectorAll('[data-agfix]').forEach(function (b) { b.addEventListener('click', function () { fix(b.getAttribute('data-agfix'), ''); agClose(); }); });
-    // tocco su uno spazio della griglia: aggiungo/tolgo una proposta (a mezz'ora)
+    // tocco su uno spazio della griglia: aggiungo/tolgo una proposta (al quarto d'ora; l'orario esatto si corregge nella barra)
     md.querySelectorAll('[data-agcol]').forEach(function (col) {
       var hv = col.querySelector('.ag-hover');
-      var at = function (e) { var r = col.getBoundingClientRect(), m = AG_H0 * 60 + Math.floor((e.clientY - r.top) / (AG_PX / 2)) * 30; return Math.max(AG_H0 * 60, Math.min(AG_H1 * 60 - 30, m)); };
+      var at = function (e) { var r = col.getBoundingClientRect(), m = AG_H0 * 60 + Math.floor((e.clientY - r.top) / (AG_PX / 4)) * 15; return Math.max(AG_H0 * 60, Math.min(AG_H1 * 60 - 15, m)); };
       col.addEventListener('mousemove', function (e) { if (e.target.closest('.ag-blk,.ag-prop')) { hv.style.display = 'none'; return; } var m = at(e); hv.style.display = 'block'; hv.style.top = topOf(m) + 'px'; hv.style.height = (dur / 60 * AG_PX - 2) + 'px'; hv.textContent = pad2(Math.floor(m / 60)) + ':' + pad2(m % 60); });
       col.addEventListener('mouseleave', function () { hv.style.display = 'none'; });
       col.addEventListener('click', function (e) {
@@ -4047,6 +4048,10 @@
         saveClients(); agRender(); toast('💬 Proposta: ' + dShort(iso) + ' alle ' + ora);
       });
     });
+    md.querySelectorAll('[data-agtime]').forEach(function (inp) { inp.addEventListener('change', function () {
+      var pr = chk.proposte[parseInt(inp.getAttribute('data-agtime'), 10)]; if (!pr || !/^\d{2}:\d{2}$/.test(inp.value)) return;
+      pr.ora = inp.value; chk.proposte.sort(function (x, y) { return (x.data + x.ora).localeCompare(y.data + y.ora); }); saveClients(); agRender();
+    }); });
     md.querySelectorAll('[data-agdel]').forEach(function (b) { b.addEventListener('click', function () { chk.proposte.splice(parseInt(b.getAttribute('data-agdel'), 10), 1); saveClients(); agRender(); }); });
     md.querySelectorAll('[data-agok]').forEach(function (b) { b.addEventListener('click', function () {
       var pr = chk.proposte[parseInt(b.getAttribute('data-agok'), 10)]; if (!pr) return;
