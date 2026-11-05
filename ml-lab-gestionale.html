@@ -1013,26 +1013,45 @@
   .ag-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
   .ag-head h2 { margin: 0; flex: 1 1 260px; font-size: 18px; }
   .ag-sub { font-size: 13px; color: var(--ink-muted); margin-bottom: 10px; }
-  .ag-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
-  .ag-day { border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 5px; min-height: 160px; background: var(--surface); }
-  .ag-day.today { border-color: var(--ink); }
-  .ag-day.prev { background: var(--accent-soft); border-color: var(--accent); }
-  .ag-day.past { opacity: .55; }
-  .ag-dh { display: flex; justify-content: space-between; align-items: baseline; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px; }
-  .ag-dh .dn { font-size: 18px; }
-  .ag-tag { font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 1px 7px; background: var(--accent); color: var(--accent-ink); }
+  .ag-wrap { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .ag-g { display: grid; grid-template-columns: 46px repeat(7, minmax(92px, 1fr)); min-width: 700px; }
+  .ag-wrap { overflow-x: auto; }
+  .ag-scroll { max-height: 56vh; overflow-y: auto; min-width: 700px; }
+  .ag-dh { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; flex-wrap: wrap; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px; }
+  .ag-dh .dn { font-size: 16px; }
+  .ag-tag { font-size: 10px; font-weight: 700; border-radius: 999px; padding: 1px 6px; background: var(--accent); color: var(--accent-ink); }
   .ag-tag.fx { background: var(--ink); color: var(--bg); }
-  .ag-ev { font-size: 11.5px; line-height: 1.3; border-left: 3px solid #0B8043; padding: 2px 5px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
-  .ag-ev b { font-weight: 700; }
-  .ag-ev.chk { border-left-color: var(--accent); }
-  .ag-free { font-size: 11.5px; color: var(--ink-muted); }
-  .ag-acts { margin-top: auto; display: flex; flex-direction: column; gap: 4px; }
-  .ag-acts .btn { width: 100%; justify-content: center; }
+  .ag-dh2 { padding: 6px; border-left: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 3px; background: var(--surface); }
+  .ag-dh2.today .dn { background: var(--ink); color: var(--bg); border-radius: 999px; padding: 0 6px; }
+  .ag-dh2.prev { background: var(--accent-soft); }
+  .ag-ad { font-size: 10.5px; color: #fff; border-radius: 4px; padding: 1px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ag-ad.chk { background: var(--surface-2); color: var(--ink); border-left: 3px solid var(--accent); }
+  .ag-fixday { margin-top: 2px; border: 1px dashed var(--border); background: none; border-radius: 6px; font: inherit; font-size: 10.5px; padding: 1px 4px; cursor: pointer; color: var(--ink-muted); }
+  .ag-fixday:hover { border-color: var(--ink); color: var(--ink); }
+  .ag-gut { border-right: 0; }
+  .ag-hour { position: relative; border-top: 1px solid var(--border); }
+  .ag-hour span { position: absolute; top: -7px; right: 6px; font-size: 10.5px; color: var(--ink-muted); background: var(--surface); padding: 0 2px; }
+  .ag-col { position: relative; border-left: 1px solid var(--border); cursor: copy; background-image: linear-gradient(to bottom, var(--border) 1px, transparent 1px); }
+  .ag-col.past { background-color: var(--surface-2); cursor: not-allowed; }
+  .ag-col.prev { background-color: rgba(255, 191, 0, 0.07); }
+  .ag-blk { position: absolute; border-radius: 6px; padding: 2px 5px; font-size: 11px; line-height: 1.25; overflow: hidden; box-sizing: border-box; border: 1px solid rgba(255,255,255,.6); cursor: default; }
+  .ag-blk.chk { left: 0; width: 100%; background: var(--surface-2); color: var(--ink); border-left: 3px solid var(--accent); }
+  .ag-blk.fx { left: 0; width: 100%; background: var(--ink); color: var(--bg); font-weight: 700; }
+  .ag-prop { position: absolute; left: 2px; right: 2px; border: 2px dashed #E0A800; background: rgba(255, 191, 0, 0.28); color: var(--ink); border-radius: 6px; font-size: 11px; font-weight: 700; padding: 2px 5px; box-sizing: border-box; cursor: pointer; z-index: 2; }
+  .ag-hover { display: none; position: absolute; left: 2px; right: 2px; border: 1.5px dashed var(--ink-muted); border-radius: 6px; font-size: 11px; color: var(--ink-muted); padding: 2px 5px; pointer-events: none; box-sizing: border-box; }
+  .ag-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--surface-2); border-radius: 12px; padding: 8px 10px; margin-bottom: 10px; font-size: 13px; }
+  .ag-bar-l { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .ag-bar-r { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .ag-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 4px 2px 10px; font-weight: 700; font-size: 12.5px; }
+  .ag-chip button { border: 0; background: var(--surface); border-radius: 999px; font: inherit; font-size: 11.5px; padding: 1px 7px; cursor: pointer; }
+  .ag-hint { color: var(--ink-muted); }
+  .ag-dur { display: inline-flex; align-items: center; gap: 5px; margin: 0; font-size: 12px; color: var(--ink-muted); }
+  .ag-dur select { width: auto; padding: 4px 6px !important; }
   .ag-msg { padding: 30px; text-align: center; color: var(--ink-muted); }
   .cf-fiss label { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
   .ag-open-btn { flex: 0 0 auto; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 0 5px; font-size: 11px; line-height: 15px; cursor: pointer; white-space: nowrap; }
   .ag-open-btn:hover { background: var(--accent-soft); }
-  @media (max-width: 900px) { .ag-grid { grid-template-columns: 1fr; } .ag-day { min-height: 0; } .ag-acts { flex-direction: row; } }
+
   .mis-datebar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 6px 0 2px; font-size: 12px; color: var(--ink-muted); }
   .mis-datebar button { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 3px 9px; font: inherit; font-size: 12px; cursor: pointer; color: var(--ink); }
   .mis-datebar button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
@@ -3933,38 +3952,65 @@
       if (ag && agKey() === k) agRender();
     }).catch(function (e) { agCache[k] = { status: 'error', error: e, at: Date.now() }; if (ag && agKey() === k) agRender(); });
   }
+  var AG_H0 = 7, AG_H1 = 22, AG_PX = 44;
   function agRender() {
     if (!ag) return;
     var c = ag.c, chk = ag.chk, ws = ag.ws, we = addDays(ws, 6), data = agCache[agKey()] || { status: 'loading' };
     var WD = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM'], todayIso = toISO(todayMidnight());
     var range = ws.getDate() + (ws.getMonth() !== we.getMonth() ? ' ' + MESI[ws.getMonth()].slice(0, 3) : '') + ' – ' + we.getDate() + ' ' + MESI[we.getMonth()] + ' ' + we.getFullYear();
     var dShort = function (iso) { var d = fromISO(iso); return GIORNI[d.getDay()].slice(0, 3) + ' ' + d.getDate() + ' ' + MESI[d.getMonth()].slice(0, 3); };
+    var dLong = function (iso) { var d = fromISO(iso); return GIORNI[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()]; };
+    chk.proposte = (chk.proposte || []).filter(function (x) { return x && x.data; });
+    var dur = ag.dur || 60;
     // check già fissati nell'app (anche di altri clienti), così vedi quanti ne hai in quel giorno
     var appChecks = {};
-    (state.clients || []).forEach(function (cl) { (cl.checks || []).forEach(function (k) { var d = k.dataFissata; if (!d || k.dataEffettiva || (cl.id === c.id && k.id === chk.id)) return; (appChecks[d] = appChecks[d] || []).push((k.tipoCheck || 'Check') + ' · ' + cl.cliente); }); });
-    var byDay = {};
+    (state.clients || []).forEach(function (cl) { (cl.checks || []).forEach(function (k) { var d = k.dataFissata; if (!d || k.dataEffettiva || (cl.id === c.id && k.id === chk.id)) return; (appChecks[d] = appChecks[d] || []).push({ t: (k.tipoCheck || 'Check') + ' · ' + cl.cliente, ora: k.oraFissata || '' }); }); });
+    var timed = {}, allDay = {};
     (data.events || []).forEach(function (e) {
-      if (e.start && e.start.dateTime) { var k = toISO(new Date(e.start.dateTime)); (byDay[k] = byDay[k] || []).push(e); }
-      else if (e.start && e.start.date) { var sd = fromISO(e.start.date), ed = e.end && e.end.date ? fromISO(e.end.date) : addDays(sd, 1); for (var d = new Date(sd); d < ed; d = addDays(d, 1)) { var k2 = toISO(d); (byDay[k2] = byDay[k2] || []).push(e); } }
+      if (e.start && e.start.dateTime) { var k = toISO(new Date(e.start.dateTime)); (timed[k] = timed[k] || []).push(e); }
+      else if (e.start && e.start.date) { var sd = fromISO(e.start.date), ed = e.end && e.end.date ? fromISO(e.end.date) : addDays(sd, 1); for (var d = new Date(sd); d < ed; d = addDays(d, 1)) { var k2 = toISO(d); (allDay[k2] = allDay[k2] || []).push(e); } }
     });
-    var body;
-    if (data.status === 'error') body = '<div class="ag-msg">Calendario non disponibile: ' + apErrorText(data.error) + '<br><button class="btn small" id="agRetry" style="margin-top:10px;">Riprova</button></div>';
-    else body = '<div class="ag-grid">' + [0, 1, 2, 3, 4, 5, 6].map(function (i) {
-      var d = addDays(ws, i), iso = toISO(d), evs = (byDay[iso] || []).slice().sort(function (a, b) { return ((a.start.dateTime || '') > (b.start.dateTime || '')) ? 1 : -1; });
-      var list = evs.map(function (e) {
-        var t = e.start.dateTime ? apTime(e.start.dateTime) + '–' + apTime(e.end.dateTime) : 'tutto il giorno';
-        return '<div class="ag-ev" style="border-left-color:' + apColorOf(e) + ';"><b>' + t + '</b> ' + escapeHtml((e.summary || '(senza titolo)').trim()) + '</div>';
-      }).join('') + (appChecks[iso] || []).map(function (x) { return '<div class="ag-ev chk">📋 ' + escapeHtml(x) + '</div>'; }).join('');
+    var mins = function (hhmm) { var p = String(hhmm || '').split(':'); return parseInt(p[0], 10) * 60 + parseInt(p[1] || 0, 10); };
+    var topOf = function (m) { return (m - AG_H0 * 60) / 60 * AG_PX; };
+    var gridH = (AG_H1 - AG_H0) * AG_PX, hours = '';
+    for (var h = AG_H0; h < AG_H1; h++) hours += '<div class="ag-hour" style="height:' + AG_PX + 'px;"><span>' + pad2(h) + ':00</span></div>';
+    var heads = '', cols = '';
+    for (var i = 0; i < 7; i++) {
+      var d = addDays(ws, i), iso = toISO(d), past = iso < todayIso;
       var tags = (iso === chk.dataPrevista ? '<span class="ag-tag">prevista</span>' : '') + (iso === chk.dataFissata ? '<span class="ag-tag fx">fissata</span>' : '');
-      return '<div class="ag-day' + (iso === todayIso ? ' today' : '') + (iso === chk.dataPrevista ? ' prev' : '') + (iso < todayIso ? ' past' : '') + '"><div class="ag-dh"><span>' + WD[i] + ' <span class="dn">' + d.getDate() + '</span></span>' + tags + '</div>' +
-        (data.status === 'loading' && !data.events ? '<div class="ag-free">…</div>' : (list || '<div class="ag-free">Libero</div>')) +
-        '<div class="ag-acts"><button class="btn small primary" data-agfix="' + iso + '">Fissa qui</button><button class="btn small" data-agnew="' + iso + '" title="Fissa il check e crea l\'appuntamento su Google Calendar">＋ Appuntamento</button></div></div>';
-    }).join('') + '</div>';
+      var top = (allDay[iso] || []).map(function (e) { return '<div class="ag-ad" style="background:' + apColorOf(e) + ';">' + escapeHtml((e.summary || '').trim()) + '</div>'; }).join('') +
+        (appChecks[iso] || []).filter(function (x) { return !x.ora; }).map(function (x) { return '<div class="ag-ad chk">📋 ' + escapeHtml(x.t) + '</div>'; }).join('');
+      heads += '<div class="ag-dh2' + (iso === todayIso ? ' today' : '') + (iso === chk.dataPrevista ? ' prev' : '') + '"><div class="ag-dh"><span>' + WD[i] + ' <span class="dn">' + d.getDate() + '</span></span>' + tags + '</div>' + top +
+        '<button class="ag-fixday" data-agfix="' + iso + '" title="Fissa il check in questo giorno, senza orario">Fissa giorno</button></div>';
+      var evs = apLayoutDay((timed[iso] || []).slice()).map(function (e) {
+        var sdt = new Date(e.start.dateTime), edt = new Date(e.end.dateTime), sm = sdt.getHours() * 60 + sdt.getMinutes(), em = toISO(edt) !== iso ? AG_H1 * 60 : edt.getHours() * 60 + edt.getMinutes();
+        sm = Math.max(AG_H0 * 60, sm); em = Math.min(AG_H1 * 60, em); if (em <= sm) return '';
+        var w = 100 / e._lanes;
+        return '<div class="ag-blk" style="top:' + topOf(sm) + 'px;height:' + Math.max(18, (em - sm) / 60 * AG_PX - 2) + 'px;left:' + (w * e._lane) + '%;width:' + w + '%;background:' + apColorOf(e) + ';color:' + (AP_DARK_TEXT[e.colorId] ? '#111' : '#fff') + ';" title="' + escapeHtml((e.summary || '').trim()) + '"><b>' + apTime(e.start.dateTime) + '</b> ' + escapeHtml((e.summary || '(senza titolo)').trim()) + '</div>';
+      }).join('');
+      var chkB = (appChecks[iso] || []).filter(function (x) { return x.ora; }).map(function (x) { var m = mins(x.ora); return '<div class="ag-blk chk" style="top:' + topOf(m) + 'px;height:' + (AG_PX - 2) + 'px;">📋 ' + escapeHtml(x.ora + ' ' + x.t) + '</div>'; }).join('');
+      var props = chk.proposte.map(function (pr, pi) { return pr.data === iso && pr.ora ? '<div class="ag-prop" data-agprop="' + pi + '" style="top:' + topOf(mins(pr.ora)) + 'px;height:' + ((pr.dur || dur) / 60 * AG_PX - 2) + 'px;">💬 ' + pr.ora + ' proposta</div>' : ''; }).join('');
+      var fixB = iso === chk.dataFissata && chk.oraFissata ? '<div class="ag-blk fx" style="top:' + topOf(mins(chk.oraFissata)) + 'px;height:' + (dur / 60 * AG_PX - 2) + 'px;">✓ ' + chk.oraFissata + ' check fissato</div>' : '';
+      var nowL = ''; if (iso === todayIso) { var nd = new Date(), nm = nd.getHours() * 60 + nd.getMinutes(); if (nm >= AG_H0 * 60 && nm <= AG_H1 * 60) nowL = '<div class="ap-now" style="top:' + topOf(nm) + 'px;"></div>'; }
+      cols += '<div class="ag-col' + (past ? ' past' : '') + (iso === chk.dataPrevista ? ' prev' : '') + '" data-agcol="' + iso + '" style="height:' + gridH + 'px;background-size:100% ' + (AG_PX / 2) + 'px;">' + evs + chkB + fixB + props + nowL + '<div class="ag-hover"></div></div>';
+    }
+    var grid = data.status === 'error'
+      ? '<div class="ag-msg">Calendario non disponibile: ' + apErrorText(data.error) + '<br><button class="btn small" id="agRetry" style="margin-top:10px;">Riprova</button></div>'
+      : '<div class="ag-wrap"><div class="ag-g"><div class="ag-gut"></div>' + heads + '</div><div class="ag-scroll" id="agScroll"><div class="ag-g"><div class="ag-gut">' + hours + '</div>' + cols + '</div></div></div>';
+    // barra delle proposte: le salvo nel check, così quando la cliente risponde le ritrovi qui
+    var P = chk.proposte;
+    var bar = '<div class="ag-bar"><div class="ag-bar-l"><strong>💬 Proposte</strong> ' + (P.length ? P.map(function (pr, pi) {
+      return '<span class="ag-chip">' + dShort(pr.data) + (pr.ora ? ' ' + pr.ora : '') + ' <button data-agok="' + pi + '" title="La cliente ha scelto questa: fissa il check">✓ Fissa</button><button data-agdel="' + pi + '" title="Togli">✕</button></span>';
+    }).join('') : '<span class="ag-hint">Tocca uno spazio libero nella griglia per proporre data e ora (puoi sceglierne più di una).</span>') + '</div>' +
+      '<div class="ag-bar-r"><label class="ag-dur">Durata <select id="agDur">' + [30, 45, 60, 90].map(function (m) { return '<option value="' + m + '"' + (m === dur ? ' selected' : '') + '>' + m + ' min</option>'; }).join('') + '</select></label>' +
+      (P.length ? '<button class="btn small" id="agCopy">📋 Copia messaggio</button><button class="btn small primary" id="agWa">💬 Proponi su WhatsApp</button>' : '') + '</div></div>';
     document.getElementById('agModal').innerHTML = '<div class="ag-head"><h2>📅 Agenda · ' + escapeHtml((chk.tipoCheck || 'Check') + ' #' + chk.numero) + ' di ' + escapeHtml(c.cliente) + '</h2>' +
       '<button class="btn small" id="agPrev">‹</button><button class="btn small" id="agToday">Oggi</button><button class="btn small" id="agNext">›</button><strong style="font-size:14px;">' + range + '</strong>' +
       '<button class="btn small ghost" id="agReload" title="Aggiorna">↻</button><a class="btn small ghost" href="https://calendar.google.com/calendar/r/week/' + ws.getFullYear() + '/' + (ws.getMonth() + 1) + '/' + ws.getDate() + '" target="_blank" rel="noopener">Google Calendar ↗</a><button class="btn small ghost" id="agClose">✕ Chiudi</button></div>' +
-      '<div class="ag-sub">' + (chk.dataPrevista ? 'Prevista: <strong>' + dShort(chk.dataPrevista) + '</strong>' : 'Nessuna data prevista') + (chk.dataFissata ? ' · fissata: <strong>' + dShort(chk.dataFissata) + '</strong>' : '') + (data.status === 'loading' ? ' · <span class="ap-status">Caricamento da Google…</span>' : '') + '</div>' + body;
+      '<div class="ag-sub">' + (chk.dataPrevista ? 'Prevista: <strong>' + dShort(chk.dataPrevista) + '</strong>' : 'Nessuna data prevista') + (chk.dataFissata ? ' · fissata: <strong>' + dShort(chk.dataFissata) + (chk.oraFissata ? ' ' + chk.oraFissata : '') + '</strong>' : '') + (data.status === 'loading' ? ' · <span class="ap-status">Caricamento da Google…</span>' : '') + '</div>' + bar + grid;
     var md = document.getElementById('agModal');
+    var sc = md.querySelector('#agScroll'); if (sc) sc.scrollTop = ag.scroll != null ? ag.scroll : (8 - AG_H0) * AG_PX;
+    if (sc) sc.addEventListener('scroll', function () { if (ag) ag.scroll = sc.scrollTop; });
     var go = function (n) { ag.ws = n; agRender(); agLoad(); };
     md.querySelector('#agPrev').addEventListener('click', function () { go(addDays(ag.ws, -7)); });
     md.querySelector('#agNext').addEventListener('click', function () { go(addDays(ag.ws, 7)); });
@@ -3972,17 +4018,51 @@
     md.querySelector('#agReload').addEventListener('click', function () { agLoad(true); });
     md.querySelector('#agClose').addEventListener('click', agClose);
     var rt = md.querySelector('#agRetry'); if (rt) rt.addEventListener('click', function () { agLoad(true); });
-    var fix = function (iso) {
+    md.querySelector('#agDur').addEventListener('change', function (e) { ag.dur = parseInt(e.target.value, 10); agRender(); });
+    var fix = function (iso, ora) {
       var sh = document.querySelector('#folderOverlay .check-row[data-check="' + chk.id + '"] .chk-shift');
       applyDateChange(c, chk, 'dataFissata', iso, !!(sh && sh.checked));
+      chk.oraFissata = ora || ''; chk.proposte = [];
       saveClients(); if (state.openFolderId === c.id) renderFolder(c.id); render();
-      toast('📅 ' + (chk.tipoCheck || 'Check') + ' #' + chk.numero + ' di ' + c.cliente + ' fissato ' + dShort(iso));
+      toast('📅 ' + (chk.tipoCheck || 'Check') + ' #' + chk.numero + ' di ' + c.cliente + ' fissato ' + dShort(iso) + (ora ? ' alle ' + ora : ''));
     };
-    md.querySelectorAll('[data-agfix]').forEach(function (b) { b.addEventListener('click', function () { fix(b.getAttribute('data-agfix')); agClose(); }); });
-    md.querySelectorAll('[data-agnew]').forEach(function (b) { b.addEventListener('click', function () {
-      var iso = b.getAttribute('data-agnew'), d = fromISO(iso); fix(iso); agClose(); d.setHours(9, 0, 0, 0);
-      openApModal(null, d); document.getElementById('ap_summary').value = (chk.tipoCheck || 'Check') + ' ' + c.cliente;
+    var newAp = function (iso, ora) {
+      var dt = fromISO(iso), hm = (ora || '09:00').split(':'); dt.setHours(parseInt(hm[0], 10), parseInt(hm[1], 10), 0, 0);
+      openApModal(null, dt); document.getElementById('ap_summary').value = (chk.tipoCheck || 'Check') + ' ' + c.cliente;
+      var en = new Date(dt.getTime() + dur * 60000); document.getElementById('ap_end').value = pad2(en.getHours()) + ':' + pad2(en.getMinutes());
+    };
+    md.querySelectorAll('[data-agfix]').forEach(function (b) { b.addEventListener('click', function () { fix(b.getAttribute('data-agfix'), ''); agClose(); }); });
+    // tocco su uno spazio della griglia: aggiungo/tolgo una proposta (a mezz'ora)
+    md.querySelectorAll('[data-agcol]').forEach(function (col) {
+      var hv = col.querySelector('.ag-hover');
+      var at = function (e) { var r = col.getBoundingClientRect(), m = AG_H0 * 60 + Math.floor((e.clientY - r.top) / (AG_PX / 2)) * 30; return Math.max(AG_H0 * 60, Math.min(AG_H1 * 60 - 30, m)); };
+      col.addEventListener('mousemove', function (e) { if (e.target.closest('.ag-blk,.ag-prop')) { hv.style.display = 'none'; return; } var m = at(e); hv.style.display = 'block'; hv.style.top = topOf(m) + 'px'; hv.style.height = (dur / 60 * AG_PX - 2) + 'px'; hv.textContent = pad2(Math.floor(m / 60)) + ':' + pad2(m % 60); });
+      col.addEventListener('mouseleave', function () { hv.style.display = 'none'; });
+      col.addEventListener('click', function (e) {
+        var pe = e.target.closest('[data-agprop]'); if (pe) { chk.proposte.splice(parseInt(pe.getAttribute('data-agprop'), 10), 1); saveClients(); agRender(); return; }
+        if (e.target.closest('.ag-blk')) return;
+        var iso = col.getAttribute('data-agcol'); if (iso < todayIso) { toast('Giorno già passato'); return; }
+        var m = at(e), ora = pad2(Math.floor(m / 60)) + ':' + pad2(m % 60);
+        chk.proposte.push({ data: iso, ora: ora, dur: dur }); chk.proposte.sort(function (x, y) { return (x.data + x.ora).localeCompare(y.data + y.ora); });
+        saveClients(); agRender(); toast('💬 Proposta: ' + dShort(iso) + ' alle ' + ora);
+      });
+    });
+    md.querySelectorAll('[data-agdel]').forEach(function (b) { b.addEventListener('click', function () { chk.proposte.splice(parseInt(b.getAttribute('data-agdel'), 10), 1); saveClients(); agRender(); }); });
+    md.querySelectorAll('[data-agok]').forEach(function (b) { b.addEventListener('click', function () {
+      var pr = chk.proposte[parseInt(b.getAttribute('data-agok'), 10)]; if (!pr) return;
+      showConfirm('Fisso il check ' + dShort(pr.data) + ' alle ' + pr.ora + '. Creo anche l\'appuntamento su Google Calendar?', function () { fix(pr.data, pr.ora); agClose(); newAp(pr.data, pr.ora); }, 'Fissa e crea appuntamento', 'Solo fissa', function () { fix(pr.data, pr.ora); agClose(); });
     }); });
+    var msg = function () {
+      var nome = (c.cliente || '').split(' ')[0];
+      return 'Ciao ' + nome + '! Per il prossimo check ti propongo:\n' + chk.proposte.map(function (pr) { return '• ' + dLong(pr.data) + (pr.ora ? ' alle ' + pr.ora : ''); }).join('\n') + '\n' + (chk.proposte.length > 1 ? 'Quale preferisci?' : 'Ti va bene?');
+    };
+    var cp = md.querySelector('#agCopy'); if (cp) cp.addEventListener('click', function () { var t = msg(); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { toast('📋 Messaggio copiato'); }).catch(function () { window.prompt('Copia il messaggio', t); }); });
+    var wa = md.querySelector('#agWa'); if (wa) wa.addEventListener('click', function () {
+      var per = diPersonForClient(c), ph = (per && anPhone(per)) || c.telefono || '';
+      if (!ph) toast('Manca il numero: scegli il contatto in WhatsApp (o aggiungilo in Anagrafica)');
+      window.open(apWaUrl(ph, msg()), '_blank', 'noopener');
+      chk.propostaInviata = new Date().toISOString(); saveClients();
+    });
   }
   document.getElementById('agOverlay').addEventListener('click', function (e) { if (e.target.id === 'agOverlay') agClose(); });
   function openApModal(ev, presetStart) {
@@ -10165,10 +10245,13 @@
   // --- Conferma personalizzata (più affidabile di window.confirm nell'app installata) ---
   var confirmOverlay = document.getElementById('confirmOverlay');
   var confirmPending = null;
-  function showConfirm(message, onConfirm, okLabel) {
+  // altLabel/onAlt: il tasto di sinistra diventa una seconda scelta invece di "Annulla"
+  var confirmAlt = null;
+  function showConfirm(message, onConfirm, okLabel, altLabel, onAlt) {
     document.getElementById('confirmTitle').textContent = message;
     document.getElementById('confirmOkBtn').textContent = okLabel || 'Elimina';
-    confirmPending = onConfirm;
+    document.getElementById('confirmCancelBtn').textContent = altLabel || 'Annulla';
+    confirmPending = onConfirm; confirmAlt = onAlt || null;
     confirmOverlay.classList.add('open');
   }
   document.getElementById('confirmOkBtn').addEventListener('click', function () {
@@ -10178,10 +10261,12 @@
     if (fn) fn();
   });
   document.getElementById('confirmCancelBtn').addEventListener('click', function () {
+    var alt = confirmAlt;
     confirmOverlay.classList.remove('open');
-    confirmPending = null;
+    confirmPending = null; confirmAlt = null;
+    if (alt) alt();
   });
-  confirmOverlay.addEventListener('click', function (e) { if (e.target === confirmOverlay) { confirmOverlay.classList.remove('open'); confirmPending = null; } });
+  confirmOverlay.addEventListener('click', function (e) { if (e.target === confirmOverlay) { confirmOverlay.classList.remove('open'); confirmPending = null; confirmAlt = null; } });
 
   // --- Toast ---
   var toastEl = document.getElementById('toast');
