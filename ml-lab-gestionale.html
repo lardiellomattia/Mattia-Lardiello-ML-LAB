@@ -4048,10 +4048,19 @@
         saveClients(); agRender(); toast('💬 Proposta: ' + dShort(iso) + ' alle ' + ora);
       });
     });
-    md.querySelectorAll('[data-agtime]').forEach(function (inp) { inp.addEventListener('change', function () {
-      var pr = chk.proposte[parseInt(inp.getAttribute('data-agtime'), 10)]; if (!pr || !/^\d{2}:\d{2}$/.test(inp.value)) return;
-      pr.ora = inp.value; chk.proposte.sort(function (x, y) { return (x.data + x.ora).localeCompare(y.data + y.ora); }); saveClients(); agRender();
-    }); });
+    // mentre scrivi l'orario non ridisegno la finestra (perderesti il cursore): sposto solo il riquadro in griglia; riordino quando esci dal campo
+    md.querySelectorAll('[data-agtime]').forEach(function (inp) {
+      var pi = parseInt(inp.getAttribute('data-agtime'), 10), dirty = false;
+      var upd = function () {
+        var pr = chk.proposte[pi]; if (!pr || !/^\d{2}:\d{2}$/.test(inp.value) || pr.ora === inp.value) return;
+        pr.ora = inp.value; dirty = true; saveClients();
+        var el = md.querySelector('[data-agprop="' + pi + '"]');
+        if (el) { var m = mins(pr.ora); el.style.top = topOf(Math.max(AG_H0 * 60, Math.min(AG_H1 * 60 - 15, m))) + 'px'; el.textContent = '💬 ' + pr.ora + ' proposta'; }
+      };
+      inp.addEventListener('input', upd); inp.addEventListener('change', upd);
+      inp.addEventListener('blur', function () { if (!dirty) return; dirty = false; chk.proposte.sort(function (x, y) { return (x.data + x.ora).localeCompare(y.data + y.ora); }); saveClients(); setTimeout(function () { if (ag && !(document.activeElement && document.activeElement.hasAttribute && document.activeElement.hasAttribute('data-agtime'))) agRender(); }, 0); });
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') inp.blur(); });
+    });
     md.querySelectorAll('[data-agdel]').forEach(function (b) { b.addEventListener('click', function () { chk.proposte.splice(parseInt(b.getAttribute('data-agdel'), 10), 1); saveClients(); agRender(); }); });
     md.querySelectorAll('[data-agok]').forEach(function (b) { b.addEventListener('click', function () {
       var pr = chk.proposte[parseInt(b.getAttribute('data-agok'), 10)]; if (!pr) return;
