@@ -1437,6 +1437,10 @@
   .date-today { display: flex; gap: 6px; align-items: center; }
   .date-today input { flex: 1; }
   .today-btn { white-space: nowrap; }
+  .contact-set { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; }
+  .contact-other { position: relative; display: inline-flex; align-items: center; justify-content: center; margin: 0; width: 28px; height: 24px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); cursor: pointer; font-size: 12px; overflow: hidden; }
+  .contact-other:hover { background: var(--accent-soft); }
+  .contact-other input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; padding: 0 !important; border: 0; }
   .today-ok { font-size: 12px; font-weight: 700; color: var(--ok); }
   .sp-month-only { margin: 0; font-size: 13px; font-weight: 600; white-space: nowrap; }
 
@@ -10816,7 +10820,9 @@
           '<div class="path-meta">Percorso dal ' + formatItData(c.dataInizioPercorso) + ' · cadenza check ogni ' + c.cadenzaSettimane + ' settimane' +
           (c.pacchetto && c.pacchetto.tipoPagamento === 'A visita' ? '' : (c.dataRinnovo ? ' · rinnovo il ' + formatItData(c.dataRinnovo) + ' (' + renewLabel(u.renewDue) + ')' : ' · nessuna data di rinnovo impostata')) +
           (c.dataUltimoContatto ? ' · ultimo contatto ' + formatItData(c.dataUltimoContatto) : '') +
-          (c.dataUltimoContatto !== toISO(todayMidnight()) ? ' <button type="button" class="btn tiny today-btn" id="contactTodayBtn" title="Segna che l\'hai sentito oggi">📞 Contattato oggi</button>' : ' <span class="today-ok">✓ contattato oggi</span>') +
+          (c.dataUltimoContatto !== toISO(todayMidnight()) ? ' <span class="contact-set"><button type="button" class="btn tiny today-btn" id="contactTodayBtn" title="Segna che l\'hai sentito oggi">📞 Contattato oggi</button>' +
+            (c.dataUltimoContatto !== toISO(addDays(todayMidnight(), -1)) ? '<button type="button" class="btn tiny today-btn" id="contactYesterdayBtn" title="Segna che l\'hai sentito ieri">ieri</button>' : '') +
+            '<label class="contact-other" title="Contattato in un altro giorno">📅<input type="date" id="contactOtherDate" max="' + toISO(todayMidnight()) + '"></label></span>' : ' <span class="today-ok">✓ contattato oggi</span>') +
           (function () { var cl = contattoLabel(c); return cl ? ' · <strong style="color:var(--' + (cl.level === 'warning' ? 'warning' : 'ok') + ');">' + cl.text + '</strong>' : ''; })() +
           '</div></div>' +
         '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">' +
@@ -10897,7 +10903,16 @@
   function wireFolderEvents(c) {
     misWire(folderModal, c);
     var ctb = document.getElementById('contactTodayBtn');
-    if (ctb) ctb.addEventListener('click', function () { c.dataUltimoContatto = toISO(todayMidnight()); c.daRicontattare = false; saveClients(); toast('Ultimo contatto: oggi'); renderFolder(c.id); render(); });
+    // ultimo contatto: oggi, ieri o un altro giorno, senza passare dall'anagrafica
+    var setContact = function (iso) {
+      var go = function () { c.dataUltimoContatto = iso; c.daRicontattare = false; saveClients(); toast('📞 Ultimo contatto: ' + (iso === toISO(todayMidnight()) ? 'oggi' : iso === toISO(addDays(todayMidnight(), -1)) ? 'ieri' : formatItData(iso))); renderFolder(c.id); render(); };
+      if (c.dataUltimoContatto && iso < c.dataUltimoContatto) showConfirm('Hai già un contatto più recente (' + formatItData(c.dataUltimoContatto) + '). Lo sostituisco con ' + formatItData(iso) + '?', go, 'Sostituisci');
+      else go();
+    };
+    if (ctb) ctb.addEventListener('click', function () { setContact(toISO(todayMidnight())); });
+    var cyb = document.getElementById('contactYesterdayBtn'); if (cyb) cyb.addEventListener('click', function () { setContact(toISO(addDays(todayMidnight(), -1))); });
+    var cod = document.getElementById('contactOtherDate'); if (cod) cod.addEventListener('change', function () { if (cod.value && cod.value <= toISO(todayMidnight())) setContact(cod.value); });
+    if (cod) cod.addEventListener('click', function () { try { if (cod.showPicker) cod.showPicker(); } catch (e) { /* il browser apre il suo calendario */ } });
     var apb = document.getElementById('anamPdfBtn'); if (apb) apb.addEventListener('click', function (e) { e.stopPropagation(); ffDownloadPdf('Anamnesi', c.cliente, formatItData(c.dataInizioPercorso), FIELDS_ANAMNESI, (c.anamnesi && c.anamnesi.valori) || {}); });
     var apk = document.getElementById('anamPdfBlank'); if (apk) apk.addEventListener('click', function (e) { e.stopPropagation(); var bytes = ffBuildPdf('Anamnesi', c.cliente, '', FIELDS_ANAMNESI, {}, true); var name = ('Anamnesi da compilare - ' + c.cliente + '.pdf').replace(/[\\/:*?"<>|]/g, ''); Promise.resolve(window.claude && window.claude.use ? window.claude.use('downloads') : null).then(function (dl) { if (dl) return dl.save({ filename: name, data: bytes }).then(function () { toast('📄 Modulo pronto: ' + name); }); }).catch(function () {}); });
     Array.prototype.forEach.call(folderModal.querySelectorAll('.cd-pdf'), function (b) { b.addEventListener('click', function (e) { e.stopPropagation(); var cd = (c.checkDettagliati || []).filter(function (x) { return x.id === b.getAttribute('data-cd'); })[0]; if (cd) ffDownloadPdf(cd.nome || 'Check', c.cliente, formatItDataShort(cd.dataCreazione), FIELDS_CHECK_TPL, cd.valori || {}); }); });
