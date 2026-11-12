@@ -148,7 +148,7 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 >
 > 3 clienti. 3 percorsi. Nessuna scheda uguale.
 > Ed è per questo che apro il mio nuovo **coaching esclusivo: solo 5 posti.** 🔒
-> Pochi posti per una ragione: seguirti davvero, una persona alla volta. In studio a Bovolone e anche online, con un percorso costruito su di te.
+> Pochi posti per una ragione: seguirti davvero, una persona alla volta. Personal di monitoraggio nel mio studio a Bovolone, supporto anche online e un percorso costruito su di te.
 >
 > **Cerco 5 persone che vogliono realmente mettersi in gioco e cambiare.**
 > 1️⃣ Commenta **RIPARTO** qui sotto: ti scrivo io in DM con il modulo
