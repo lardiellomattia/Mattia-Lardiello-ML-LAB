@@ -13,7 +13,7 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 06 | Copertine storie in evidenza | 3 immagini | [06-copertine-storie](06-copertine-storie) |
 | 07 | Hip thrust: "spingi col tallone" | Reel (3 versioni audio + grafiche HyperFrames) | [07-hip-thrust-tallone](07-hip-thrust-tallone) |
 | 08 | Affondo bulgaro: "il ginocchio non deve superare la punta" | Reel | [08-affondo-bulgaro](08-affondo-bulgaro) |
-| 09 | Prima e dopo: 3 clienti | Carosello 6 slide | [09-prima-dopo](09-prima-dopo) |
+| 09 | Prima e dopo: 3 clienti | Carosello 4 slide | [09-prima-dopo](09-prima-dopo) |
 
 ---
 
@@ -126,7 +126,7 @@ Ricorda: consenso scritto di Irene prima di pubblicare.
 > #affondobulgaro #bulgariansplitsquat #splitsquat #glutei #allenamentoglutei #tecnicaesercizi #mitifitness #personaltrainerverona #mllab
 
 ## 09 · Prima e dopo: 3 clienti
-- `prima-dopo-1.png` … `prima-dopo-6.png`: copertina, 4 confronti, CTA consulenza (1080×1350).
+- `prima-dopo-1.png` … `prima-dopo-4.png`: solo i 4 confronti prima/dopo, senza scritte (1080×1350).
 
 > 3 clienti. 3 punti di partenza diversi. Nessuna scheda uguale. 👇
 > Non esiste il programma "giusto" in generale: esiste quello costruito sul tuo corpo, sulla tua storia e sui tuoi obiettivi.
