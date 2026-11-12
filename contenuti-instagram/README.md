@@ -142,19 +142,26 @@ Ricorda: consenso scritto di ogni cliente prima di pubblicare.
 Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima della prenotazione.
 
 ## 10 · Lancio coaching esclusivo (5 posti)
-- `lancio-1.png` … `lancio-7.png`: copertina "3 clienti. 3 percorsi. Ora apro 5 posti.", 4 prima/dopo, il coaching (ibrido: studio + online), come entrare.
+- `lancio-1.png` … `lancio-7.png`: copertina "3 clienti. 3 percorsi. Ora apro 5 posti.", 4 prima/dopo, il coaching (ibrido: studio + online), "Cerco 5 persone" con CTA a commento e invito a condividere.
 
+> Quale di queste trasformazioni ti colpisce di più? Scrivimi il numero della slide 👇 (2, 3, 4 o 5)
+>
 > 3 clienti. 3 percorsi. Nessuna scheda uguale.
-> Ed è proprio per questo che apro il mio nuovo **coaching esclusivo: solo 5 posti.** 🔒
+> Ed è per questo che apro il mio nuovo **coaching esclusivo: solo 5 posti.** 🔒
 > Pochi posti per una ragione: seguirti davvero, una persona alla volta. In studio a Bovolone e anche online, con un percorso costruito su di te.
-> **Cerco 5 persone che vogliono realmente mettersi in gioco e cambiare.** Come entrare 👇
-> 1️⃣ Scrivimi **RIPARTO** in DM e ti mando il modulo
+>
+> **Cerco 5 persone che vogliono realmente mettersi in gioco e cambiare.**
+> 1️⃣ Commenta **RIPARTO** qui sotto: ti scrivo io in DM con il modulo
 > 2️⃣ Consulenza in studio: anamnesi, misure e foto
 > 3️⃣ Se il percorso fa per te, entri. Fino a esaurimento dei 5 posti.
+>
+> 👯‍♀️ Conosci qualcuna che deve ripartire? Mandale questo post: ripartire in due è più facile.
 > 📍 ML LAB – Bovolone (VR)
 > _I risultati sono individuali e dipendono da costanza, alimentazione e punto di partenza. Foto pubblicate con il consenso delle clienti._
 >
 > #coachingesclusivo #ripartenza #personaltrainerverona #personaltrainerbovolone #allenamentofemminile #primaedopo #trasformazionefisica #allenamentopersonalizzato #coachingibrido #mllab
+
+**Commento da fissare in alto:** "📌 I posti sono 5. Commenta RIPARTO e ti scrivo in DM, rispondo a tutte 💛"
 
 Ricorda: consenso scritto di ogni cliente prima di pubblicare.
 Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima della prenotazione.
