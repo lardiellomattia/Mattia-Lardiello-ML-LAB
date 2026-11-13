@@ -5369,7 +5369,7 @@
     });
   }
   // ---- COSTI DELL'ATTIVITÀ: costi fissi mensili (ricorrenti) + spese singole del mese; contano nel mese a cui si riferiscono
-  var COSTI_CAT = ['Affitto locale', 'Utenze', 'Attrezzatura', 'Software e abbonamenti', 'Marketing', 'Commercialista', 'Tasse e contributi', 'Collaboratori', 'Formazione', 'Assicurazione', 'Altro'];
+  var COSTI_CAT = ['Affitto locale', 'Mutuo', 'Utenze · Luce', 'Utenze · Gas', 'Utenze · Acqua', 'Software di gestione', 'Attrezzatura', 'Marketing', 'Commercialista', 'Tasse e contributi', 'Collaboratori', 'Formazione', 'Assicurazione', 'Altro'];
   function costiData() { var C = state.sp.costi = state.sp.costi || {}; C.list = C.list || []; C.pag = C.pag || {}; C.spese = C.spese || []; return C; }
   function costiItems(m) {
     var C = costiData(), mk = affMk(m), out = [];
@@ -5383,6 +5383,10 @@
     return out.sort(function (a, b) { return a.date - b.date; });
   }
   function costiTot(m) { var t = { tot: 0, paid: 0, due: 0, cat: {} }; costiItems(m).forEach(function (x) { t.tot += x.amount; if (x.paid) t.paid += x.amount; else t.due += x.amount; t.cat[x.cat] = (t.cat[x.cat] || 0) + x.amount; }); return t; }
+  function costiUtenzeHtml(T) {
+    var ks = Object.keys(T.cat).filter(function (c) { return /^utenze/i.test(c); }); if (ks.length < 2) return '';
+    return '<div class="ap-hint" style="margin-top:4px;">Utenze in totale (' + ks.map(function (c) { return c.replace(/^utenze\s*·\s*/i, '').toLowerCase(); }).join(', ') + '): <strong>' + spEuro(ks.reduce(function (t, c) { return t + T.cat[c]; }, 0)) + '</strong></div>';
+  }
   var costiView = { month: null };
   function openCosti(month) {
     costiView.month = spMonthStart(month || fnView.month || todayMidnight());
@@ -5393,7 +5397,8 @@
   function costiClose() { var ov = document.getElementById('costiOverlay'); if (ov) ov.classList.remove('open'); if (state.activeTab === 'finanze') { renderFinanzeStats(); renderFinanzeList(); } }
   function renderCosti() {
     var ov = document.getElementById('costiOverlay'), C = costiData(), m = costiView.month, mk = affMk(m), its = costiItems(m), T = costiTot(m);
-    var catOpts = function (sel) { return COSTI_CAT.map(function (c) { return '<option' + (c === sel ? ' selected' : '') + '>' + c + '</option>'; }).join(''); };
+    // una categoria vecchia o scritta altrove resta selezionabile
+    var catOpts = function (sel) { return COSTI_CAT.concat(sel && COSTI_CAT.indexOf(sel) === -1 ? [sel] : []).map(function (c) { return '<option' + (c === sel ? ' selected' : '') + '>' + escapeHtml(c) + '</option>'; }).join(''); };
     var rows = its.length ? its.map(function (x) {
       var k = escapeHtml(x.fixed ? x.key : x.id);
       return '<div class="aff-row cost-row ' + (x.paid ? 'ok' : 'due') + '"><div class="aff-main"><strong>' + escapeHtml(x.name) + '</strong><span class="sp-meta">' + escapeHtml(x.cat) + ' · ' + (x.fixed ? 'fisso, scade il ' + x.date.getDate() + (x.override ? ' · importo cambiato per questo mese' : '') : 'spesa del ' + spDateShort(x.date)) + '</span></div>' +
@@ -5404,7 +5409,7 @@
     var catRows = Object.keys(T.cat).sort(function (a, b) { return T.cat[b] - T.cat[a]; }).map(function (c) { return '<div class="cost-cat"><span>' + escapeHtml(c) + '</span><div class="fn-src-bar"><span style="width:' + Math.round(T.cat[c] / (T.tot || 1) * 100) + '%;background:var(--urgent);"></span></div><strong>' + spEuro(T.cat[c]) + '</strong></div>'; }).join('');
     var edits = C.list.map(function (a) {
       var id = escapeHtml(a.id);
-      return '<div class="aff-edit cost-edit"><div><label>Costo fisso</label><input type="text" data-cosed="' + id + '" data-f="nome" value="' + escapeHtml(a.nome || '') + '" placeholder="Es. Affitto sala, luce, software"></div>' +
+      return '<div class="aff-edit cost-edit"><div><label>Costo fisso</label><input type="text" data-cosed="' + id + '" data-f="nome" value="' + escapeHtml(a.nome || '') + '" placeholder="Es. Mutuo studio, bolletta luce, gestionale"></div>' +
         '<div><label>Categoria</label><select class="form-input" data-cosed="' + id + '" data-f="categoria">' + catOpts(a.categoria) + '</select></div>' +
         '<div><label>€ al mese</label><input type="text" inputmode="decimal" data-cosed="' + id + '" data-f="importo" value="' + escapeHtml(a.importo == null || a.importo === '' ? '' : String(a.importo).replace('.', ',')) + '"></div>' +
         '<div><label>Giorno</label><input type="number" min="1" max="31" data-cosed="' + id + '" data-f="giorno" value="' + escapeHtml(String(a.giorno || 1)) + '"></div>' +
@@ -5418,7 +5423,7 @@
         '<div class="cost-tot"><div><span>Totale costi</span><strong>' + spEuro(T.tot) + '</strong></div><div><span>Pagati</span><strong>' + spEuro(T.paid) + '</strong></div><div><span>Da pagare</span><strong' + (T.due ? ' style="color:var(--urgent);"' : '') + '>' + spEuro(T.due) + '</strong></div></div>' +
         rows +
         '<div class="cost-add"><input type="date" id="cosNewData" value="' + defDay + '"><input type="text" id="cosNewNome" placeholder="Spesa singola (es. manubri, corso, pubblicità)"><select class="form-input" id="cosNewCat">' + catOpts('Attrezzatura') + '</select><input type="text" inputmode="decimal" id="cosNewImp" placeholder="€ (es. 120,50)"><button class="btn small primary" id="cosNewAdd">＋ Aggiungi spesa</button></div>' +
-        (catRows ? '<div class="cost-cats"><h4>Per categoria</h4>' + catRows + '</div>' : '') +
+        (catRows ? '<div class="cost-cats"><h4>Per categoria</h4>' + catRows + costiUtenzeHtml(T) + '</div>' : '') +
         '<button class="btn small" id="cosCsv" style="margin-top:10px;">⬇ Costi del mese (CSV)</button></div>' +
       '<div class="aff-sec"><h4>Costi fissi mensili</h4>' + (edits || '<div class="no-items">Aggiungi i costi che si ripetono ogni mese (affitto del locale, utenze, software…): compariranno da soli in ogni mese.</div>') + '<button class="btn small" id="cosFixAdd">＋ Costo fisso</button></div></div>';
     var rer = function () { renderCosti(); };
@@ -5666,7 +5671,7 @@
     var costCard = '<div class="fn-summary"><div class="fn-sum-title" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">Costi e utile · ' + spMonthLabel(fnView.month) + '<button class="btn small" data-costiopen="1">💸 ' + (CT.tot ? 'Gestisci costi' : 'Inserisci i costi') + '</button></div>' +
       (CT.tot ? '<div class="cost-tot"><div><span>Incassato</span><strong>' + spEuro(incM) + '</strong></div><div><span>Costi</span><strong style="color:var(--urgent);">− ' + spEuro(CT.tot) + '</strong></div><div><span>Utile</span><strong style="color:var(--' + (incM - CT.tot < 0 ? 'urgent' : 'ok') + ');">' + sg(incM - CT.tot) + '</strong></div><div><span>Utile previsto</span><strong>' + sg(incM + sospM - CT.tot) + '</strong></div></div>' +
         Object.keys(CT.cat).sort(function (a, b) { return CT.cat[b] - CT.cat[a]; }).map(function (c) { return '<div class="cost-cat"><span>' + escapeHtml(c) + '</span><div class="fn-src-bar"><span style="width:' + Math.round(CT.cat[c] / CT.tot * 100) + '%;background:var(--urgent);"></span></div><strong>' + spEuro(CT.cat[c]) + '</strong></div>'; }).join('') +
-        (CT.due ? '<div class="ap-hint" style="margin-top:6px;">Da pagare ancora ' + spEuro(CT.due) + '.</div>' : '')
+        costiUtenzeHtml(CT) + (CT.due ? '<div class="ap-hint" style="margin-top:6px;">Da pagare ancora ' + spEuro(CT.due) + '.</div>' : '')
         : '<div class="ap-hint">Nessun costo inserito per questo mese. Inserisci i costi fissi una volta sola (si ripetono da soli ogni mese) e le spese singole quando capitano: qui vedrai l\'utile.</div>') + '</div>';
     listEl.innerHTML = head + origin + costCard + bars + segPanel + '<div class="fn-detail-title">Dettaglio ' + spMonthLabel(fnView.month) + '</div>' + table + note;
     wire();
