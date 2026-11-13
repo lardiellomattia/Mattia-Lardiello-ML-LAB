@@ -969,6 +969,19 @@
   .ing-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
   .ing-amt { width: 110px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 15px !important; text-align: right; }
   .fn-dot-ing { background: #E67C73; } .fn-dot-aff { background: #8D6E63; }
+  .cost-row .cost-amt { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
+  .cost-row .cost-amt input { width: 100px; padding: 6px 8px; font-size: 13px; text-align: right; }
+  .cost-edit { grid-template-columns: 1.6fr 1.3fr .8fr .55fr 1.15fr 1.15fr 34px; }
+  .cost-add { display: grid; grid-template-columns: 140px 1fr 170px 100px auto; gap: 8px; align-items: center; padding: 10px 12px; border: 1px dashed var(--border); border-radius: 14px; margin: 8px 0; }
+  .cost-tot { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .cost-tot div { background: var(--surface-2); border-radius: 12px; padding: 8px 10px; }
+  .cost-tot span { display: block; font-size: 11.5px; color: var(--ink-muted); }
+  .cost-tot strong { font-size: 18px; }
+  .cost-cats h4 { margin: 12px 0 6px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+  .cost-cat { display: grid; grid-template-columns: 170px 1fr 90px; gap: 10px; align-items: center; font-size: 13px; padding: 3px 0; }
+  .cost-cat strong { text-align: right; }
+  .stat.stat-neg .n { color: var(--urgent); } .stat.stat-pos .n { color: var(--ok); }
+  @media (max-width: 760px) { .cost-add, .cost-edit { grid-template-columns: 1fr 1fr; } .cost-cat { grid-template-columns: 1fr 1fr 80px; } }
   .aff-sec { margin-top: 14px; } .aff-sec h4 { margin: 0 0 8px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
   .aff-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px; border: 1px solid var(--border); border-left: 5px solid var(--border); border-radius: 14px; margin-bottom: 8px; background: #FFFFFF; }
   .aff-row.ok { border-left-color: var(--ok); } .aff-row.due { border-left-color: var(--urgent); } .aff-row.fut { border-left-color: #F29D0B; }
@@ -2841,7 +2854,7 @@
     if (cloned.anag && Array.isArray(cloned.anag.people) && !anOpenId) { state.anag = { people: cloned.anag.people, rejected: cloned.anag.rejected || {}, noAuto: cloned.anag.noAuto || {}, purged: cloned.anag.purged || {} }; try { localStorage.setItem(STORAGE_KEY_AN, JSON.stringify(state.anag)); } catch (e) { /* ignore */ } }
     if (Array.isArray(cloned.nutriCartelle)) { state.nutriCartelle = cloned.nutriCartelle; try { localStorage.setItem(STORAGE_KEY_NUC, JSON.stringify(state.nutriCartelle)); } catch (e) { /* ignore */ } }
     if (Array.isArray(cloned.nutri) && !nuOpenId) { state.nutri = cloned.nutri; try { localStorage.setItem(STORAGE_KEY_NU, JSON.stringify(state.nutri)); } catch (e) { /* ignore */ } }
-    if (cloned.sp && typeof cloned.sp === 'object') { state.sp = { clients: cloned.sp.clients || {}, pay: cloned.sp.pay || {}, ing: cloned.sp.ing || {}, ingPrezzo: cloned.sp.ingPrezzo, manual: cloned.sp.manual || {}, ignore: cloned.sp.ignore || {}, links: cloned.sp.links || {}, alias: cloned.sp.alias || {}, affitti: cloned.sp.affitti || { list: [], pag: {} }, collab: cloned.sp.collab || { list: [] } }; try { localStorage.setItem(STORAGE_KEY_SP, JSON.stringify(state.sp)); } catch (e) { /* ignore */ } }
+    if (cloned.sp && typeof cloned.sp === 'object') { state.sp = { clients: cloned.sp.clients || {}, pay: cloned.sp.pay || {}, ing: cloned.sp.ing || {}, ingPrezzo: cloned.sp.ingPrezzo, manual: cloned.sp.manual || {}, ignore: cloned.sp.ignore || {}, links: cloned.sp.links || {}, alias: cloned.sp.alias || {}, affitti: cloned.sp.affitti || { list: [], pag: {} }, collab: cloned.sp.collab || { list: [] }, costi: cloned.sp.costi || { list: [], pag: {}, spese: [] } }; try { localStorage.setItem(STORAGE_KEY_SP, JSON.stringify(state.sp)); } catch (e) { /* ignore */ } }
     if (cloned.wa && typeof cloned.wa === 'object') { state.wa = { phones: cloned.wa.phones || {}, flags: cloned.wa.flags || {} }; try { localStorage.setItem(STORAGE_KEY_WA, JSON.stringify(state.wa)); } catch (e) { /* ignore */ } }
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.clients)); } catch (e) { /* ignore */ }
     try { localStorage.setItem(STORAGE_KEY_CONSULENZE, JSON.stringify(state.consulenze)); } catch (e) { /* ignore */ }
@@ -4448,7 +4461,7 @@
   function spPacLabel(p) { return p === 0 ? 'Consulenza' : p + ' PT'; }
   var STORAGE_KEY_SP = 'mllab_sedute_v1';
   function loadSp() {
-    try { var raw = localStorage.getItem(STORAGE_KEY_SP); if (raw) { var o = JSON.parse(raw); if (o && typeof o === 'object') return { clients: o.clients || {}, pay: o.pay || {}, ing: o.ing || {}, ingPrezzo: o.ingPrezzo, manual: o.manual || {}, ignore: o.ignore || {}, links: o.links || {}, alias: o.alias || {}, affitti: o.affitti || { list: [], pag: {} }, collab: o.collab || { list: [] } }; } } catch (e) { /* ignore */ }
+    try { var raw = localStorage.getItem(STORAGE_KEY_SP); if (raw) { var o = JSON.parse(raw); if (o && typeof o === 'object') return { clients: o.clients || {}, pay: o.pay || {}, ing: o.ing || {}, ingPrezzo: o.ingPrezzo, manual: o.manual || {}, ignore: o.ignore || {}, links: o.links || {}, alias: o.alias || {}, affitti: o.affitti || { list: [], pag: {} }, collab: o.collab || { list: [] }, costi: o.costi || { list: [], pag: {}, spese: [] } }; } } catch (e) { /* ignore */ }
     return { clients: {}, pay: {}, ing: {} };
   }
   function saveSp() {
@@ -5355,6 +5368,124 @@
       inp.addEventListener('change', function () { if (!inp.value) return; var o = A.pag[inp.getAttribute('data-affday')]; if (o) { o.paidOn = inp.value; saveSp(); toast('Data di incasso aggiornata'); rer(); } });
     });
   }
+  // ---- COSTI DELL'ATTIVITÀ: costi fissi mensili (ricorrenti) + spese singole del mese; contano nel mese a cui si riferiscono
+  var COSTI_CAT = ['Affitto locale', 'Utenze', 'Attrezzatura', 'Software e abbonamenti', 'Marketing', 'Commercialista', 'Tasse e contributi', 'Collaboratori', 'Formazione', 'Assicurazione', 'Altro'];
+  function costiData() { var C = state.sp.costi = state.sp.costi || {}; C.list = C.list || []; C.pag = C.pag || {}; C.spese = C.spese || []; return C; }
+  function costiItems(m) {
+    var C = costiData(), mk = affMk(m), out = [];
+    C.list.forEach(function (a) {
+      var from = affMonth(a.dal), to = a.al ? affMonth(a.al) : null; if (!from || m < from || (to && m > to)) return;
+      var key = a.id + '|' + mk, pg = C.pag[key] || {}, amt = pg.amount != null ? pg.amount : fnParseAmount(a.importo);
+      var day = Math.min(Math.max(parseInt(a.giorno, 10) || 1, 1), new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate());
+      out.push({ fixed: true, id: a.id, key: key, name: a.nome || 'Costo fisso', cat: a.categoria || 'Altro', amount: amt || 0, date: new Date(m.getFullYear(), m.getMonth(), day), paid: !!pg.paid, override: pg.amount != null });
+    });
+    C.spese.forEach(function (x) { var d = fromISO(x.data); if (d && spInMonth(d, m)) out.push({ fixed: false, id: x.id, name: x.nome || 'Spesa', cat: x.categoria || 'Altro', amount: fnParseAmount(x.importo) || 0, date: d, paid: x.pagato !== false }); });
+    return out.sort(function (a, b) { return a.date - b.date; });
+  }
+  function costiTot(m) { var t = { tot: 0, paid: 0, due: 0, cat: {} }; costiItems(m).forEach(function (x) { t.tot += x.amount; if (x.paid) t.paid += x.amount; else t.due += x.amount; t.cat[x.cat] = (t.cat[x.cat] || 0) + x.amount; }); return t; }
+  var costiView = { month: null };
+  function openCosti(month) {
+    costiView.month = spMonthStart(month || fnView.month || todayMidnight());
+    var ov = document.getElementById('costiOverlay');
+    if (!ov) { ov = document.createElement('div'); ov.className = 'overlay'; ov.id = 'costiOverlay'; document.body.appendChild(ov); ov.addEventListener('click', function (e) { if (e.target === ov) costiClose(); }); }
+    ov.classList.add('open'); renderCosti();
+  }
+  function costiClose() { var ov = document.getElementById('costiOverlay'); if (ov) ov.classList.remove('open'); if (state.activeTab === 'finanze') { renderFinanzeStats(); renderFinanzeList(); } }
+  function renderCosti() {
+    var ov = document.getElementById('costiOverlay'), C = costiData(), m = costiView.month, mk = affMk(m), its = costiItems(m), T = costiTot(m);
+    var catOpts = function (sel) { return COSTI_CAT.map(function (c) { return '<option' + (c === sel ? ' selected' : '') + '>' + c + '</option>'; }).join(''); };
+    var rows = its.length ? its.map(function (x) {
+      var k = escapeHtml(x.fixed ? x.key : x.id);
+      return '<div class="aff-row cost-row ' + (x.paid ? 'ok' : 'due') + '"><div class="aff-main"><strong>' + escapeHtml(x.name) + '</strong><span class="sp-meta">' + escapeHtml(x.cat) + ' · ' + (x.fixed ? 'fisso, scade il ' + x.date.getDate() + (x.override ? ' · importo cambiato per questo mese' : '') : 'spesa del ' + spDateShort(x.date)) + '</span></div>' +
+        '<span class="cost-amt">€ <input type="text" inputmode="decimal" data-cosamt="' + k + '" data-fx="' + (x.fixed ? 1 : 0) + '" value="' + (x.amount ? String(x.amount).replace('.', ',') : '') + '"></span>' +
+        '<label class="ap-check" style="margin:0;"><input type="checkbox" data-cospaid="' + k + '" data-fx="' + (x.fixed ? 1 : 0) + '"' + (x.paid ? ' checked' : '') + '> pagato</label>' +
+        (x.fixed ? '' : '<button class="ing-del" data-cosdel="' + k + '" title="Elimina questa spesa">🗑</button>') + '</div>';
+    }).join('') : '<div class="no-items">Nessun costo in ' + spMonthLabel(m) + '.</div>';
+    var catRows = Object.keys(T.cat).sort(function (a, b) { return T.cat[b] - T.cat[a]; }).map(function (c) { return '<div class="cost-cat"><span>' + escapeHtml(c) + '</span><div class="fn-src-bar"><span style="width:' + Math.round(T.cat[c] / (T.tot || 1) * 100) + '%;background:var(--urgent);"></span></div><strong>' + spEuro(T.cat[c]) + '</strong></div>'; }).join('');
+    var edits = C.list.map(function (a) {
+      var id = escapeHtml(a.id);
+      return '<div class="aff-edit cost-edit"><div><label>Costo fisso</label><input type="text" data-cosed="' + id + '" data-f="nome" value="' + escapeHtml(a.nome || '') + '" placeholder="Es. Affitto sala, luce, software"></div>' +
+        '<div><label>Categoria</label><select class="form-input" data-cosed="' + id + '" data-f="categoria">' + catOpts(a.categoria) + '</select></div>' +
+        '<div><label>€ al mese</label><input type="text" inputmode="decimal" data-cosed="' + id + '" data-f="importo" value="' + escapeHtml(a.importo == null || a.importo === '' ? '' : String(a.importo).replace('.', ',')) + '"></div>' +
+        '<div><label>Giorno</label><input type="number" min="1" max="31" data-cosed="' + id + '" data-f="giorno" value="' + escapeHtml(String(a.giorno || 1)) + '"></div>' +
+        '<div><label>Dal mese</label><input type="month" data-cosed="' + id + '" data-f="dal" value="' + escapeHtml(a.dal || '') + '"></div>' +
+        '<div><label>Al mese (vuoto = in corso)</label><input type="month" data-cosed="' + id + '" data-f="al" value="' + escapeHtml(a.al || '') + '"></div>' +
+        '<button class="ing-del" data-cosfdel="' + id + '" title="Elimina questo costo fisso">🗑</button></div>';
+    }).join('');
+    var defDay = spInMonth(todayMidnight(), m) ? toISO(todayMidnight()) : toISO(m);
+    ov.innerHTML = '<div class="modal" style="max-width:860px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div><h2 style="margin:0;">💸 Costi dell\'attività</h2><div class="modal-sub">Costi fissi di ogni mese e spese singole: contano nel mese a cui si riferiscono e si tolgono dagli incassi per l\'utile.</div></div><button class="btn small ghost" id="cosChiudi">✕ Chiudi</button></div>' +
+      '<div class="aff-sec"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><button class="btn small ghost" id="cosPrev">‹</button><h4 style="margin:0;flex:1;text-align:center;">' + spMonthLabel(m) + '</h4><button class="btn small ghost" id="cosNext">›</button></div>' +
+        '<div class="cost-tot"><div><span>Totale costi</span><strong>' + spEuro(T.tot) + '</strong></div><div><span>Pagati</span><strong>' + spEuro(T.paid) + '</strong></div><div><span>Da pagare</span><strong' + (T.due ? ' style="color:var(--urgent);"' : '') + '>' + spEuro(T.due) + '</strong></div></div>' +
+        rows +
+        '<div class="cost-add"><input type="date" id="cosNewData" value="' + defDay + '"><input type="text" id="cosNewNome" placeholder="Spesa singola (es. manubri, corso, pubblicità)"><select class="form-input" id="cosNewCat">' + catOpts('Attrezzatura') + '</select><input type="text" inputmode="decimal" id="cosNewImp" placeholder="€ (es. 120,50)"><button class="btn small primary" id="cosNewAdd">＋ Aggiungi spesa</button></div>' +
+        (catRows ? '<div class="cost-cats"><h4>Per categoria</h4>' + catRows + '</div>' : '') +
+        '<button class="btn small" id="cosCsv" style="margin-top:10px;">⬇ Costi del mese (CSV)</button></div>' +
+      '<div class="aff-sec"><h4>Costi fissi mensili</h4>' + (edits || '<div class="no-items">Aggiungi i costi che si ripetono ogni mese (affitto del locale, utenze, software…): compariranno da soli in ogni mese.</div>') + '<button class="btn small" id="cosFixAdd">＋ Costo fisso</button></div></div>';
+    var rer = function () { renderCosti(); };
+    // dopo un "change" (che arriva anche uscendo dal campo) ridisegno al giro dopo, non mentre il campo sta perdendo il fuoco
+    var rerLater = function () { setTimeout(function () { var o = document.getElementById('costiOverlay'); if (o && o.classList.contains('open')) renderCosti(); }, 0); };
+    document.getElementById('cosChiudi').addEventListener('click', costiClose);
+    document.getElementById('cosPrev').addEventListener('click', function () { costiView.month = spAddMonths(costiView.month, -1); rer(); });
+    document.getElementById('cosNext').addEventListener('click', function () { costiView.month = spAddMonths(costiView.month, 1); rer(); });
+    document.getElementById('cosFixAdd').addEventListener('click', function () { C.list.push({ id: 'cos_' + uid(), nome: '', categoria: 'Affitto locale', importo: '', giorno: 1, dal: mk, al: '' }); saveSp(); rer(); var l = ov.querySelectorAll('.cost-edit [data-f="nome"]'); if (l.length) l[l.length - 1].focus(); });
+    var addSpesa = function () {
+      var imp = fnParseAmount(document.getElementById('cosNewImp').value), nome = document.getElementById('cosNewNome').value.trim(), data = document.getElementById('cosNewData').value;
+      if (!imp) { toast('Inserisci l\'importo della spesa'); document.getElementById('cosNewImp').focus(); return; }
+      if (!data) { toast('Manca la data'); return; }
+      C.spese.push({ id: 'sp_' + uid(), data: data, nome: nome || 'Spesa', categoria: document.getElementById('cosNewCat').value, importo: imp, pagato: true });
+      saveSp(); if (!spInMonth(fromISO(data), costiView.month)) costiView.month = spMonthStart(fromISO(data)); rer(); toast('💸 Spesa aggiunta: ' + spEuro(imp)); var n = document.getElementById('cosNewNome'); if (n) n.focus();
+    };
+    document.getElementById('cosNewAdd').addEventListener('click', addSpesa);
+    ['cosNewNome', 'cosNewImp'].forEach(function (id) { document.getElementById(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') addSpesa(); }); });
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-cosed]'), function (inp) {
+      inp.addEventListener('change', function () {
+        var a = C.list.filter(function (x) { return x.id === inp.getAttribute('data-cosed'); })[0]; if (!a) return;
+        var f = inp.getAttribute('data-f'); a[f] = f === 'giorno' ? (parseInt(inp.value, 10) || 1) : (f === 'importo' ? fnParseAmount(inp.value) : inp.value);
+        saveSp(); rerLater();
+      });
+    });
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-cosamt]'), function (inp) {
+      inp.addEventListener('change', function () {
+        var k = inp.getAttribute('data-cosamt'), v = fnParseAmount(inp.value) || 0;
+        if (inp.getAttribute('data-fx') === '1') {
+          var a = C.list.filter(function (x) { return x.id === k.split('|')[0]; })[0], o = C.pag[k] = C.pag[k] || {};
+          if (a && v === fnParseAmount(a.importo)) delete o.amount; else o.amount = v;
+          if (!o.paid && o.amount == null) delete C.pag[k];
+        } else { var sx = C.spese.filter(function (x) { return x.id === k; })[0]; if (sx) sx.importo = v; }
+        saveSp(); rerLater();
+      });
+    });
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-cospaid]'), function (cb) {
+      cb.addEventListener('change', function () {
+        var k = cb.getAttribute('data-cospaid');
+        if (cb.getAttribute('data-fx') === '1') { var o = C.pag[k] = C.pag[k] || {}; o.paid = cb.checked; if (cb.checked) o.paidOn = toISO(todayMidnight()); else { delete o.paidOn; if (o.amount == null) delete C.pag[k]; } }
+        else { var sx = C.spese.filter(function (x) { return x.id === k; })[0]; if (sx) sx.pagato = cb.checked; }
+        saveSp(); rerLater();
+      });
+    });
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-cosdel]'), function (b) {
+      b.addEventListener('click', function () { var id = b.getAttribute('data-cosdel'); C.spese = C.spese.filter(function (x) { return x.id !== id; }); saveSp(); rer(); toast('Spesa eliminata'); });
+    });
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-cosfdel]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-cosfdel'), a = C.list.filter(function (x) { return x.id === id; })[0];
+        showConfirm('Eliminare il costo fisso "' + ((a && a.nome) || 'senza nome') + '" da tutti i mesi? Se è solo finito, metti invece "Al mese".', function () {
+          C.list = C.list.filter(function (x) { return x.id !== id; }); Object.keys(C.pag).forEach(function (k) { if (k.indexOf(id + '|') === 0) delete C.pag[k]; }); saveSp(); rer();
+        });
+      });
+    });
+    document.getElementById('cosCsv').addEventListener('click', function () { costiExportCsv(costiView.month); });
+  }
+  function costiExportCsv(m) {
+    var its = costiItems(m), num = function (v) { return String(Math.round(v * 100) / 100).replace('.', ','); };
+    var q = function (x) { x = String(x == null ? '' : x); return /[;"\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; };
+    var lines = ['Data;Voce;Categoria;Tipo;Importo (€);Pagato'].concat(its.map(function (x) { return [toISO(x.date).split('-').reverse().join('/'), q(x.name), q(x.cat), x.fixed ? 'Fisso mensile' : 'Spesa singola', num(x.amount), x.paid ? 'sì' : 'no'].join(';'); }));
+    var T = costiTot(m); lines.push(''); lines.push(';;;Totale costi;' + num(T.tot) + ';'); lines.push(';;;Da pagare;' + num(T.due) + ';');
+    Promise.resolve(window.claude && window.claude.use ? window.claude.use('downloads') : null).then(function (dl) {
+      if (!dl) { toast('L\'esportazione funziona aprendo l\'app pubblicata su claude.ai'); return; }
+      return dl.save({ filename: 'Costi ML LAB - ' + spMonthLabel(m) + '.csv', data: '\ufeff' + lines.join('\r\n') }).then(function () { toast('⬇ ' + its.length + ' costi esportati'); });
+    }).catch(function (e) { if (e && e.code === 'declined') return; toast('Esportazione non riuscita (' + ((e && e.code) || 'errore') + ')'); });
+  }
   var FN_SOURCES = [['pt', 'Sedute PT'], ['cons', 'Consulenze'], ['coach', 'Coaching'], ['vis', 'Solo visite'], ['ing', 'Ingressi'], ['aff', 'Affitti']];
   function fnSourceTotals(d, m) {
     var t = {}; FN_SOURCES.forEach(function (s) { t[s[0]] = { inc: 0, sosp: 0 }; });
@@ -5427,19 +5558,21 @@
       { n: spEuro(inc), l: 'Incassato effettivo (PT, consulenze, coaching, ingressi' + (affData().list.length ? ', affitti' : '') + ')' },
       { n: spEuro(sosp), l: 'In sospeso / da incassare' },
       { n: spEuro(inc + sosp), l: 'Proiezione totale mese' },
+      (function () { var ct = costiTot(m); return { n: '− ' + spEuro(ct.tot), l: 'Costi del mese' + (ct.due ? ' (da pagare ' + spEuro(ct.due) + ')' : '') }; })(),
+      (function () { var ct = costiTot(m), u = inc - ct.tot; return { n: (u < 0 ? '− ' : '') + spEuro(Math.abs(u)), l: 'Utile del mese (incassato − costi) · previsto ' + ((inc + sosp - ct.tot) < 0 ? '− ' : '') + spEuro(Math.abs(inc + sosp - ct.tot)), cls: u < 0 ? 'neg' : 'pos' }; })(),
       { n: spEuro(est), l: 'Rinnovi stimati (non ancora in calendario)' },
       (function () { var il = ingItems().filter(function (x) { return spInMonth(x.date, m); }); var ii = 0, is = 0; il.forEach(function (x) { if (!x.paid) is += x.amount; }); ingItems().forEach(function (x) { if (x.paid && spInMonth(ingPayDay(x), m)) ii += x.amount; }); return { n: spEuro(ii + is), l: 'Ingressi del mese · ' + il.length + ' entrate (incassato ' + spEuro(ii) + ')' }; })(),
       { n: '💶 ' + spEuro(parte), l: 'Incasso a parte (escluso dai totali)' },
       (function () { var pv = m <= spMonthStart(todayMidnight()) ? fnProjectedAt(m) : null; return { n: pv == null ? '—' : spEuro(pv), l: pv == null ? 'Previsto a inizio mese (non disponibile)' : 'Previsto a inizio mese · ' + fnDelta(inc + sosp, pv) }; })()
     ];
-    statsEl.innerHTML = defs.map(function (x) { return '<div class="stat"><div class="n">' + x.n + '</div><div class="l">' + x.l + '</div></div>'; }).join('');
+    statsEl.innerHTML = defs.map(function (x) { return '<div class="stat' + (x.cls ? ' stat-' + x.cls : '') + '"><div class="n">' + x.n + '</div><div class="l">' + x.l + '</div></div>'; }).join('');
   }
   function renderFinanzeList() {
     emptyEl.style.display = 'none';
     if (!fnView.month) fnView.month = spMonthStart(todayMidnight());
-    var head = '<div class="ap-toolbar">' + finMonthNav('fn', fnView.month, '<button class="btn small" id="fnAffBtn">🏠 Affitti</button><button class="btn small" id="fnCsvBtn" title="Tutti gli incassi del mese in un file per il commercialista">⬇ Incassi del mese (CSV)</button><button class="btn small" id="fnTariffeBtn">Tariffe clienti</button>') + '</div>';
+    var head = '<div class="ap-toolbar">' + finMonthNav('fn', fnView.month, '<button class="btn small" id="fnCostiBtn">💸 Costi</button><button class="btn small" id="fnAffBtn">🏠 Affitti</button><button class="btn small" id="fnCsvBtn" title="Tutti gli incassi del mese in un file per il commercialista">⬇ Incassi del mese (CSV)</button><button class="btn small" id="fnTariffeBtn">Tariffe clienti</button>') + '</div>';
     var st = finStatusBox();
-    var wire = function () { finWireMonthNav('fn', fnView, function () { renderFinanzeStats(); renderFinanzeList(); }); document.getElementById('fnTariffeBtn').addEventListener('click', openSpTariffe); document.getElementById('fnAffBtn').addEventListener('click', function () { openAffitti(fnView.month); }); var cb = document.getElementById('fnCsvBtn'); if (cb) cb.addEventListener('click', fnExportCsv); };
+    var wire = function () { finWireMonthNav('fn', fnView, function () { renderFinanzeStats(); renderFinanzeList(); }); document.getElementById('fnTariffeBtn').addEventListener('click', openSpTariffe); document.getElementById('fnAffBtn').addEventListener('click', function () { openAffitti(fnView.month); }); document.getElementById('fnCostiBtn').addEventListener('click', function () { openCosti(fnView.month); }); var cb = document.getElementById('fnCsvBtn'); if (cb) cb.addEventListener('click', fnExportCsv); };
     if (st) { listEl.innerHTML = head + st; wire(); finWireStatus(); return; }
     var d = fnCompute();
     // riepilogo prossimi 3 mesi
@@ -5526,7 +5659,16 @@
         (list.length ? '<table class="fn-table sp-panel-table"><tbody>' + list.map(function (x) { return '<tr><td><strong>' + escapeHtml(x.n) + '</strong></td><td>' + escapeHtml(x.t) + '</td><td>' + (x.est ? '≈ ' : '') + spDateShort(x.d) + '</td><td style="text-align:right;font-weight:700;">' + (x.a ? spEuro(x.a) : 'tariffa da impostare') + '</td></tr>'; }).join('') +
         '<tr class="sp-panel-tot"><td colspan="3">Totale</td><td style="text-align:right;">' + spEuro(tot) + '</td></tr></tbody></table>' : '<div class="no-items">Nessun importo.</div>') + '</div>';
     }
-    listEl.innerHTML = head + origin + bars + segPanel + '<div class="fn-detail-title">Dettaglio ' + spMonthLabel(fnView.month) + '</div>' + table + note;
+    // costi e utile del mese scelto
+    var CT = costiTot(fnView.month), incM = 0, sospM = 0, stM = fnSourceTotals(d, fnView.month);
+    FN_SOURCES.forEach(function (x) { incM += stM[x[0]].inc; sospM += stM[x[0]].sosp; });
+    var sg = function (v) { return (v < 0 ? '− ' : '') + spEuro(Math.abs(v)); };
+    var costCard = '<div class="fn-summary"><div class="fn-sum-title" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">Costi e utile · ' + spMonthLabel(fnView.month) + '<button class="btn small" data-costiopen="1">💸 ' + (CT.tot ? 'Gestisci costi' : 'Inserisci i costi') + '</button></div>' +
+      (CT.tot ? '<div class="cost-tot"><div><span>Incassato</span><strong>' + spEuro(incM) + '</strong></div><div><span>Costi</span><strong style="color:var(--urgent);">− ' + spEuro(CT.tot) + '</strong></div><div><span>Utile</span><strong style="color:var(--' + (incM - CT.tot < 0 ? 'urgent' : 'ok') + ');">' + sg(incM - CT.tot) + '</strong></div><div><span>Utile previsto</span><strong>' + sg(incM + sospM - CT.tot) + '</strong></div></div>' +
+        Object.keys(CT.cat).sort(function (a, b) { return CT.cat[b] - CT.cat[a]; }).map(function (c) { return '<div class="cost-cat"><span>' + escapeHtml(c) + '</span><div class="fn-src-bar"><span style="width:' + Math.round(CT.cat[c] / CT.tot * 100) + '%;background:var(--urgent);"></span></div><strong>' + spEuro(CT.cat[c]) + '</strong></div>'; }).join('') +
+        (CT.due ? '<div class="ap-hint" style="margin-top:6px;">Da pagare ancora ' + spEuro(CT.due) + '.</div>' : '')
+        : '<div class="ap-hint">Nessun costo inserito per questo mese. Inserisci i costi fissi una volta sola (si ripetono da soli ogni mese) e le spese singole quando capitano: qui vedrai l\'utile.</div>') + '</div>';
+    listEl.innerHTML = head + origin + costCard + bars + segPanel + '<div class="fn-detail-title">Dettaglio ' + spMonthLabel(fnView.month) + '</div>' + table + note;
     wire();
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-fnm]'), function (col) { col.addEventListener('click', function () { fnView.month = months[parseInt(col.getAttribute('data-fnm'), 10)]; renderFinanzeStats(); renderFinanzeList(); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-fnseg]'), function (sg) {
@@ -5541,6 +5683,7 @@
     var sc2 = document.getElementById('fnSegClose'); if (sc2) sc2.addEventListener('click', function () { fnView.seg = null; renderFinanzeList(); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-spclient]'), function (b) { b.addEventListener('click', function () { openSpClient(b.getAttribute('data-spclient')); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-affopen]'), function (b) { b.addEventListener('click', function () { openAffitti(fnView.month); }); });
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-costiopen]'), function (b) { b.addEventListener('click', function () { openCosti(fnView.month); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-ingopen]'), function (b) { b.addEventListener('click', function () { ingView.month = fnView.month; var btn = document.querySelector('.side-btn[data-tab="ingressi"]'); if (btn) btn.click(); }); });
     Array.prototype.forEach.call(listEl.querySelectorAll('[data-coachopen]'), function (b) { b.addEventListener('click', function () { var cl = getClient(b.getAttribute('data-coachopen')); if (!cl) return; state.activeTab = clientTab(cl); addBtnLabel(); render(); openFolder(cl.id); }); });
   }
