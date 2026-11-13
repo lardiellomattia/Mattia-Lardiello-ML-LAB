@@ -5369,7 +5369,7 @@
     });
   }
   // ---- COSTI DELL'ATTIVITÀ: costi fissi mensili (ricorrenti) + spese singole del mese; contano nel mese a cui si riferiscono
-  var COSTI_CAT = ['Affitto locale', 'Mutuo', 'Utenze · Luce', 'Utenze · Gas', 'Utenze · Acqua', 'Ricarica telefonica', 'Nexi (POS e commissioni)', 'Software di gestione', 'Attrezzatura', 'Marketing', 'Commercialista', 'Tasse e contributi', 'Collaboratori', 'Formazione', 'Assicurazione', 'Altro'];
+  var COSTI_CAT = ['Affitto locale', 'Mutuo', 'Utenze · Luce', 'Utenze · Gas', 'Utenze · Acqua', 'Ricarica telefonica', 'Nexi (POS e commissioni)', 'Commissioni bonifico', 'Software di gestione', 'Attrezzatura', 'Marketing', 'Commercialista', 'Tasse e contributi', 'Collaboratori', 'Formazione', 'Assicurazione', 'Altro'];
   function costiData() { var C = state.sp.costi = state.sp.costi || {}; C.list = C.list || []; C.pag = C.pag || {}; C.spese = C.spese || []; return C; }
   function costiItems(m) {
     var C = costiData(), mk = affMk(m), out = [];
