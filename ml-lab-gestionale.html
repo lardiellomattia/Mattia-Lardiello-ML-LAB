@@ -971,8 +971,11 @@
   .fn-dot-ing { background: #E67C73; } .fn-dot-aff { background: #8D6E63; }
   .cost-row .cost-amt { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
   .cost-row .cost-amt input { width: 100px; padding: 6px 8px; font-size: 13px; text-align: right; }
-  .cost-edit { grid-template-columns: 1.6fr 1.3fr .8fr .55fr 1.15fr 1.15fr 34px; }
+  .aff-edit.cost-edit { grid-template-columns: 1.6fr 1.3fr .8fr .55fr 1.15fr 1.15fr 34px; }
   .cost-add { display: grid; grid-template-columns: 140px 1fr 170px 100px auto; gap: 8px; align-items: center; padding: 10px 12px; border: 1px dashed var(--border); border-radius: 14px; margin: 8px 0; }
+  .cost-add.cost-flash { animation: costFlash 1.4s ease; }
+  @keyframes costFlash { 0%, 60% { border-color: var(--accent); background: var(--accent-soft); } 100% { border-color: var(--border); background: transparent; } }
+  .cost-row .cost-copy { font-size: 15px; }
   .cost-tot { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 10px; }
   .cost-tot div { background: var(--surface-2); border-radius: 12px; padding: 8px 10px; }
   .cost-tot span { display: block; font-size: 11.5px; color: var(--ink-muted); }
@@ -981,7 +984,7 @@
   .cost-cat { display: grid; grid-template-columns: 170px 1fr 90px; gap: 10px; align-items: center; font-size: 13px; padding: 3px 0; }
   .cost-cat strong { text-align: right; }
   .stat.stat-neg .n { color: var(--urgent); } .stat.stat-pos .n { color: var(--ok); }
-  @media (max-width: 760px) { .cost-add, .cost-edit { grid-template-columns: 1fr 1fr; } .cost-cat { grid-template-columns: 1fr 1fr 80px; } }
+  @media (max-width: 760px) { .cost-add, .aff-edit.cost-edit { grid-template-columns: 1fr 1fr; } .cost-cat { grid-template-columns: 1fr 1fr 80px; } }
   .aff-sec { margin-top: 14px; } .aff-sec h4 { margin: 0 0 8px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
   .aff-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px; border: 1px solid var(--border); border-left: 5px solid var(--border); border-radius: 14px; margin-bottom: 8px; background: #FFFFFF; }
   .aff-row.ok { border-left-color: var(--ok); } .aff-row.due { border-left-color: var(--urgent); } .aff-row.fut { border-left-color: #F29D0B; }
@@ -5404,6 +5407,7 @@
       return '<div class="aff-row cost-row ' + (x.paid ? 'ok' : 'due') + '"><div class="aff-main"><strong>' + escapeHtml(x.name) + '</strong><span class="sp-meta">' + escapeHtml(x.cat) + ' · ' + (x.fixed ? 'fisso, scade il ' + x.date.getDate() + (x.override ? ' · importo cambiato per questo mese' : '') : 'spesa del ' + spDateShort(x.date)) + '</span></div>' +
         '<span class="cost-amt">€ <input type="text" inputmode="decimal" data-cosamt="' + k + '" data-fx="' + (x.fixed ? 1 : 0) + '" value="' + (x.amount ? String(x.amount).replace('.', ',') : '') + '"></span>' +
         '<label class="ap-check" style="margin:0;"><input type="checkbox" data-cospaid="' + k + '" data-fx="' + (x.fixed ? 1 : 0) + '"' + (x.paid ? ' checked' : '') + '> pagato</label>' +
+        '<button class="ing-del cost-copy" data-coscopy="' + k + '" title="Copia: nome, categoria e importo vanno nel modulo qui sotto, scegli la data e aggiungi">⧉</button>' +
         (x.fixed ? '' : '<button class="ing-del" data-cosdel="' + k + '" title="Elimina questa spesa">🗑</button>') + '</div>';
     }).join('') : '<div class="no-items">Nessun costo in ' + spMonthLabel(m) + '.</div>';
     var catRows = Object.keys(T.cat).sort(function (a, b) { return T.cat[b] - T.cat[a]; }).map(function (c) { return '<div class="cost-cat"><span>' + escapeHtml(c) + '</span><div class="fn-src-bar"><span style="width:' + Math.round(T.cat[c] / (T.tot || 1) * 100) + '%;background:var(--urgent);"></span></div><strong>' + spEuro(T.cat[c]) + '</strong></div>'; }).join('');
@@ -5466,6 +5470,18 @@
         if (cb.getAttribute('data-fx') === '1') { var o = C.pag[k] = C.pag[k] || {}; o.paid = cb.checked; if (cb.checked) o.paidOn = toISO(todayMidnight()); else { delete o.paidOn; if (o.amount == null) delete C.pag[k]; } }
         else { var sx = C.spese.filter(function (x) { return x.id === k; })[0]; if (sx) sx.pagato = cb.checked; }
         saveSp(); rerLater();
+      });
+    });
+    // copia una voce nel modulo "aggiungi spesa": si sceglie la data (anche di un altro mese) e si aggiunge
+    Array.prototype.forEach.call(ov.querySelectorAll('[data-coscopy]'), function (b) {
+      b.addEventListener('click', function () {
+        var k = b.getAttribute('data-coscopy'), x = its.filter(function (i) { return (i.fixed ? i.key : i.id) === k; })[0]; if (!x) return;
+        var cat = document.getElementById('cosNewCat');
+        if (![].some.call(cat.options, function (o) { return o.value === x.cat; })) { var op = document.createElement('option'); op.textContent = x.cat; cat.appendChild(op); }
+        document.getElementById('cosNewNome').value = x.name; cat.value = x.cat; document.getElementById('cosNewImp').value = String(x.amount).replace('.', ',');
+        var box = ov.querySelector('.cost-add'); box.classList.remove('cost-flash'); void box.offsetWidth; box.classList.add('cost-flash'); box.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        var di = document.getElementById('cosNewData'); di.focus(); try { if (di.showPicker) di.showPicker(); } catch (e) { /* il browser apre il suo calendario */ }
+        toast('⧉ "' + x.name + '" copiata: scegli la data e premi Aggiungi spesa');
       });
     });
     Array.prototype.forEach.call(ov.querySelectorAll('[data-cosdel]'), function (b) {
