@@ -179,6 +179,17 @@
   .row.warning { border-left-color: var(--warning); }
   .row.ok { border-left-color: var(--ok); }
   .row.planned { border-left-color: var(--planned); }
+  .row.paused { border-left-color: #9CA3AF; border-left-style: dashed; }
+  .countdown.paused { color: var(--ink-muted); }
+  .urg-dot.paused { background: #9CA3AF; }
+  .tag.tag-pausa { background: #EEF2F7; color: #475569; }
+  .pausa-banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #EEF2F7; border: 1px dashed #94A3B8; border-radius: 14px; padding: 10px 14px; margin: 10px 0 0; font-size: 13.5px; }
+  .pausa-banner .grow { flex: 1 1 260px; }
+  .pz-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 2px; }
+  .pz-chips button { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
+  .pz-chips button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .pz-prev { background: var(--surface-2); border-radius: 12px; padding: 10px 12px; font-size: 13px; line-height: 1.5; margin-top: 10px; }
+  .pz-prev .warn { color: var(--warning); font-weight: 700; }
   .countdown.planned { color: var(--planned); }
   .urg-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
   .urg-leg { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12px; color: var(--ink-muted); cursor: pointer; }
@@ -1623,6 +1634,7 @@
       <option value="warning">Solo da gestire a breve</option>
       <option value="planned">Solo check fissati in arrivo</option>
       <option value="ok">Solo in regola</option>
+      <option value="paused">Solo in pausa</option>
     </select>
     <div class="spacer"></div>
     <button class="btn ghost" id="importBtn">Importa CSV</button>
@@ -2684,6 +2696,9 @@
   }
   // cliente segnato "non viene più" nella sua scheda in Anagrafica
   function clientInattivo(c) { var per = ((state.anag && state.anag.people) || []).filter(function (x) { return x.appClientId === c.id && !x.eliminato; })[0]; return !!(per && per.inattivo); }
+  // pausa temporanea (es. un mese di stop): attiva se oggi è tra "dal" e "al"
+  function clientPausa(c) { var p = c && c.pausa; if (!p || !p.dal || !p.al) return null; var t = toISO(todayMidnight()); return t >= p.dal && t <= p.al ? p : null; }
+  function clientPausaFutura(c) { var p = c && c.pausa; return p && p.dal && p.al && toISO(todayMidnight()) < p.dal ? p : null; }
   function tabClients() {
     return state.clients.filter(function (c) { return clientTab(c) === state.activeTab; });
   }
@@ -2845,7 +2860,7 @@
   }
   // mentre scrivi, i dati in arrivo dagli altri dispositivi aspettano: non sovrascrivono mai quello che hai davanti
   function isEditingNow() {
-    var ids = ['folderOverlay', 'misOverlay', 'bsOverlay', 'agOverlay', 'spFolderOverlay', 'nuOverlay', 'anOverlay', 'trOverlay', 'apOverlay', 'consulenzaOverlay', 'newClientOverlay', 'newVisitaOverlay'];
+    var ids = ['folderOverlay', 'misOverlay', 'bsOverlay', 'agOverlay', 'pausaOverlay', 'costiOverlay', 'spFolderOverlay', 'nuOverlay', 'anOverlay', 'trOverlay', 'apOverlay', 'consulenzaOverlay', 'newClientOverlay', 'newVisitaOverlay'];
     if (ids.some(function (id) { var el = document.getElementById(id); return el && el.classList.contains('open'); })) return true;
     var ae = document.activeElement, tag = ae && ae.tagName;
     return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
@@ -2942,7 +2957,9 @@
       if (rataDue < 0) up('urgent');
       else if (rataDue <= 7) up('warning');
     }
-    return { level: level, checkLevel: checkLevel, next: next, checkDue: checkDue, renewDue: renewDue, pkgStato: pkgStato, nextRata: nextRata, rataDue: rataDue };
+    var pausa = clientPausa(client);
+    if (pausa) { level = (pkgStato === 'Scaduto' || (rataDue !== null && rataDue < 0)) ? 'urgent' : 'paused'; checkLevel = 'paused'; }
+    return { level: level, checkLevel: checkLevel, pausa: pausa, next: next, checkDue: checkDue, renewDue: renewDue, pkgStato: pkgStato, nextRata: nextRata, rataDue: rataDue };
   }
   function checkDueLabel(days) {
     if (days === null) return 'nessun check in programma';
@@ -2959,7 +2976,7 @@
   }
   var CONTATTO_GIORNI = 10;   // dopo quanti giorni senza contatto la cartella avvisa
   function contattoLabel(client) {
-    if (!client.dataUltimoContatto) return null;
+    if (!client.dataUltimoContatto || clientPausa(client)) return null;
     var d = daysUntil(client.dataUltimoContatto);
     if (d === null) return null;
     var giorni = -d;
@@ -2976,6 +2993,7 @@
 
   function isActionUrgent(c) {
     var u = clientUrgency(c);
+    if (u.pausa) return u.pkgStato === 'Scaduto' || (u.rataDue !== null && u.rataDue < 0);
     var next = u.next;
     var checkUrgent = next && u.checkDue !== null && (u.checkDue < 0 || (!next.dataFissata && u.checkDue <= 7));
     var paymentUrgent = u.pkgStato === 'Scaduto' || (u.rataDue !== null && u.rataDue < 0);
@@ -10290,7 +10308,7 @@
     emptyEl.style.display = 'none';
 
     // legenda dei colori (cliccabile: filtra l'elenco)
-    var LEG = [['urgent', 'In ritardo / scaduto'], ['warning', 'Da gestire a breve'], ['planned', 'Check fissato in arrivo'], ['ok', 'In regola']];
+    var LEG = [['urgent', 'In ritardo / scaduto'], ['warning', 'Da gestire a breve'], ['planned', 'Check fissato in arrivo'], ['ok', 'In regola']].concat(rows.some(function (x) { return x.u.pausa; }) || state.filterUrgenza === 'paused' ? [['paused', 'In pausa']] : []);
     var legend = '<div class="urg-legend">' + LEG.map(function (l) { return '<button type="button" class="urg-leg' + (state.filterUrgenza === l[0] ? ' on' : '') + '" data-urgleg="' + l[0] + '"><i class="urg-dot ' + l[0] + '"></i>' + l[1] + '</button>'; }).join('') + '</div>';
     listEl.innerHTML = legend + rows.map(function (x) {
       var c = x.c, u = x.u;
@@ -10333,13 +10351,13 @@
       }
       return (
         '<div class="row ' + (clientInattivo(c) ? 'ok row-off' : u.level) + '" data-id="' + c.id + '">' +
-          '<div class="name">' + escapeHtml(c.cliente) + (clientInattivo(c) ? '<span class="tag tag-off">⏸ Non viene più</span>' : '') + (u.next ? '<span class="tag">' + escapeHtml(u.next.tipoCheck) + '</span>' : '') +
+          '<div class="name">' + escapeHtml(c.cliente) + (clientInattivo(c) ? '<span class="tag tag-off">⏸ Non viene più</span>' : '') + (u.pausa ? '<span class="tag tag-pausa">⏸ In pausa fino al ' + formatItDataShort(u.pausa.al) + '</span>' : (clientPausaFutura(c) ? '<span class="tag tag-pausa">⏸ Pausa dal ' + formatItDataShort(c.pausa.dal) + '</span>' : '')) + (u.next ? '<span class="tag">' + escapeHtml(u.next.tipoCheck) + '</span>' : '') +
             '<div class="meta">' + (c.noteGenerali ? '"' + escapeHtml(c.noteGenerali) + '"' : 'dal ' + formatItDataShort(c.dataInizioPercorso)) + contattoTag + '</div>' +
           '</div>' +
           '<div class="c-check">' +
             '<div class="field-label">Prossimo check' + (u.next ? ' · <span style="font-weight:600;color:' + (u.next.dataFissata ? 'var(--ok)' : 'var(--warning)') + ';">' + (u.next.dataFissata ? 'Fissato' : 'Da fissare') + '</span>' : '') + '</div>' +
             '<div class="field-value">' + (u.next ? formatItData(u.next.dataFissata || u.next.dataPrevista) : '—') + '</div>' +
-            '<div class="countdown ' + u.checkLevel + '">' + checkDueLabel(u.checkDue) + '</div>' +
+            '<div class="countdown ' + u.checkLevel + '">' + (u.pausa ? 'in pausa · riprende il ' + formatItDataShort(toISO(addDays(fromISO(u.pausa.al), 1))) : checkDueLabel(u.checkDue)) + '</div>' +
           '</div>' +
           '<div class="c-renewal">' +
             '<div class="field-label">Rinnovo percorso</div>' +
@@ -11013,8 +11031,9 @@
         '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">' +
           '<button class="btn ghost" id="closeFolderBtn">✕ Chiudi</button>' +
           '<button class="btn tiny" id="switchTabBtn">' + (curTab === 'visita' ? '→ Sposta in Percorsi coaching' : '→ Sposta in Solo visite') + '</button>' +
+          (clientPausa(c) || clientPausaFutura(c) ? '' : '<button class="btn tiny" id="pausaBtn" title="Sospendi il percorso per un periodo: check e rinnovo slittano, niente avvisi">⏸ Metti in pausa</button>') +
         '</div>' +
-      '</div>' +
+      '</div>' + pausaBannerHtml(c) +
 
       folderTabsHtml +
 
@@ -11086,6 +11105,12 @@
   }
 
   function wireFolderEvents(c) {
+    var pzb = document.getElementById('pausaBtn'); if (pzb) pzb.addEventListener('click', function () { openPausa(c); });
+    var pzr = document.getElementById('pausaRiprendi'); if (pzr) pzr.addEventListener('click', function () { pausaRiprendi(c); });
+    var pze = document.getElementById('pausaModifica'); if (pze) pze.addEventListener('click', function () { openPausa(c, true); });
+    var pzx = document.getElementById('pausaAnnulla'); if (pzx) pzx.addEventListener('click', function () {
+      showConfirm('Annullare la pausa? Check, rinnovo e rate spostati tornano alle date di prima.', function () { pausaRevert(c, c.pausa.giorni); pausaArchivia(c, true); saveClients(); renderFolder(c.id); render(); toast('Pausa annullata, date ripristinate'); }, 'Annulla pausa', 'Tieni la pausa');
+    });
     misWire(folderModal, c);
     var ctb = document.getElementById('contactTodayBtn');
     // ultimo contatto: oggi, ieri o un altro giorno, senza passare dall'anagrafica
@@ -11369,6 +11394,112 @@
 
   }
 
+  // ---- PAUSA DEL PERCORSO: sposta check/rinnovo (e se vuoi le rate) della durata della pausa e toglie gli avvisi
+  var PAUSA_MOTIVI = ['Infortunio', 'Malattia', 'Vacanza', 'Lavoro', 'Motivi personali', 'Altro'];
+  // stesso giorno del mese, n mesi dopo (31 gen + 1 mese = 28/29 feb)
+  function addMonthsKeep(d, n) { var y = d.getFullYear(), m = d.getMonth() + n, last = new Date(y, m + 1, 0).getDate(); return new Date(y, m, Math.min(d.getDate(), last)); }
+  function pausaGiorni(dal, al) { return Math.round((fromISO(al) - fromISO(dal)) / 86400000) + 1; }
+  function pausaBannerHtml(c) {
+    var p = clientPausa(c), fut = clientPausaFutura(c), q = p || fut; if (!q) return '';
+    var riprende = toISO(addDays(fromISO(q.al), 1));
+    return '<div class="pausa-banner"><div class="grow">⏸ <strong>' + (p ? 'In pausa' : 'Pausa programmata') + '</strong> dal ' + formatItData(q.dal) + ' al ' + formatItData(q.al) + ' (' + q.giorni + ' giorni) · riprende il <strong>' + formatItData(riprende) + '</strong>' +
+      (q.motivo ? ' · ' + escapeHtml(q.motivo) + (q.nota ? ': ' + escapeHtml(q.nota) : '') : '') + '</div>' +
+      (p ? '<button class="btn tiny primary" id="pausaRiprendi">▶ Riprendi ora</button>' : '') + '<button class="btn tiny" id="pausaModifica">✎ Modifica</button><button class="btn tiny ghost" id="pausaAnnulla">✕ Annulla pausa</button></div>';
+  }
+  // calcola cosa sposterebbe una pausa (senza applicarla)
+  function pausaPiano(c, dal, al, opt) {
+    var g = pausaGiorni(dal, al), out = { giorni: g, check: [], rinnovo: null, rate: [] };
+    (c.checks || []).forEach(function (k) {
+      if (k.dataEffettiva) return;
+      if (k.dataFissata) {
+        if (k.dataFissata >= dal && k.dataFissata <= al) out.check.push({ id: k.id, num: k.numero, tipo: k.tipoCheck, da: k.dataFissata, a: toISO(addDays(fromISO(k.dataPrevista && k.dataPrevista >= dal ? k.dataPrevista : k.dataFissata), g)), sfissa: true, vecchiaPrev: k.dataPrevista });
+        return;
+      }
+      if (k.dataPrevista && k.dataPrevista >= dal) out.check.push({ id: k.id, num: k.numero, tipo: k.tipoCheck, da: k.dataPrevista, a: toISO(addDays(fromISO(k.dataPrevista), g)) });
+    });
+    if (opt.rinnovo && c.dataRinnovo && c.dataRinnovo >= dal) out.rinnovo = { da: c.dataRinnovo, a: toISO(addDays(fromISO(c.dataRinnovo), g)) };
+    if (opt.rate && c.pacchetto && c.pacchetto.rate) c.pacchetto.rate.forEach(function (r) { if (!r.pagato && r.scadenza && r.scadenza >= dal) out.rate.push({ id: r.id, num: r.numero, da: r.scadenza, a: toISO(addDays(fromISO(r.scadenza), g)) }); });
+    if (!opt.check) out.check = [];
+    return out;
+  }
+  function pausaApplica(c, piano) {
+    piano.check.forEach(function (x) { var k = (c.checks || []).filter(function (y) { return y.id === x.id; })[0]; if (!k) return; if (x.sfissa) { x.vecchiaFissata = k.dataFissata; k.dataFissata = ''; k.oraFissata = ''; } k.dataPrevista = x.a; });
+    if (piano.rinnovo) c.dataRinnovo = piano.rinnovo.a;
+    piano.rate.forEach(function (x) { var r = c.pacchetto.rate.filter(function (y) { return y.id === x.id; })[0]; if (r) r.scadenza = x.a; });
+  }
+  // riporta indietro di "giorni" quello che la pausa aveva spostato (annulla = tutti i giorni, ripresa anticipata = giorni non usati)
+  function pausaRevert(c, giorni) {
+    var p = c.pausa; if (!p || !p.piano || !giorni) return;
+    var back = function (iso) { return iso ? toISO(addDays(fromISO(iso), -giorni)) : iso; };
+    p.piano.check.forEach(function (x) { var k = (c.checks || []).filter(function (y) { return y.id === x.id; })[0]; if (!k || k.dataEffettiva) return; k.dataPrevista = back(k.dataPrevista); if (x.sfissa && giorni >= p.giorni && x.vecchiaFissata && !k.dataFissata) { k.dataFissata = x.vecchiaFissata; if (x.vecchiaPrev) k.dataPrevista = x.vecchiaPrev; } });
+    if (p.piano.rinnovo && c.dataRinnovo) c.dataRinnovo = back(c.dataRinnovo);
+    p.piano.rate.forEach(function (x) { var r = c.pacchetto && (c.pacchetto.rate || []).filter(function (y) { return y.id === x.id; })[0]; if (r && !r.pagato) r.scadenza = back(r.scadenza); });
+  }
+  function pausaArchivia(c, annullata) {
+    if (!c.pausa) return;
+    c.pauseStorico = c.pauseStorico || [];
+    var q = Object.assign({}, c.pausa); delete q.piano; if (annullata) q.annullata = true; c.pauseStorico.push(q);
+    delete c.pausa;
+  }
+  function pausaRiprendi(c) {
+    var p = c.pausa, today = toISO(todayMidnight()); if (!p) return;
+    var nonUsati = Math.max(0, Math.round((fromISO(p.al) - fromISO(today)) / 86400000) + 1);
+    var chiudi = function (anticipa) {
+      if (anticipa) pausaRevert(c, nonUsati);
+      p.al = toISO(addDays(todayMidnight(), -1)); p.giorni = Math.max(0, pausaGiorni(p.dal, p.al)); p.ripresaAnticipata = today;
+      if (p.al < p.dal) { pausaArchivia(c, true); } else pausaArchivia(c);
+      saveClients(); renderFolder(c.id); render(); toast('▶ ' + c.cliente + ' riprende da oggi' + (anticipa ? ' · date anticipate di ' + nonUsati + ' giorni' : ''));
+    };
+    if (nonUsati > 0 && p.piano && (p.piano.check.length || p.piano.rinnovo || p.piano.rate.length)) showConfirm('Riprende oggi, ' + nonUsati + ' giorni prima del previsto. Anticipo di ' + nonUsati + ' giorni anche check, rinnovo e rate spostati dalla pausa?', function () { chiudi(true); }, 'Sì, anticipa le date', 'Lascia le date', function () { chiudi(false); });
+    else chiudi(false);
+  }
+  function openPausa(c, modifica) {
+    var ov = document.getElementById('pausaOverlay');
+    if (!ov) { ov = document.createElement('div'); ov.className = 'overlay'; ov.id = 'pausaOverlay'; ov.style.zIndex = '57'; document.body.appendChild(ov); ov.addEventListener('click', function (e) { if (e.target === ov) ov.classList.remove('open'); }); }
+    var old = modifica && c.pausa ? c.pausa : null;
+    var st = { dal: old ? old.dal : toISO(todayMidnight()), al: old ? old.al : toISO(addDays(addMonthsKeep(todayMidnight(), 1), -1)), motivo: old ? old.motivo : 'Infortunio', nota: old ? old.nota || '' : '', check: true, rinnovo: true, rate: !!(old && old.piano && old.piano.rate.length) };
+    var hasRate = c.pacchetto && (c.pacchetto.rate || []).some(function (r) { return !r.pagato && r.scadenza; });
+    var draw = function () {
+      // per la modifica calcolo il piano come se la pausa vecchia non ci fosse
+      var snap = JSON.stringify({ checks: c.checks, rin: c.dataRinnovo, rate: c.pacchetto && c.pacchetto.rate, pausa: c.pausa });
+      if (old) pausaRevert(c, old.giorni);
+      var ok = st.dal && st.al && st.al >= st.dal, piano = ok ? pausaPiano(c, st.dal, st.al, st) : null;
+      var back = JSON.parse(snap); c.checks = back.checks; c.dataRinnovo = back.rin; if (c.pacchetto) c.pacchetto.rate = back.rate; c.pausa = back.pausa;
+      var durs = [[14, '2 settimane'], [1, '1 mese'], [2, '2 mesi'], [3, '3 mesi']];
+      var prev = !ok ? '<span class="warn">La data di fine deve essere dopo l\'inizio.</span>' : '<strong>' + piano.giorni + ' giorni di pausa</strong>, riprende il ' + formatItData(toISO(addDays(fromISO(st.al), 1))) + '<br>' +
+        (piano.check.length ? piano.check.map(function (x) { return (x.sfissa ? '<span class="warn">⚠ ' : '') + escapeHtml((x.tipo || 'Check') + ' #' + x.num) + ': ' + formatItDataShort(x.da) + ' → ' + formatItDataShort(x.a) + (x.sfissa ? ' (era fissato: torna "da fissare", sposta l\'appuntamento in Google Calendar)</span>' : ''); }).join('<br>') : (st.check ? 'Nessun check da spostare.' : 'Check non spostati.')) + '<br>' +
+        (piano.rinnovo ? 'Rinnovo: ' + formatItDataShort(piano.rinnovo.da) + ' → <strong>' + formatItDataShort(piano.rinnovo.a) + '</strong>' : (st.rinnovo ? 'Rinnovo non spostato (nessuna data o già prima della pausa).' : 'Rinnovo invariato.')) +
+        (piano.rate.length ? '<br>Rate: ' + piano.rate.map(function (x) { return '#' + x.num + ' ' + formatItDataShort(x.da) + ' → ' + formatItDataShort(x.a); }).join(', ') : '');
+      ov.innerHTML = '<div class="modal" style="max-width:560px;"><h2 style="margin:0 0 4px;">⏸ ' + (old ? 'Modifica pausa' : 'Metti in pausa') + ' · ' + escapeHtml(c.cliente) + '</h2><div class="modal-sub">Per il periodo della pausa niente avvisi su check, rinnovo e contatti. I pagamenti scaduti restano segnalati.</div>' +
+        '<div class="form-grid"><div><label>Dal</label><input type="date" id="pzDal" value="' + st.dal + '"></div><div><label>Al (ultimo giorno di pausa)</label><input type="date" id="pzAl" value="' + st.al + '"></div></div>' +
+        '<div class="pz-chips">' + durs.map(function (d) { return '<button type="button" data-pzdur="' + d[0] + '">' + d[1] + '</button>'; }).join('') + '</div>' +
+        '<div class="form-grid" style="margin-top:8px;"><div><label>Motivo</label><select class="form-input" id="pzMot">' + PAUSA_MOTIVI.map(function (m) { return '<option' + (m === st.motivo ? ' selected' : '') + '>' + m + '</option>'; }).join('') + '</select></div><div><label>Nota (facoltativa)</label><input type="text" id="pzNota" value="' + escapeHtml(st.nota) + '" placeholder="Es. distorsione caviglia"></div></div>' +
+        '<label class="ap-check" style="margin-top:10px;"><input type="checkbox" id="pzCheck"' + (st.check ? ' checked' : '') + '> Sposta i check non svolti</label>' +
+        '<label class="ap-check"><input type="checkbox" id="pzRin"' + (st.rinnovo ? ' checked' : '') + '> Allunga il rinnovo della durata della pausa (non perde i mesi pagati)</label>' +
+        (hasRate ? '<label class="ap-check"><input type="checkbox" id="pzRate"' + (st.rate ? ' checked' : '') + '> Sposta anche le rate non pagate</label>' : '') +
+        '<div class="pz-prev">' + prev + '</div>' +
+        '<div class="modal-actions"><div></div><div class="right"><button class="btn ghost" id="pzCancel">Annulla</button><button class="btn primary" id="pzSave"' + (ok ? '' : ' disabled') + '>' + (old ? 'Salva modifiche' : '⏸ Metti in pausa') + '</button></div></div></div>';
+      var g = function (id) { return ov.querySelector('#' + id); };
+      g('pzDal').addEventListener('change', function (e) { st.dal = e.target.value; draw(); });
+      g('pzAl').addEventListener('change', function (e) { st.al = e.target.value; draw(); });
+      ov.querySelectorAll('[data-pzdur]').forEach(function (b) { b.addEventListener('click', function () { var v = parseInt(b.getAttribute('data-pzdur'), 10), d0 = fromISO(st.dal) || todayMidnight(); st.al = toISO(v === 14 ? addDays(d0, 13) : addDays(addMonthsKeep(d0, v), -1)); draw(); }); });
+      g('pzMot').addEventListener('change', function (e) { st.motivo = e.target.value; });
+      g('pzNota').addEventListener('input', function (e) { st.nota = e.target.value; });
+      g('pzCheck').addEventListener('change', function (e) { st.check = e.target.checked; draw(); });
+      g('pzRin').addEventListener('change', function (e) { st.rinnovo = e.target.checked; draw(); });
+      if (g('pzRate')) g('pzRate').addEventListener('change', function (e) { st.rate = e.target.checked; draw(); });
+      g('pzCancel').addEventListener('click', function () { ov.classList.remove('open'); });
+      g('pzSave').addEventListener('click', function () {
+        if (!ok) return;
+        if (old) { pausaRevert(c, old.giorni); delete c.pausa; }
+        var pianoOk = pausaPiano(c, st.dal, st.al, st); pausaApplica(c, pianoOk);
+        c.pausa = { dal: st.dal, al: st.al, giorni: pianoOk.giorni, motivo: st.motivo, nota: (st.nota || '').trim(), piano: pianoOk, creato: new Date().toISOString() };
+        saveClients(); ov.classList.remove('open'); renderFolder(c.id); render();
+        toast('⏸ ' + c.cliente + ' in pausa fino al ' + formatItDataShort(st.al) + (pianoOk.check.some(function (x) { return x.sfissa; }) ? ' · ricordati di spostare l\'appuntamento in calendario' : ''));
+      });
+    };
+    draw(); ov.classList.add('open');
+  }
   function applyDateChange(client, chk, field, newValue, shiftFollowing) {
     var sorted = client.checks.slice().sort(function (a, b) { return a.numero - b.numero; });
     var idx = sorted.findIndex(function (x) { return x.id === chk.id; });
@@ -11844,7 +11975,7 @@
       var u = clientUrgency(c);
       var reasons = [];
       var hasScaduto = false;
-      var next = nextPendingCheck(c), off = clientInattivo(c);
+      var next = nextPendingCheck(c), off = clientInattivo(c) || !!clientPausa(c);
       if (!off && next && !next.dataFissata) {
         var d = daysUntil(next.dataPrevista);
         var label = next.tipoCheck === 'Visita' ? 'prossima visita' : 'check "' + next.tipoCheck + '"';
@@ -11859,7 +11990,7 @@
         attesa.push({ id: c.id, cliente: c.cliente, sent: req.date, days: req.days, tab: clientTab(c) });
       } else if (overdue) { reasons.push({ text: req ? 'pagamento scaduto · richiesta inviata ' + req.days + ' giorni fa e non ancora pagato' : 'pagamento scaduto', sev: 'scaduto' }); hasScaduto = true; counts.scadutiPagamento++; }
       else if (payDue) { reasons.push({ text: 'pagamento in scadenza', sev: 'avvicinamento' }); counts.pagamento++; }
-      if (off) { /* non viene più: niente check né rinnovi da segnalare (i pagamenti dovuti restano) */ }
+      if (off) { /* non viene più o in pausa: niente check né rinnovi da segnalare (i pagamenti dovuti restano) */ }
       else if (u.renewDue !== null && u.renewDue < 0) { reasons.push({ text: 'rinnovo scaduto', sev: 'scaduto' }); hasScaduto = true; counts.scadutiRinnovo++; }
       else if (u.renewDue !== null && u.renewDue <= 14) { reasons.push({ text: 'rinnovo vicino', sev: 'avvicinamento' }); counts.rinnovo++; }
       if (reasons.length) {
