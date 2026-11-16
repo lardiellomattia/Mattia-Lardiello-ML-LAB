@@ -34,6 +34,7 @@
     --ok: #3ECF7E;
     --ok-soft: #103322;
     --neutral: #6E6E6E;
+    --planned: #4C8DFF;
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme="dark"]) {
@@ -177,6 +178,13 @@
   .row.urgent { border-left-color: var(--urgent); }
   .row.warning { border-left-color: var(--warning); }
   .row.ok { border-left-color: var(--ok); }
+  .row.planned { border-left-color: var(--planned); }
+  .countdown.planned { color: var(--planned); }
+  .urg-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+  .urg-leg { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12px; color: var(--ink-muted); cursor: pointer; }
+  .urg-leg.on { border-color: var(--ink); color: var(--ink); font-weight: 700; }
+  .urg-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .urg-dot.urgent { background: var(--urgent); } .urg-dot.warning { background: var(--warning); } .urg-dot.planned { background: var(--planned); } .urg-dot.ok { background: var(--ok); }
   .row .name { font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 17px; }
   .row .name .tag { display: inline-block; margin-left: 8px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 10.5px; letter-spacing: 0.03em; padding: 2px 7px; border-radius: 20px; background: var(--surface-2); color: var(--ink-muted); vertical-align: middle; }
   .row .action-line { grid-column: 1 / -1; font-size: 12.5px; color: var(--warning); font-weight: 600; margin-top: 2px; padding-top: 10px; border-top: 1px dashed var(--border); }
@@ -383,7 +391,7 @@
     --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F3F3F1; --ink: #0A0A0A; --ink-muted: #7A7A7A;
     --border: #ECECEA; --accent: #FFBF00; --accent-ink: #111111; --accent-soft: #FFF4D1;
     --urgent: #D9362A; --urgent-soft: #FCE8E5; --warning: #C97A0E; --warning-soft: #FDF1DC;
-    --ok: #1E9E5A; --ok-soft: #E3F5EA; --neutral: #BDBDBD;
+    --ok: #1E9E5A; --ok-soft: #E3F5EA; --neutral: #BDBDBD; --planned: #2563EB;
     --card-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
   }
   body { background: #0A0A0A; }
@@ -1611,8 +1619,10 @@
     </div>
     <select id="filterUrgenza" class="form-input">
       <option value="">Tutte le urgenze</option>
-      <option value="urgent">Solo urgenti / in ritardo</option>
-      <option value="warning">Solo in avvicinamento</option>
+      <option value="urgent">Solo in ritardo / scaduti</option>
+      <option value="warning">Solo da gestire a breve</option>
+      <option value="planned">Solo check fissati in arrivo</option>
+      <option value="ok">Solo in regola</option>
     </select>
     <div class="spacer"></div>
     <button class="btn ghost" id="importBtn">Importa CSV</button>
@@ -2915,19 +2925,24 @@
     var pkgStato = statoPacchetto(client.pacchetto, client.dataRinnovo);
     var nextRata = nextUnpaidRata(client.pacchetto);
     var rataDue = nextRata ? daysUntil(nextRata.scadenza) : null;
-    var level = 'ok';
+    // colori: rosso = in ritardo/scaduto · arancio = da gestire a breve · blu = check già fissato in arrivo · verde = in regola
+    var RANK = { ok: 0, planned: 1, warning: 2, urgent: 3 }, level = 'ok';
+    var up = function (l) { if (RANK[l] > RANK[level]) level = l; };
+    var checkLevel = 'ok';
     if (checkDue !== null) {
-      if (checkDue <= 7) level = 'urgent';
-      else if (checkDue <= 15) level = 'warning';
+      if (checkDue < 0) checkLevel = 'urgent';
+      else if (next.dataFissata) checkLevel = checkDue <= 7 ? 'planned' : 'ok';
+      else if (checkDue <= 15) checkLevel = 'warning';
     }
-    if (renewDue !== null && renewDue <= 14) level = (renewDue < 0) ? 'urgent' : (level === 'urgent' ? 'urgent' : 'warning');
-    if (pkgStato === 'Scaduto') level = 'urgent';
-    else if (pkgStato === 'In scadenza' && level === 'ok') level = 'warning';
+    up(checkLevel);
+    if (renewDue !== null && renewDue <= 14) up(renewDue < 0 ? 'urgent' : 'warning');
+    if (pkgStato === 'Scaduto') up('urgent');
+    else if (pkgStato === 'In scadenza') up('warning');
     if (rataDue !== null) {
-      if (rataDue < 0) level = 'urgent';
-      else if (rataDue <= 7 && level === 'ok') level = 'warning';
+      if (rataDue < 0) up('urgent');
+      else if (rataDue <= 7) up('warning');
     }
-    return { level: level, next: next, checkDue: checkDue, renewDue: renewDue, pkgStato: pkgStato, nextRata: nextRata, rataDue: rataDue };
+    return { level: level, checkLevel: checkLevel, next: next, checkDue: checkDue, renewDue: renewDue, pkgStato: pkgStato, nextRata: nextRata, rataDue: rataDue };
   }
   function checkDueLabel(days) {
     if (days === null) return 'nessun check in programma';
@@ -10274,7 +10289,10 @@
     if (!rows.length) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
     emptyEl.style.display = 'none';
 
-    listEl.innerHTML = rows.map(function (x) {
+    // legenda dei colori (cliccabile: filtra l'elenco)
+    var LEG = [['urgent', 'In ritardo / scaduto'], ['warning', 'Da gestire a breve'], ['planned', 'Check fissato in arrivo'], ['ok', 'In regola']];
+    var legend = '<div class="urg-legend">' + LEG.map(function (l) { return '<button type="button" class="urg-leg' + (state.filterUrgenza === l[0] ? ' on' : '') + '" data-urgleg="' + l[0] + '"><i class="urg-dot ' + l[0] + '"></i>' + l[1] + '</button>'; }).join('') + '</div>';
+    listEl.innerHTML = legend + rows.map(function (x) {
       var c = x.c, u = x.u;
       var payBadge = '';
       if (u.pkgStato) {
@@ -10321,7 +10339,7 @@
           '<div class="c-check">' +
             '<div class="field-label">Prossimo check' + (u.next ? ' · <span style="font-weight:600;color:' + (u.next.dataFissata ? 'var(--ok)' : 'var(--warning)') + ';">' + (u.next.dataFissata ? 'Fissato' : 'Da fissare') + '</span>' : '') + '</div>' +
             '<div class="field-value">' + (u.next ? formatItData(u.next.dataFissata || u.next.dataPrevista) : '—') + '</div>' +
-            '<div class="countdown ' + u.level + '">' + checkDueLabel(u.checkDue) + '</div>' +
+            '<div class="countdown ' + u.checkLevel + '">' + checkDueLabel(u.checkDue) + '</div>' +
           '</div>' +
           '<div class="c-renewal">' +
             '<div class="field-label">Rinnovo percorso</div>' +
@@ -10338,6 +10356,9 @@
       );
     }).join('');
 
+    Array.prototype.forEach.call(listEl.querySelectorAll('[data-urgleg]'), function (b) {
+      b.addEventListener('click', function () { var v = b.getAttribute('data-urgleg'); state.filterUrgenza = state.filterUrgenza === v ? '' : v; var sel = document.getElementById('filterUrgenza'); if (sel) sel.value = state.filterUrgenza; render(); });
+    });
     Array.prototype.forEach.call(listEl.querySelectorAll('.row'), function (rowEl) {
       var id = rowEl.getAttribute('data-id');
       rowEl.addEventListener('click', function (e) {
