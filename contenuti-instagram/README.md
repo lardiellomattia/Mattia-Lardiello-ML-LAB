@@ -175,6 +175,6 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 > Nel carosello trovi perché aiuta, cosa fare in pratica e gli errori da evitare 👉
 > Tu cosa fai già? Scrivimi nei commenti il numero dalla slide 6 👇
 > 🔖 Salvalo e mandalo a chi ha sempre la pancia gonfia.
-> _Contenuto divulgativo di un personal trainer. Fonte: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026; indicazioni pratiche: linee guida OMS sull'attività fisica. Contenuto divulgativo: non sostituisce il parere del medico._
+> _Contenuto divulgativo di un personal trainer. Fonte: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026; indicazioni pratiche: linee guida OMS sull'attività fisica. Non sostituisce il parere del medico._
 >
 > #panciagonfia #gonfiore #intestinopigro #stitichezza #colonirritabile #ibs #asseintestinocervello #benessereintestinale #allenamentofemminile #movimento #personaltrainerverona #mllab
