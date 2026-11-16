@@ -176,7 +176,7 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 >
 > 📲 Vuoi approfondire? Nel mio **canale broadcast** trovi il link all'articolo che ho scritto su questo tema. Lo trovi nel mio profilo, sotto la bio.
 >
-> Tu quante di queste indicazioni rispetti già? Scrivimi un numero da 0 a 4 nei commenti 👇
+> Quante delle 4 indicazioni della slide 6 rispetti già? Scrivimi un numero da 0 a 4 nei commenti 👇
 > 🔖 Salvalo e mandalo a chi ha sempre la pancia gonfia.
 >
 > _Contenuto divulgativo di un personal trainer: non sostituisce il parere del medico. Fonti: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026; WHO guidelines on physical activity and sedentary behaviour, 2020._
