@@ -172,9 +172,13 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 
 > Pancia gonfia anche con esami perfetti? Non è "solo stress" 🤯
 > Le nuove linee guida Roma V (2026) parlano di disturbi dell'interazione intestino-cervello: un problema reale, che si può gestire. E il movimento fa parte della strategia.
-> Nel carosello trovi perché aiuta, cosa fare in pratica e gli errori da evitare 👉
-> Tu cosa fai già? Scrivimi nei commenti il numero dalla slide 6 👇
+> Nel carosello trovi cosa dice la ricerca, quanto muoverti secondo l'OMS e gli errori da evitare 👉
+>
+> 📲 Vuoi approfondire? Nel mio **canale broadcast** trovi il link all'articolo che ho scritto su questo tema. Lo trovi nel mio profilo, sotto la bio.
+>
+> Tu quante di queste indicazioni rispetti già? Scrivimi un numero da 0 a 4 nei commenti 👇
 > 🔖 Salvalo e mandalo a chi ha sempre la pancia gonfia.
-> _Contenuto divulgativo di un personal trainer. Fonte: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026; slide 6 e 7: linee guida OMS 2020 sull'attività fisica. Non sostituisce il parere del medico._
+>
+> _Contenuto divulgativo di un personal trainer: non sostituisce il parere del medico. Fonti: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026; WHO guidelines on physical activity and sedentary behaviour, 2020._
 >
 > #panciagonfia #gonfiore #intestinopigro #stitichezza #colonirritabile #ibs #asseintestinocervello #benessereintestinale #allenamentofemminile #movimento #personaltrainerverona #mllab
