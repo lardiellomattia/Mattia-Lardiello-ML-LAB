@@ -15,6 +15,7 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 08 | Affondo bulgaro: "il ginocchio non deve superare la punta" | Reel | [08-affondo-bulgaro](08-affondo-bulgaro) |
 | 09 | Prima e dopo: 3 clienti | Carosello 4 slide | [09-prima-dopo](09-prima-dopo) |
 | 10 | Lancio coaching esclusivo (5 posti) | Carosello 7 slide | [10-lancio-coaching-esclusivo](10-lancio-coaching-esclusivo) |
+| 11 | Pancia gonfia e intestino pigro: il movimento (Roma V) | Carosello 8 slide | [11-intestino-movimento](11-intestino-movimento) |
 
 ---
 
@@ -165,3 +166,16 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 
 Ricorda: consenso scritto di ogni cliente prima di pubblicare.
 Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima della prenotazione.
+
+## 11 · Pancia gonfia e intestino pigro: il movimento (Roma V)
+- `intestino-1.png` … `intestino-8.png`: carosello divulgativo (1080×1350), con schema illustrativo della dissinergia addomino-frenica.
+
+> Pancia gonfia anche con esami perfetti? Non è "solo stress" 🤯
+> Le nuove linee guida Roma V (2026) parlano di disturbi dell'interazione intestino-cervello: un problema reale, che si può gestire. E il movimento fa parte della strategia.
+> Nel carosello trovi perché aiuta, cosa fare in pratica e gli errori da evitare 👉
+> Tu cosa fai già? Scrivimi nei commenti il numero dalla slide 6 👇
+> 📩 Scrivimi **INTESTINO** in DM e costruiamo un programma su misura.
+> 🔖 Salvalo e mandalo a chi ha sempre la pancia gonfia.
+> _Fonte: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026. Contenuto divulgativo: non sostituisce il parere del medico._
+>
+> #panciagonfia #gonfiore #intestinopigro #stitichezza #colonirritabile #ibs #asseintestinocervello #benessereintestinale #allenamentofemminile #nutrizionista #personaltrainerverona #mllab
