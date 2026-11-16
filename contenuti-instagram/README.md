@@ -174,8 +174,7 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 > Le nuove linee guida Roma V (2026) parlano di disturbi dell'interazione intestino-cervello: un problema reale, che si può gestire. E il movimento fa parte della strategia.
 > Nel carosello trovi perché aiuta, cosa fare in pratica e gli errori da evitare 👉
 > Tu cosa fai già? Scrivimi nei commenti il numero dalla slide 6 👇
-> 📩 Scrivimi **INTESTINO** in DM e costruiamo un programma su misura.
 > 🔖 Salvalo e mandalo a chi ha sempre la pancia gonfia.
-> _Fonte: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026; indicazioni pratiche: linee guida OMS sull'attività fisica. Contenuto divulgativo: non sostituisce il parere del medico._
+> _Contenuto divulgativo di un personal trainer. Fonte: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026; indicazioni pratiche: linee guida OMS sull'attività fisica. Contenuto divulgativo: non sostituisce il parere del medico._
 >
-> #panciagonfia #gonfiore #intestinopigro #stitichezza #colonirritabile #ibs #asseintestinocervello #benessereintestinale #allenamentofemminile #nutrizionista #personaltrainerverona #mllab
+> #panciagonfia #gonfiore #intestinopigro #stitichezza #colonirritabile #ibs #asseintestinocervello #benessereintestinale #allenamentofemminile #movimento #personaltrainerverona #mllab
