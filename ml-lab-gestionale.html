@@ -1097,6 +1097,7 @@
   .mis-modal { max-width: 760px !important; }
   .mis-info { background: var(--accent-soft); border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
   .mis-info.warn { background: var(--warning-soft); }
+  .mis-same { display: flex; gap: 16px; flex-wrap: wrap; background: var(--surface-2); border-radius: 12px; padding: 8px 12px; margin: -4px 0 12px; font-size: 13px; }
   .mis-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 10px; }
   .mis-grid label { font-size: 12px; }
   .mis-grid input { padding: 7px 9px !important; }
@@ -8205,9 +8206,15 @@
         var info = '📥 Dati letti dal PDF di CoachPlus' + (m.nome ? ' (' + escapeHtml(m.nome) + (m.data ? ', visita del ' + misDate(m.data) : '') + ')' : '') + ': controlla e salva.', warn = false;
         if (m.nome && !misSameName(m.nome, c.cliente)) { info = '⚠️ Il PDF è di <strong>' + escapeHtml(m.nome) + '</strong>, ma stai salvando nella cartella di <strong>' + escapeHtml(c.cliente) + '</strong>. Controlla prima di salvare.'; warn = true; }
         m.dataPdf = m.data;
-        var same = (c.misure || []).filter(function (x) { return m.data && (x.data === m.data || x.dataPdf === m.data); })[0];
-        if (same) { m.data = same.data; m.link = same.link; }
-        if (same) { m.id = same.id; info += ' Esiste già una misura di questa visita (' + misDate(m.data) + '): salvando la sostituisci.'; }
+        // stesso PDF ricaricato (valori identici) = sostituisco; valori diversi = è un'altra misura (es. una vecchia scaricata oggi): la aggiungo
+        var key = function (x) { var pl = x.pliche || {}; return [x.peso, x.mgPct].concat(Object.keys(pl).sort().map(function (k) { return k + ':' + pl[k]; })).join('|'); };
+        var cands = (c.misure || []).filter(function (x) { return m.data && (x.data === m.data || x.dataPdf === m.data); });
+        var same = cands.filter(function (x) { return key(x) === key(m); })[0] || cands[0];
+        if (same) {
+          m._same = same.id; m._sameData = same.data;
+          if (key(same) === key(m)) { m._mode = 'replace'; m.data = same.data; m.link = same.link; info += ' È lo stesso PDF già caricato (' + misDate(same.data) + '): salvando aggiorni quella misura.'; }
+          else { m._mode = 'new'; warn = true; info += ' <strong>Hai già una misura del ' + misDate(same.data) + ' con valori diversi</strong>: la aggiungo come misura nuova. Se è una misura vecchia, <strong>metti qui sotto la data vera</strong> in cui l\'hai presa.'; }
+        }
         info += ' Se hai raccolto i dati in un altro giorno, cambia la data o collega la misura al check giusto.';
         misOpenForm(c, m, onSaved, info, warn);
       }).catch(function (e) { toast('Non riesco a leggere il PDF: ' + ((e && e.message) || 'errore')); });
@@ -8233,7 +8240,8 @@
     var linkSel = '<div class="mis-link"><label>Collegata a</label><select class="form-input" id="misLink"><option value="">— nessun collegamento —</option>' +
       LO.map(function (o) { return '<option value="' + escapeHtml(o.k) + '" data-d="' + escapeHtml(o.date || '') + '"' + (m.link === o.k ? ' selected' : '') + '>' + escapeHtml(o.label) + (o.date ? ' · ' + misDate(o.date) : '') + '</option>'; }).join('') + '</select></div>';
     document.getElementById('misTitle').textContent = (m.id ? 'Misura del ' + misDate(m.data) : 'Nuova misura') + ' · ' + c.cliente;
-    document.getElementById('misBody').innerHTML = (info ? '<div class="mis-info' + (warn ? ' warn' : '') + '">' + info + '</div>' : '') +
+    var sameChoice = m._same ? '<div class="mis-same"><label class="ap-check" style="margin:0;"><input type="radio" name="misMode" value="new"' + (m._mode !== 'replace' ? ' checked' : '') + '> Aggiungi come misura nuova</label><label class="ap-check" style="margin:0;"><input type="radio" name="misMode" value="replace"' + (m._mode === 'replace' ? ' checked' : '') + '> Sostituisci la misura del ' + misDate(m._sameData) + '</label></div>' : '';
+    document.getElementById('misBody').innerHTML = (info ? '<div class="mis-info' + (warn ? ' warn' : '') + '">' + info + '</div>' : '') + sameChoice +
       '<div class="mis-grid">' + inp('data', 'Data in cui hai raccolto i dati', m.data, 'data-mf', 'date') + linkSel + '<div><label>Livello attività</label><input type="text" data-mf="laf" value="' + escapeHtml(m.laf || '') + '"></div>' + '</div>' + dateBar +
       '<div class="mis-grid" style="margin-top:8px;">' + inp('peso', 'Peso (kg)', m.peso, 'data-mf') + inp('altezza', 'Altezza (cm)', m.altezza, 'data-mf') +
         inp('mgPct', 'Massa grassa %', m.mgPct, 'data-mf') + inp('mmPct', 'Massa magra %', m.mmPct, 'data-mf') + inp('mgKg', 'Massa grassa (kg)', m.mgKg, 'data-mf') + inp('mmKg', 'Massa magra (kg)', m.mmKg, 'data-mf') + '</div>' +
@@ -8255,13 +8263,15 @@
     });
     document.getElementById('misCancel').addEventListener('click', function () { ov.classList.remove('open'); });
     document.getElementById('misSave').addEventListener('click', function () {
-      var e = { id: m.id || uid(), fonte: m.fonte || 'manuale', pliche: {}, circ: {}, note: document.getElementById('misNote').value.trim(), link: document.getElementById('misLink').value || '' };
+      var modeEl = body.querySelector('input[name="misMode"]:checked'), replaceId = m._same && modeEl && modeEl.value === 'replace' ? m._same : null;
+      var e = { id: m.id || replaceId || uid(), fonte: m.fonte || 'manuale', pliche: {}, circ: {}, note: document.getElementById('misNote').value.trim(), link: document.getElementById('misLink').value || '' };
       if (m.dataPdf) e.dataPdf = m.dataPdf;
       body.querySelectorAll('[data-mf]').forEach(function (el) { var k = el.getAttribute('data-mf'); e[k] = k === 'data' || k === 'laf' ? el.value.trim() : misNum(el.value); });
       body.querySelectorAll('[data-mp]').forEach(function (el) { var v = misNum(el.value); if (v != null) e.pliche[el.getAttribute('data-mp')] = v; });
       body.querySelectorAll('[data-mc]').forEach(function (el) { var v = misNum(el.value); if (v != null) e.circ[el.getAttribute('data-mc')] = v; });
       if (!e.data) { toast('Manca la data della misura'); return; }
       var dup = (c.misure || []).filter(function (x) { return x.id !== e.id && x.data === e.data; })[0];
+      if (dup && m._same && !replaceId && !misOpenForm.dupOk) { misOpenForm.dupOk = true; toast('La misura del ' + misDate(e.data) + ' esiste già: cambia la data con quella vera, oppure premi di nuovo Salva per tenerle entrambe nello stesso giorno'); setTimeout(function () { misOpenForm.dupOk = false; }, 6000); var di = body.querySelector('[data-mf="data"]'); if (di) di.focus(); return; }
       if (dup && !misOpenForm.dupOk) { misOpenForm.dupOk = true; toast('Esiste già una misura del ' + misDate(e.data) + ': premi di nuovo Salva per tenerle entrambe'); setTimeout(function () { misOpenForm.dupOk = false; }, 6000); return; }
       misOpenForm.dupOk = false;
       if (e.peso != null && e.mgPct != null) { if (e.mgKg == null) e.mgKg = Math.round(e.peso * e.mgPct) / 100; if (e.mmKg == null) e.mmKg = Math.round((e.peso - e.mgKg) * 100) / 100; }
