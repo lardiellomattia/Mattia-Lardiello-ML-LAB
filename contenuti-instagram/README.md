@@ -198,4 +198,14 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 >
 > #splitsquat #bulgariansplitsquat #glutei #allenamentoglutei #crescitaglutei #bacino #esercizicorrettivi #tecnicaesercizi #allenamentofemminile #personaltrainerverona #personaltrainerbovolone #mllab
 
+**Versione virale (consigliata come reel principale)**
+- `reel-bacino-virale.mp4`: 8,6 s in loop, prima e dopo affiancati e sincronizzati, fermo sulla linea dei leggins.
+
+> Così i tuoi glutei lavorano meno 👀
+> Guarda la linea dei leggins: prima scende a destra, dopo 5 minuti di correttivi no.
+> Bacino centrato = più lavoro sul gluteo = glutei che crescono 🍑
+> Tu sai cosa fa il tuo bacino quando ti alleni? Scrivi "BACINO" e ti dico come controllarlo 👇
+>
+> #splitsquat #glutei #allenamentoglutei #crescitaglutei #bacino #esercizicorrettivi #allenamentofemminile #personaltrainerverona #mllab
+
 Ricorda: consenso scritto della cliente prima di pubblicare.
