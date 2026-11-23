@@ -16,6 +16,7 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 09 | Prima e dopo: 3 clienti | Carosello 4 slide | [09-prima-dopo](09-prima-dopo) |
 | 10 | Lancio coaching esclusivo (5 posti) | Carosello 7 slide | [10-lancio-coaching-esclusivo](10-lancio-coaching-esclusivo) |
 | 11 | Pancia gonfia e intestino pigro: il movimento (Roma V) | Carosello 8 slide | [11-intestino-movimento](11-intestino-movimento) |
+| 12 | Split squat: il bacino scivola a destra, prima/dopo 5' | Reel | [12-bacino-split-squat](12-bacino-split-squat) |
 
 ---
 
@@ -182,3 +183,18 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 > _Contenuto divulgativo di un personal trainer: non sostituisce il parere del medico. Fonti: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026; WHO guidelines on physical activity and sedentary behaviour, 2020._
 >
 > #panciagonfia #gonfiore #intestinopigro #stitichezza #colonirritabile #ibs #asseintestinocervello #benessereintestinale #allenamentofemminile #movimento #personaltrainerverona #mllab
+
+## 12 · Split squat: il bacino scivola a destra (prima/dopo 5')
+- `reel-bacino.mp4`: reel 13,4 s senza musica (aggiungere audio di tendenza da Instagram). Hook, PRIMA con fermo immagine sul bacino, "5 minuti di esercizi correttivi", DOPO, confronto finale e CTA.
+
+> Il tuo bacino scappa di lato quando fai lo split squat? 👀
+> PRIMA: in basso il bacino scivola verso destra e il carico non resta sulla gamba che lavora.
+> Abbiamo fatto 5 minuti di esercizi correttivi e ripetuto l'esercizio.
+> DOPO: bacino più centrato ✓
+> Non serve sempre cambiare esercizio: a volte serve capire cosa non funziona e correggerlo.
+> Hai dubbi sul tuo esercizio? 👇 Mandami il video in DM e lo correggiamo insieme.
+> 📌 Salvalo e controlla il tuo split squat al prossimo leg day.
+>
+> #splitsquat #bulgariansplitsquat #bacino #esercizicorrettivi #tecnicaesercizi #allenamentoglutei #allenamentofemminile #personaltrainerverona #personaltrainerbovolone #mllab
+
+Ricorda: consenso scritto della cliente prima di pubblicare.
