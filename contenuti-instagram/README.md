@@ -185,15 +185,15 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 > #panciagonfia #gonfiore #intestinopigro #stitichezza #colonirritabile #ibs #asseintestinocervello #benessereintestinale #allenamentofemminile #movimento #personaltrainerverona #mllab
 
 ## 12 · Split squat: il bacino scivola a destra (prima/dopo 5')
-- `reel-bacino.mp4`: reel 16 s senza musica (aggiungere audio di tendenza da Instagram). Hook, PRIMA con fermo immagine su bacino e linea dei leggins, "5 minuti di esercizi correttivi", DOPO, card "bacino centrato = glutei che crescono", confronto finale e CTA.
+- `reel-bacino.mp4`: reel 16,3 s senza musica (aggiungere audio di tendenza da Instagram). Hook, PRIMA con fermo immagine su bacino e linea dei leggins, "5 minuti di esercizi correttivi", DOPO, card "bacino centrato = glutei che crescono", confronto finale e CTA.
 
-> Il tuo bacino scappa di lato quando fai lo split squat? Così i tuoi glutei lavorano meno 👀
+> Così i tuoi glutei lavorano meno 👀 Osserva il bacino.
 > PRIMA: in basso il bacino scivola verso destra. Guarda la linea dei leggins: è storta.
 > Abbiamo fatto 5 minuti di esercizi correttivi e ripetuto l'esercizio.
 > DOPO: bacino più centrato e leggins più allineati ✓
 > 🍑 Perché conta? Se il bacino resta centrato, il carico resta sul gluteo della gamba che lavora: più stimolo = glutei che crescono.
 > Non serve sempre cambiare esercizio: a volte serve capire cosa non funziona e correggerlo.
-> Hai dubbi sul tuo esercizio? 👇 Mandami il video in DM e lo correggiamo insieme.
+> Ti sei mai chiesta cosa fa il tuo bacino quando alleni i glutei? 🤔 Mandami il video in DM e lo scopriamo insieme 👇
 > 📌 Salvalo e controlla il tuo split squat al prossimo leg day.
 >
 > #splitsquat #bulgariansplitsquat #glutei #allenamentoglutei #crescitaglutei #bacino #esercizicorrettivi #tecnicaesercizi #allenamentofemminile #personaltrainerverona #personaltrainerbovolone #mllab
