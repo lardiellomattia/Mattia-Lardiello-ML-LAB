@@ -1473,6 +1473,9 @@
   .date-today { display: flex; gap: 6px; align-items: center; }
   .date-today input { flex: 1; }
   .today-btn { white-space: nowrap; }
+  .rate-num { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; font-weight: 600; color: var(--ink-muted); }
+  .rate-num input { width: 64px; padding: 4px 8px !important; }
+  .rata-auto { font-size: 10px; font-weight: 700; background: var(--accent-soft); color: var(--ink); border-radius: 999px; padding: 0 6px; margin-left: 4px; }
   .contact-set { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; }
   .contact-other { position: relative; display: inline-flex; align-items: center; justify-content: center; margin: 0; width: 28px; height: 24px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); cursor: pointer; font-size: 12px; overflow: hidden; }
   .contact-other:hover { background: var(--accent-soft); }
@@ -2925,6 +2928,26 @@
     var d2 = daysUntil(dataRinnovo);
     if (d2 !== null && d2 >= 0 && d2 <= 30) return 'In scadenza';
     return 'Attivo';
+  }
+  // ultimo venerdì del mese (m: 0-11, anche oltre 11 → anni successivi)
+  function lastFridayOf(y, m) { var d = new Date(y, m + 1, 0); while (d.getDay() !== 5) d.setDate(d.getDate() - 1); return d; }
+  // rate automatiche: dalla 1ª rata (data e importo) creo/aggiorno le successive fino a "Numero rate", scadenza ultimo venerdì dei mesi dopo.
+  // Non tocco le rate pagate né quelle cambiate a mano (auto: false).
+  function rateGenera(p) {
+    var n = parseInt(p.numRate, 10); if (!n || n < 1 || !p.rate) return 0;
+    var sorted = p.rate.slice().sort(function (a, b) { return a.numero - b.numero; }), first = sorted[0];
+    if (!first || !first.scadenza) return 0;
+    var f0 = fromISO(first.scadenza), base = first.numero, changed = 0;
+    for (var k = 1; k < n; k++) {
+      var num = base + k, due = toISO(lastFridayOf(f0.getFullYear(), f0.getMonth() + k));
+      var r = p.rate.filter(function (x) { return x.numero === num; })[0];
+      if (!r) { p.rate.push({ id: uid(), numero: num, scadenza: due, importo: first.importo || '', pagato: false, auto: true }); changed++; }
+      else if (r.auto && !r.pagato) { if (r.scadenza !== due || r.importo !== (first.importo || '')) { r.scadenza = due; r.importo = first.importo || ''; changed++; } }
+    }
+    // numero ridotto: tolgo le automatiche non pagate oltre l'ultima
+    var before = p.rate.length;
+    p.rate = p.rate.filter(function (x) { return !(x.auto && !x.pagato && x.numero > base + n - 1); });
+    return changed + (before - p.rate.length);
   }
   function nextUnpaidRata(p) {
     if (!p || p.tipoPagamento !== 'A rate') return null;
@@ -10991,7 +11014,7 @@
           }
           return '<div class="pay-row" data-rata="' + r.id + '">' +
             '<div class="mini-field"><label>Rata n.' + rataFlag + '</label><input type="number" class="rata-numero" value="' + r.numero + '" min="1"></div>' +
-            '<div class="mini-field"><label>Scadenza</label><input type="date" class="rata-scadenza" value="' + (r.scadenza || '') + '"></div>' +
+            '<div class="mini-field"><label>Scadenza' + (r.auto && !r.pagato ? ' <span class="rata-auto" title="Creata in automatico: ultimo venerdì del mese. Se la cambi a mano non viene più aggiornata">auto</span>' : '') + '</label><input type="date" class="rata-scadenza" value="' + (r.scadenza || '') + '"></div>' +
             '<div class="mini-field"><label>Importo (€)</label><input type="number" class="rata-importo" value="' + (r.importo || '') + '" min="0" step="1"></div>' +
             '<div class="mini-field"><label style="display:block;">Pagata</label><label style="display:flex;align-items:center;gap:6px;margin-top:9px;font-size:13px;"><input type="checkbox" class="rata-pagato" style="width:auto;"' + (r.pagato ? ' checked' : '') + '> pagata</label></div>' +
             '<div class="row-btns">' + (r.pagato ? '' : '<button class="btn tiny rata-req' + (r.richiestaInviata ? ' on' : '') + '" title="Segna che hai inviato la richiesta di pagamento">' + (r.richiestaInviata ? '📨 Inviata il ' + fromISO(r.richiestaInviata).getDate() + ' ' + MESI[fromISO(r.richiestaInviata).getMonth()].slice(0, 3) : '📨 Richiesta inviata') + '</button>') + '<button class="btn tiny danger rata-delete">Elimina</button></div>' +
@@ -11008,7 +11031,8 @@
         '</div>' +
         '<div class="form-grid"><div class="full"><label>Note pagamento</label><textarea id="pk_note" class="note-area">' + escapeHtml(p.note || '') + '</textarea></div></div>' +
         (p.tipoPagamento === 'A rate'
-          ? '<div style="margin-top:14px;"><h3 style="font-size:14px;">Rate <button class="btn tiny primary" id="addRataBtn">+ Aggiungi rata</button></h3>' + (rateHtml || '<div class="no-items">Nessuna rata.</div>') + '</div>'
+          ? '<div style="margin-top:14px;"><h3 style="font-size:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Rate <label class="rate-num">Numero rate <input type="number" min="1" max="36" id="pk_numRate" value="' + (p.numRate || '') + '" placeholder="es. 6"></label><button class="btn tiny primary" id="addRataBtn">+ Aggiungi rata</button></h3>' +
+            '<div class="ap-hint" style="margin:-4px 0 8px;">Metti il numero di rate e la data della 1ª: le altre si creano con scadenza l\'<strong>ultimo venerdì</strong> dei mesi successivi e lo stesso importo.</div>' + (rateHtml || '<div class="no-items">Nessuna rata.</div>') + '</div>'
           : '<div style="margin-top:10px;">' + vsetHtml + '</div>') +
         '<div class="modal-actions"><button class="btn tiny danger" id="deletePacchettoBtn">Elimina pacchetto</button><div></div></div>'
       );
@@ -11332,6 +11356,14 @@
         });
       });
 
+      var numIn = document.getElementById('pk_numRate');
+      if (numIn) numIn.addEventListener('change', function () {
+        var n = parseInt(numIn.value, 10); p.numRate = n > 0 ? Math.min(n, 36) : '';
+        if (p.numRate && (!p.rate || !p.rate.length)) { p.rate = [{ id: uid(), numero: 1, scadenza: '', importo: '', pagato: false }]; }
+        var ch = rateGenera(p); saveClients(); renderFolder(c.id); render();
+        var first = (p.rate || []).slice().sort(function (a, b) { return a.numero - b.numero; })[0];
+        toast(first && first.scadenza ? (ch ? '📅 Rate generate fino alla n.' + (first.numero + p.numRate - 1) + ' (ultimo venerdì di ogni mese)' : 'Numero rate: ' + p.numRate) : 'Ora inserisci data e importo della 1ª rata: le altre si creano da sole');
+      });
       var addRataBtn = document.getElementById('addRataBtn');
       if (addRataBtn) addRataBtn.addEventListener('click', function () {
         var maxNum = (p.rate || []).reduce(function (mx, r) { return Math.max(mx, r.numero); }, 0);
@@ -11344,8 +11376,16 @@
         var r = (p.rate || []).find(function (x) { return x.id === rataId; });
         if (!r) return;
         rowEl.querySelector('.rata-numero').addEventListener('change', function (e) { r.numero = parseInt(e.target.value, 10) || r.numero; saveClients(); renderFolder(c.id); render(); });
-        rowEl.querySelector('.rata-scadenza').addEventListener('change', function (e) { r.scadenza = e.target.value; saveClients(); renderFolder(c.id); render(); });
-        rowEl.querySelector('.rata-importo').addEventListener('change', function (e) { r.importo = parseFloat(e.target.value) || ''; saveClients(); renderFolder(c.id); render(); });
+        var isFirst = function () { return (p.rate || []).every(function (x) { return x.numero >= r.numero; }); };
+        rowEl.querySelector('.rata-scadenza').addEventListener('change', function (e) {
+          r.scadenza = e.target.value; if (r.auto) r.auto = false;
+          var ch = isFirst() ? rateGenera(p) : 0; saveClients(); renderFolder(c.id); render();
+          if (ch) toast('📅 Rate successive ' + ((p.rate || []).length > 1 ? 'aggiornate' : 'create') + ': ultimo venerdì di ogni mese');
+        });
+        rowEl.querySelector('.rata-importo').addEventListener('change', function (e) {
+          r.importo = parseFloat(e.target.value) || ''; if (r.auto && !isFirst()) r.auto = false;
+          if (isFirst()) rateGenera(p); saveClients(); renderFolder(c.id); render();
+        });
         rowEl.querySelector('.rata-pagato').addEventListener('change', function (e) { r.pagato = e.target.checked; saveClients(); renderFolder(c.id); render(); });
         var reqB = rowEl.querySelector('.rata-req');
         if (reqB) reqB.addEventListener('click', function () { r.richiestaInviata = r.richiestaInviata ? null : toISO(todayMidnight()); saveClients(); toast(r.richiestaInviata ? '📨 Richiesta di pagamento segnata come inviata' : 'Richiesta annullata'); renderFolder(c.id); render(); });
