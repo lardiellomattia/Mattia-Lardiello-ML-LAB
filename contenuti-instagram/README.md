@@ -225,7 +225,7 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 >
 > Nel mio studio vale lo stesso: gli esercizi si correggono e si ottimizzano, un dettaglio alla volta. Mi piace lavorare da coach: guidarti a migliorare, non giudicarti.
 >
-> Hai mai percepito in palestra di essere giudicata e di non poter sbagliare? Scrivimi "SÌ" nei commenti 👇
+> Hai mai percepito in palestra di essere giudicata e di non poter sbagliare?
 > 📍 ML LAB – Bovolone
 >
 > #allenamentofemminile #personaltrainer #tecnicaesercizi #iniziareadallenarsi #ansiadaprestazione #coaching #allenatoreportieri #personaltrainerverona #personaltrainerbovolone #mllab
