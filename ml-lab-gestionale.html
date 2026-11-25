@@ -1473,6 +1473,12 @@
   .date-today { display: flex; gap: 6px; align-items: center; }
   .date-today input { flex: 1; }
   .today-btn { white-space: nowrap; }
+  .pre-box { margin-top: 10px; border: 1px dashed var(--border); border-radius: 14px; padding: 8px 12px; font-size: 13px; }
+  .pre-box summary { cursor: pointer; font-weight: 700; }
+  .pre-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 8px 0 6px; }
+  .pre-form label { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; }
+  .pre-form input { width: auto; padding: 5px 8px !important; }
+  .pre-note { margin-top: 4px; }
   .rate-num { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; font-weight: 600; color: var(--ink-muted); }
   .rate-num input { width: 64px; padding: 4px 8px !important; }
   .rata-auto { font-size: 10px; font-weight: 700; background: var(--accent-soft); color: var(--ink); border-radius: 999px; padding: 0 6px; margin-left: 4px; }
@@ -4793,8 +4799,21 @@
       if (!first || first.n === 1) return;
       out.push({ id: 'i:' + k + ':' + c.inizio, key: k, name: first.displayName, date: first.date, kind: 'Pacchetto ' + P + ' PT', pacchetto: P, base: c.tariffa, n: first.n, daInizio: true });
     });
+    // pagamento anticipato del prossimo pacchetto (es. pagato alla 9ª PT): conta nel giorno in cui l'hai incassato
+    // e si aggancia da solo alla 1ª PT del nuovo pacchetto appena è in agenda (che risulta così già saldata)
+    Object.keys(state.sp.clients).forEach(function (k) {
+      var c = state.sp.clients[k]; if (!c || !c.prepag || !c.prepag.length) return;
+      var P = spPac(c), used = {};
+      c.prepag.slice().sort(function (a, b) { return a.data.localeCompare(b.data); }).forEach(function (pr) {
+        var from = fromISO(pr.data);
+        var tgt = out.filter(function (p) { var o = state.sp.pay[p.id]; return p.key === k && p.pacchetto > 1 && p.date >= from && !used[p.id] && !(o && (o.paid || (o.acconti || []).length)); }).sort(function (a, b) { return a.date - b.date; })[0];
+        if (tgt) { used[tgt.id] = 1; tgt.prepag = pr; }
+        else out.push({ id: 'pre:' + k + ':' + pr.id, key: k, name: c.name || k, date: from, kind: (P > 1 ? 'Pacchetto ' + P + ' PT' : 'Pacchetto') + ' · pagato in anticipo', pacchetto: P > 1 ? P : null, base: pr.importo, prepag: pr, prepagSynth: true });
+      });
+    });
     out.forEach(function (p) {
       var ov = state.sp.pay[p.id] || {};
+      if (p.prepag) ov = { paid: true, paidOn: p.prepag.data, amount: fnParseAmount(p.prepag.importo), note: ov.note || '' };
       p.amount = ov.amount != null ? ov.amount : (p.base || 0);
       p.aParte = !!(state.sp.clients[p.key] && state.sp.clients[p.key].aParte);
       p.acconti = (ov.acconti || []).slice();
@@ -4813,7 +4832,7 @@
       if (ov.paid && p.amount > acc) p.cash.push({ amount: p.amount - acc, date: ov.paidOn ? fromISO(ov.paidOn) : (lastAcc && lastAcc > p.date ? lastAcc : p.date), kind: acc ? 'saldo' : 'pagamento' });
       // sedute del pacchetto: dalla sua 1ª PT fino alla 1ª PT successiva
       p.done = 0; p.covered = null;
-      if (p.pacchetto > 1) {
+      if (p.pacchetto > 1 && !p.prepagSynth) {
         var mine = items.filter(function (it) { return it.type === 'pt' && it.key === p.key; });
         var next1 = mine.filter(function (it) { return it.n === 1 && it.date > p.date; })[0];
         var cyc = mine.filter(function (it) { return it.date >= p.date && (!next1 || it.date < next1.date); });
@@ -4871,8 +4890,11 @@
         var remaining = P - pos + 1; // la prossima 1ª PT, quando il cliente paga il nuovo pacchetto
         d = new Date(last.date.getTime() + remaining * stepDays * 86400000);
       }
+      // rinnovi già pagati in anticipo (dopo l'ultima 1ª PT in agenda): non li stimo di nuovo
+      var lastFirst = list.filter(function (it) { return it.n === 1; }).pop(), skip = (c.prepag || []).filter(function (pr) { return !lastFirst || fromISO(pr.data) > lastFirst.date; }).length;
       while (d <= horizonEnd && k < 40) {
-        if (d >= today) out.push({ id: 'est:' + key + ':' + k, key: key, name: c.name, date: d, kind: P === 1 ? 'Seduta singola (stima)' : 'Pacchetto ' + P + ' PT (stima)', amount: c.tariffa || 0, noTariff: !c.tariffa, perWeek: perWeek, estimated: true });
+        if (skip > 0) skip--;
+        else if (d >= today) out.push({ id: 'est:' + key + ':' + k, key: key, name: c.name, date: d, kind: P === 1 ? 'Seduta singola (stima)' : 'Pacchetto ' + P + ' PT (stima)', amount: c.tariffa || 0, noTariff: !c.tariffa, perWeek: perWeek, estimated: true });
         d = new Date(d.getTime() + P * stepDays * 86400000); k++;
       }
     });
@@ -5223,13 +5245,30 @@
       return '<div class="spf-pay sp-' + p.status + '"><div style="flex:1;min-width:0;"><strong>' + p.kind + '</strong><div class="sp-meta">' + spDateShort(p.date) + ' · <span class="sp-badge sp-badge-' + p.status + '">' + badge + '</span></div>' +
         (accList ? '<div class="spf-accs">' + accList + '<div class="spf-acc spf-res"><span>' + (p.paid ? 'Saldato' : 'Residuo da saldare') + '</span><strong>' + spEuro(p.residuo) + '</strong><span></span></div></div>' : '') +
         cover + (function () {
+          if (p.prepag) { var pd = fromISO(p.prepag.data), pk = escapeHtml(p.key + '|' + p.prepag.id); return '<div class="ing-paid-on">💶 pagato in anticipo il <input type="date" data-preday="' + pk + '" value="' + p.prepag.data + '"><span class="sp-meta"> · conta negli incassi di ' + MESI[pd.getMonth()] + '</span></div><div class="sp-meta pre-note">' + (p.prepagSynth ? '⏳ Si collegherà da solo alla 1ª PT del nuovo pacchetto quando sarà in agenda.' : '🔗 Collegato a questa 1ª PT: risulta già saldata.') + '</div>'; }
           var sc = p.paid ? (p.cash || []).filter(function (x) { return x.kind === 'saldo' || x.kind === 'pagamento'; }).pop() : null;
           return sc ? '<div class="ing-paid-on">💶 ' + (p.acconti.length ? 'saldo' : 'pagato') + ' il <input type="date" data-paidon="' + eid + '" value="' + toISO(sc.date) + '"><span class="sp-meta"> · conta negli incassi di ' + MESI[sc.date.getMonth()] + (sc.date.getFullYear() !== todayMidnight().getFullYear() ? ' ' + sc.date.getFullYear() : '') + '</span></div>' : '';
         })() + (p.paid ? '' : '<div class="spf-acc-add"><input type="number" min="1" step="1" placeholder="€ acconto" data-accamt="' + eid + '"><input type="date" data-accdate="' + eid + '" value="' + toISO(todayMidnight()) + '" title="Giorno del pagamento: vale per + Acconto e per ✓ Saldato"><button class="btn small" data-accadd="' + eid + '">+ Acconto</button></div>') +
         '<input type="text" class="spf-pnote" data-pnote="' + eid + '" placeholder="Nota sul pagamento…" value="' + escapeHtml(p.note) + '"></div>' +
-        '<div class="spf-pay-side"><label class="spf-amt-lbl">Importo pacchetto</label><div class="spf-amt"><span>€</span><input type="number" min="0" step="1" data-pamt="' + eid + '" value="' + (p.amount || '') + '" placeholder="0"></div>' +
-        (p.paid ? '<button class="btn small ghost" data-unpay="' + eid + '">Annulla</button>' : '<button class="btn small sp-pay-btn" data-pay="' + eid + '">✓ Saldato</button>') + '</div></div>';
+        '<div class="spf-pay-side"><label class="spf-amt-lbl">Importo pacchetto</label><div class="spf-amt"><span>€</span><input type="number" min="0" step="1" ' + (p.prepag ? 'data-preamt="' + escapeHtml(p.key + '|' + p.prepag.id) + '"' : 'data-pamt="' + eid + '"') + ' value="' + (p.amount || '') + '" placeholder="0"></div>' +
+        (p.prepag ? '<button class="btn small ghost" data-predel="' + escapeHtml(p.key + '|' + p.prepag.id) + '">Togli anticipo</button>' : (p.paid ? '<button class="btn small ghost" data-unpay="' + eid + '">Annulla</button>' : '<button class="btn small sp-pay-btn" data-pay="' + eid + '">✓ Saldato</button>')) + '</div></div>';
     }).join('') : '<div class="no-items">' + (allPays.length ? 'Nessun pagamento in ' + MESI[spView.month.getMonth()] + '.' : 'Nessun pagamento generato: arriverà con la 1ª PT del prossimo pacchetto o con una consulenza.' + (s && s.pts.length && s.P > 1 && !c.inizio ? '<div style="margin-top:8px;"><button class="btn small" id="spfStartHere" data-d="' + toISO(s.pts[0].date) + '">＋ Il pacchetto è iniziato con la PT del ' + spDateShort(s.pts[0].date) + '</button></div>' : '')) + '</div>';
+    if (spPac(c) > 1) {
+      document.getElementById('spfPays').insertAdjacentHTML('beforeend', '<details class="pre-box"' + ((c.prepag || []).length ? '' : '') + '><summary>💶 Ha pagato in anticipo il prossimo pacchetto?</summary>' +
+        '<div class="pre-form"><label>Pagato il <input type="date" id="preDay" value="' + toISO(todayMidnight()) + '"></label><label>Importo € <input type="number" min="0" step="1" id="preAmt" value="' + (c.tariffa || '') + '"></label><button class="btn small primary" id="preSave">Registra anticipo</button></div>' +
+        '<div class="ap-hint">Conta negli incassi del giorno in cui ti ha pagato. Quando la 1ª PT del nuovo pacchetto sarà in agenda, risulterà già saldata (senza contarla due volte).</div></details>');
+      document.getElementById('preSave').addEventListener('click', function () {
+        var day = document.getElementById('preDay').value, amt = fnParseAmount(document.getElementById('preAmt').value);
+        if (!day || !amt) { toast('Inserisci data e importo'); return; }
+        c.prepag = c.prepag || []; c.prepag.push({ id: 'pp_' + uid(), data: day, importo: amt });
+        saveSp(); finRerender(); spFolderAllPays = true; openSpFolder(key);
+        toast('💶 Anticipo di ' + spEuro(amt) + ' registrato il ' + spDateShort(fromISO(day)) + ' · conta negli incassi di ' + MESI[fromISO(day).getMonth()]);
+      });
+    }
+    var preFind = function (attr, el) { var v = el.getAttribute(attr).split('|'), pid = v.pop(), cl = state.sp.clients[v.join('|')]; return cl && (cl.prepag || []).filter(function (x) { return x.id === pid; })[0] ? { cl: cl, pr: cl.prepag.filter(function (x) { return x.id === pid; })[0] } : null; };
+    Array.prototype.forEach.call(document.querySelectorAll('#spfPays [data-preday]'), function (inp) { inp.addEventListener('change', function () { var o = preFind('data-preday', inp); if (!o || !inp.value) return; o.pr.data = inp.value; saveSp(); finRerender(); openSpFolder(key); toast('Data dell\'anticipo aggiornata · incassi di ' + MESI[fromISO(inp.value).getMonth()]); }); });
+    Array.prototype.forEach.call(document.querySelectorAll('#spfPays [data-preamt]'), function (inp) { inp.addEventListener('change', function () { var o = preFind('data-preamt', inp); if (!o) return; o.pr.importo = fnParseAmount(inp.value); saveSp(); finRerender(); openSpFolder(key); }); });
+    Array.prototype.forEach.call(document.querySelectorAll('#spfPays [data-predel]'), function (b) { b.addEventListener('click', function () { var o = preFind('data-predel', b); if (!o) return; showConfirm('Togliere il pagamento anticipato di ' + spEuro(fnParseAmount(o.pr.importo)) + ' del ' + spDateShort(fromISO(o.pr.data)) + '?', function () { o.cl.prepag = o.cl.prepag.filter(function (x) { return x !== o.pr; }); saveSp(); finRerender(); openSpFolder(key); toast('Anticipo tolto'); }, 'Togli anticipo'); }); });
     var sh = document.getElementById('spfStartHere');
     if (sh) sh.addEventListener('click', function () { c.inizio = sh.getAttribute('data-d'); saveSp(); finRerender(); openSpFolder(key); toast('Pacchetto di ' + c.name + ' dal ' + spDateShort(fromISO(c.inizio)) + ': ora puoi segnarlo pagato'); });
     var tg = document.getElementById('spfPaysToggle');
