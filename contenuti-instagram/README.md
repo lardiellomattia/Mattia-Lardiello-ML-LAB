@@ -219,6 +219,8 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 >
 > Molte volte l'esercizio è corretto: ha solo bisogno di essere perfezionato. Ed è una cosa molto diversa da "sbagliato".
 >
+> E allora mi chiedo: perché una persona sente di sbagliare ancora prima di iniziare?
+>
 > Nel mio settore è diffuso un metodo commerciale: far notare a qualcuno che sta sbagliando per proporgli una correzione a pagamento. Mi chiedo spesso quanta ansia da prestazione possa creare in chi si allena solo per stare bene.
 >
 > Alleno anche due portieri di 13 anni. Il portiere è un ruolo particolare, l'ho vissuto e lo vivo in prima persona: puoi parare per tutta la partita, ma se prendi gol vieni giudicato solo per quello. Come allenatore non mi interessa dire al mio portiere che ha sbagliato: mi interessa che capisca dove possiamo migliorare. Analizziamo l'errore insieme, per farci trovare pronti alla prossima partita.
