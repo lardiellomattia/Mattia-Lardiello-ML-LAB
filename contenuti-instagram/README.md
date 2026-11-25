@@ -17,6 +17,7 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 10 | Lancio coaching esclusivo (5 posti) | Carosello 7 slide | [10-lancio-coaching-esclusivo](10-lancio-coaching-esclusivo) |
 | 11 | Pancia gonfia e intestino pigro: il movimento (Roma V) | Carosello 8 slide | [11-intestino-movimento](11-intestino-movimento) |
 | 12 | Split squat: il bacino scivola a destra, prima/dopo 5' | Reel | [12-bacino-split-squat](12-bacino-split-squat) |
+| 13 | "Ho sbagliato": guidare, non giudicare | Carosello 8 slide (sfondo bianco) | [13-ho-sbagliato](13-ho-sbagliato) |
 
 ---
 
@@ -209,3 +210,22 @@ Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima
 > #splitsquat #glutei #allenamentoglutei #crescitaglutei #bacino #esercizicorrettivi #allenamentofemminile #personaltrainerverona #mllab
 
 Ricorda: consenso scritto della cliente prima di pubblicare.
+
+## 13 · "Ho sbagliato": guidare, non giudicare
+- `ho-sbagliato-1.png` … `ho-sbagliato-8.png`: carosello 1080×1350 su sfondo bianco, colori del brand.
+
+> "Ho sbagliato l'esercizio."
+> È la frase che sento più spesso nel mio studio, soprattutto da chi ha appena iniziato. Spesso ancora prima che io dica qualcosa.
+>
+> Molte volte l'esercizio è corretto: ha solo bisogno di essere perfezionato. Ed è una cosa molto diversa da "sbagliato".
+>
+> Nel mio settore è diffuso un metodo commerciale: far notare a qualcuno che sta sbagliando per proporgli una correzione a pagamento. Mi chiedo spesso quanta ansia da prestazione possa creare in chi si allena solo per stare bene.
+>
+> Alleno anche due portieri di 13 anni. Il portiere è un ruolo particolare, l'ho vissuto e lo vivo in prima persona: puoi parare per tutta la partita, ma se prendi gol vieni giudicato solo per quello. Come allenatore non mi interessa dire al mio portiere che ha sbagliato: mi interessa che capisca dove possiamo migliorare. Analizziamo l'errore insieme, per farci trovare pronti alla prossima partita.
+>
+> Nel mio studio vale lo stesso: gli esercizi si correggono e si ottimizzano, un dettaglio alla volta. Mi piace lavorare da coach: guidarti a migliorare, non giudicarti.
+>
+> Ti è mai capitato di pensare "ho sbagliato" a metà serie? Scrivimi "SÌ" nei commenti 👇
+> 📍 ML LAB – Bovolone
+>
+> #allenamentofemminile #personaltrainer #tecnicaesercizi #iniziareadallenarsi #ansiadaprestazione #coaching #allenatoreportieri #personaltrainerverona #personaltrainerbovolone #mllab
