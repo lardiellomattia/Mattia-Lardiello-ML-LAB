@@ -21,6 +21,7 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 14 | Alzate laterali: 3 dettagli | Reel con voce e sottotitoli | [14-alzate-laterali](14-alzate-laterali) |
 | 15 | Test video animato con avatar di Mattia | Reel animato (test) | [15-test-avatar-animato](15-test-avatar-animato) |
 | 16 | Trailer serie "Sentito dalla parrucchiera" | Reel animato | [16-trailer-sentito-dalla-parrucchiera](16-trailer-sentito-dalla-parrucchiera) |
+| 17 | Trailer serie "L'amica che sa tutto" (scelto) | Reel animato | [17-trailer-amica-che-sa-tutto](17-trailer-amica-che-sa-tutto) |
 
 ---
 
@@ -293,3 +294,14 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 > 🔔 Seguimi per non perdere gli episodi.
 >
 > #mitifitness #sentitodallaparrucchiera #falsimiti #allenamentofemminile #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
+
+## 17 · Trailer serie "L'amica che sa tutto" (versione scelta)
+- `trailer-amica.mp4`: 21 s. Al bar: l'Amica che sa tutto dice 3 miti sempre più convinta, Sofia perplessa, timbri FALSO; poi palestra con Sofia ("Ma sarà vero?") e Mattia, titolo della serie e CTA "Tagga l'amica che sa tutto".
+
+> Ce l'abbiamo tutte: quell'amica che sa tutto 🤓📱
+> "Fidati, con i pesi diventi grossa!" "Per la pancia fai gli addominali!" "Se smetti, il muscolo diventa grasso!"
+> Da questa settimana parte L'AMICA CHE SA TUTTO: ogni settimana prendo uno dei suoi consigli e ti dico se è VERO, FALSO o… DIPENDE.
+> 👇 Tagga l'amica che sa tutto e scrivimi il consiglio più assurdo che ti ha dato: potrebbe diventare il prossimo episodio!
+> 🔔 Seguimi per non perdere gli episodi.
+>
+> #lamicachesatutto #mitifitness #falsimiti #allenamentofemminile #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
