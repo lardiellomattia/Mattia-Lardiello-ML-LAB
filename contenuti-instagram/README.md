@@ -19,6 +19,7 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 12 | Split squat: il bacino scivola a destra, prima/dopo 5' | Reel | [12-bacino-split-squat](12-bacino-split-squat) |
 | 13 | "Ho sbagliato": guidare, non giudicare | Carosello 8 slide (sfondo bianco) | [13-ho-sbagliato](13-ho-sbagliato) |
 | 14 | Alzate laterali: 3 dettagli | Reel con voce e sottotitoli | [14-alzate-laterali](14-alzate-laterali) |
+| 15 | Test video animato con avatar di Mattia | Reel animato (test) | [15-test-avatar-animato](15-test-avatar-animato) |
 
 ---
 
@@ -244,3 +245,7 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 > 📌 Salvalo per il prossimo allenamento spalle e mandalo a chi si allena con te.
 >
 > #alzatelaterali #spalle #allenamentospalle #tecnicaesercizi #allenamentofemminile #palestradonna #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
+
+## 15 · Test video animato con avatar di Mattia
+- `test-animato.mp4`: test 14,5 s, avatar originale di Mattia (ricci, barba, t-shirt ML LAB) in palestra disegnata, testi animati, emoji e effetti "pop". Tema: "Perché i tuoi glutei non crescono?".
+- `a.html`: sorgente dell'animazione (avatar e scene modificabili per i prossimi episodi).
