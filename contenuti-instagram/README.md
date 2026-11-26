@@ -247,5 +247,5 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 > #alzatelaterali #spalle #allenamentospalle #tecnicaesercizi #allenamentofemminile #palestradonna #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
 
 ## 15 · Test video animato con avatar di Mattia
-- `test-animato.mp4`: test 14,5 s, avatar originale di Mattia (ricci, barba, t-shirt ML LAB) in palestra disegnata, testi animati, emoji e effetti "pop". Tema: "Perché i tuoi glutei non crescono?".
+- `test-animato.mp4`: test 14,5 s, avatar originale di Mattia (ricci, senza barba, fisico muscoloso, t-shirt ML LAB) in palestra disegnata, testi animati, emoji e effetti "pop". Tema: "Perché i tuoi glutei non crescono?".
 - `a.html`: sorgente dell'animazione (avatar e scene modificabili per i prossimi episodi).
