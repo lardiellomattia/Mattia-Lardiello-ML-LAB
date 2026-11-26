@@ -249,6 +249,8 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 ## 15 · Test video animato con avatar di Mattia
 - `test-animato.mp4`: test 14,5 s, avatar originale di Mattia (ricci, senza barba, fisico muscoloso, t-shirt ML LAB) in palestra disegnata, testi animati, emoji e effetti "pop". Tema: "Perché i tuoi glutei non crescono?".
 - `episodio-1.mp4`: episodio 1 con la voce di Mattia (17,6 s, registrazione dal video 1126), scene e bocca sincronizzate al parlato.
+- `team-ml-lab.mp4` / `team-ml-lab.png`: presentazione dei 3 personaggi (Mattia, Sofia, Giulia).
+- `chars.js`: generatore dei personaggi (colori, capelli, abbigliamento modificabili); `team.html` scena del team.
 - `a.html`: sorgente dell'animazione (avatar e scene modificabili per i prossimi episodi).
 
 > Perché i tuoi glutei non crescono? 🍑
