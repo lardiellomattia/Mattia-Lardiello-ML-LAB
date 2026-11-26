@@ -13,11 +13,11 @@ Ruolo: intrattenimento educativo con personaggi animati, per farsi scoprire.
 > 💪 Risponde @mattialardiello, personal trainer
 > 👇 Mandaci il consiglio più assurdo che hai sentito
 
-## Identità grafica (diversa da ML LAB)
-- Rosa #FF7EB6 · Viola #6C4BD8 · Crema #FFF4EC · Inchiostro #1B1B1F
+## Identità grafica (stessi colori del personal brand, per essere riconoscibile)
+- Giallo #FFBF00 · Nero #0B0B0B · Bianco #FFFFFF · Rosso #FF3B3B solo per il timbro FALSO
 - Font: Anton (titoli), Inter (testi e fumetti)
-- L'Amica: bionda con coda, occhiali viola, top rosa, leggings viola. Frase tipica: "Fidati!"
-- Nessun logo ML LAB su personaggi e sfondi.
+- L'Amica: bionda con coda, occhiali neri, top giallo, leggings neri. Frase tipica: "Fidati!"
+- Niente logo/scritta ML LAB su personaggi e sfondi: il collegamento è dato dai colori e da "Risponde @mattialardiello".
 
 ## File
 - `foto-profilo.png` (1080×1080, area sicura nel cerchio)
