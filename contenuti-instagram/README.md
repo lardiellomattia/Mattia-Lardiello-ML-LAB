@@ -251,6 +251,7 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 - `episodio-1.mp4`: episodio 1 con la voce di Mattia (17,6 s, registrazione dal video 1126), scene e bocca sincronizzate al parlato.
 - `team-ml-lab.mp4` / `team-ml-lab.png`: presentazione dei 3 personaggi (Mattia, Sofia, Giulia).
 - `chars.js`: generatore dei personaggi (colori, capelli, abbigliamento modificabili); `team.html` scena del team.
+- `dialogo-glutei.mp4`: dialogo a 3 (23,4 s). Voci di Sofia e Giulia sintetiche (Piper TTS, voce italiana femminile "paola"; Giulia con tono più alto), battute di Mattia dalla sua registrazione reale. Bocche sincronizzate al volume di ciascuna voce.
 - `a.html`: sorgente dell'animazione (avatar e scene modificabili per i prossimi episodi).
 
 > Perché i tuoi glutei non crescono? 🍑
@@ -258,6 +259,15 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 > Io guardo 3 cose: l'appoggio del piede, il bacino stabile e un carico che cresce nel tempo.
 > Ogni corpo è diverso: l'esercizio si adatta a te.
 > Quale di questi 3 punti curi già? Scrivimelo nei commenti 👇
+> Seguimi per la parte 2 📌
+>
+> #glutei #allenamentoglutei #crescitaglutei #squat #tecnicaesercizi #allenamentofemminile #personaltrainer #personaltrainerverona #mllab
+
+**Caption dialogo**
+> "Faccio 100 squat a settimana… ma i miei glutei non crescono!" 😩
+> Ti suona familiare? Il problema non è QUANTO ti alleni, ma COME.
+> Io guardo 3 cose: appoggio del piede, bacino stabile e un carico che cresce nel tempo.
+> Tu sei più Sofia o più Giulia? Scrivimelo nei commenti 👇
 > Seguimi per la parte 2 📌
 >
 > #glutei #allenamentoglutei #crescitaglutei #squat #tecnicaesercizi #allenamentofemminile #personaltrainer #personaltrainerverona #mllab
