@@ -297,6 +297,7 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 
 ## 17 · Trailer serie "L'amica che sa tutto" (versione scelta)
 - `trailer-amica.mp4`: 21 s. Al bar: l'Amica che sa tutto dice 3 miti sempre più convinta, Sofia perplessa, timbri FALSO; poi palestra con Sofia ("Ma sarà vero?") e Mattia, titolo della serie e CTA "Tagga l'amica che sa tutto".
+- `trailer-amica-senza-musica.mp4`: stessa versione senza base musicale (solo voci ed effetti), per aggiungere un audio di tendenza su Instagram.
 
 > Ce l'abbiamo tutte: quell'amica che sa tutto 🤓📱
 > "Fidati, con i pesi diventi grossa!" "Per la pancia fai gli addominali!" "Se smetti, il muscolo diventa grasso!"
