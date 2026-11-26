@@ -248,4 +248,14 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 
 ## 15 · Test video animato con avatar di Mattia
 - `test-animato.mp4`: test 14,5 s, avatar originale di Mattia (ricci, senza barba, fisico muscoloso, t-shirt ML LAB) in palestra disegnata, testi animati, emoji e effetti "pop". Tema: "Perché i tuoi glutei non crescono?".
+- `episodio-1.mp4`: episodio 1 con la voce di Mattia (20,2 s), scene e bocca sincronizzate al parlato.
 - `a.html`: sorgente dell'animazione (avatar e scene modificabili per i prossimi episodi).
+
+> Perché i tuoi glutei non crescono? 🍑
+> Puoi fare 100 squat a settimana, ma il problema non è QUANTO ti alleni: è COME.
+> Io guardo 3 cose: l'appoggio del piede, il bacino stabile e un carico che cresce nel tempo.
+> Ogni corpo è diverso: l'esercizio si adatta a te.
+> Quale di questi 3 punti curi già? Scrivimelo nei commenti 👇
+> Seguimi per la parte 2 📌
+>
+> #glutei #allenamentoglutei #crescitaglutei #squat #tecnicaesercizi #allenamentofemminile #personaltrainer #personaltrainerverona #mllab

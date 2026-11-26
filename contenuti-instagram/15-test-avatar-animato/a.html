@@ -114,11 +114,14 @@ const backOut=x=>{const c=1.70158;x=cl(x);return 1+(c+1)*Math.pow(x-1,3)+c*Math.
 function pop(t,s,e,d=.35){ if(t<s||t>e) return 0; const a=backOut((t-s)/d); const b=e-t<.2? (e-t)/.2:1; return Math.min(a,1.15)*b;}
 const S=[
  [0,2.6,'Perché i tuoi <span class="y">glutei</span><br>non crescono?','LA DOMANDA DI OGGI'],
- [2.6,5.6,'Fai 100 squat<br>a settimana…','…ma niente 😩'],
- [5.6,8.6,'Il problema non è<br><span class="y">QUANTO</span> ti alleni','❌ PIÙ NON È MEGLIO'],
- [8.6,11.8,'…ma <span class="y">COME</span><br>ti alleni','I 3 PUNTI CHE GUARDO'],
- [11.8,14.5,'Ogni corpo è diverso:<br>l\'esercizio si <span class="y">adatta</span>','👇 SEGUIMI PER LA PARTE 2'],
+ [2.6,5.2,'Fai 100 squat<br>a settimana…','…ma niente 😩'],
+ [5.2,7.15,'Il problema non è<br><span class="y">QUANTO</span> ti alleni','❌ PIÙ NON È MEGLIO'],
+ [7.15,8.9,'…ma <span class="y">COME</span><br>ti alleni','✅ LA TECNICA CONTA'],
+ [8.9,14.8,'Io guardo<br><span class="y">3 cose</span>','I 3 PUNTI CHE GUARDO'],
+ [14.8,18.0,'Ogni corpo è diverso:<br>l\'esercizio si <span class="y">adatta</span>','🎯 SU MISURA PER TE'],
+ [18.0,99,'Seguimi per<br>la <span class="y">parte 2</span>','👇 SEGUIMI'],
 ];
+const SPEECH=[[0.26, 0.78], [0.78, 1.04], [1.04, 1.18], [1.18, 1.52], [1.52, 1.86], [1.86, 2.38], [2.74, 2.9], [2.9, 3.06], [3.06, 3.28], [3.28, 3.72], [3.72, 3.94], [3.94, 4.46], [4.76, 4.8], [4.8, 5.16], [5.26, 5.38], [5.38, 5.56], [5.56, 5.72], [5.72, 5.88], [5.88, 6.24], [6.24, 6.58], [6.58, 6.98], [7.16, 7.32], [7.32, 7.54], [7.54, 7.82], [7.82, 8.2], [9.0, 9.16], [9.16, 9.54], [9.54, 9.76], [9.76, 10.16], [10.44, 10.48], [10.48, 10.78], [10.78, 10.96], [10.96, 11.46], [11.7, 11.82], [11.82, 12.18], [12.18, 12.6], [12.6, 12.82], [12.82, 13.04], [13.04, 13.36], [13.36, 13.6], [13.6, 13.98], [13.98, 14.16], [14.16, 14.58], [14.94, 15.12], [15.12, 15.34], [15.34, 15.54], [15.54, 15.94], [16.1, 16.1], [16.1, 16.7], [16.7, 16.86], [16.86, 17.22], [17.22, 17.48], [17.48, 17.74], [18.12, 18.44], [18.44, 18.54], [18.54, 18.7], [18.7, 18.86], [18.86, 19.14], [19.14, 20.18]];
 function lerp(a,b,x){return a+(b-a)*cl(x)}
 window.render=function(t){
  let si=S.findIndex(s=>t>=s[0]&&t<s[1]); if(si<0) si=S.length-1; const s=S[si];
@@ -133,27 +136,29 @@ window.render=function(t){
  if(si==0){ uR=-100; fR=-60+Math.sin(t*14)*22; }
  if(si==1){ uR=12; fR=160; uL=10; headRot=-8+Math.sin(t*1.5)*2; }
  if(si==2){ headRot=Math.sin(t*12)*9; uL=30;fL=70; uR=-30;fR=-70; }
- if(si==3){ uR=-95; fR=-5; uL=10; headRot=6; }
- if(si==4){ uR=-140;fR=-20+Math.sin(t*14)*15; uL=140;fL=20-Math.sin(t*14)*15; }
+ if(si==3){ uR=-60;fR=-50+Math.sin(t*9)*8; uL=60;fL=50-Math.sin(t*9)*8; headRot=4; }
+ if(si==4){ uR=-95; fR=-5; uL=10; headRot=6; }
+ if(si==5){ uR=-45;fR=-35; uL=45;fL=35; headRot=Math.sin(t*2)*4; }
+ if(si==6){ uR=-140;fR=-20+Math.sin(t*14)*15; uL=140;fL=20-Math.sin(t*14)*15; }
  $('armL').style.transform=`rotate(${uL}deg)`; $('armR').style.transform=`rotate(${uR}deg)`; $('foreL').style.transform=`rotate(${fL}deg)`; $('foreR').style.transform=`rotate(${fR}deg)`;
  $('head').style.transform=`rotate(${headRot}deg)`;
  // talking mouth
- const talk=(Math.sin(t*22)+Math.sin(t*13.7))*0.5; $('mouth').setAttribute('ry',(4+Math.max(0,talk)*10).toFixed(1));
+ const sp=SPEECH.some(([a,b])=>t>=a-0.03&&t<=b+0.03); const talk=sp?(Math.sin(t*22)+Math.sin(t*13.7))*0.5:-1; $('mouth').setAttribute('ry',(4+Math.max(0,talk)*10).toFixed(1));
  // blink
  const bp=(t%3.1); const lid=bp<0.12? 34*Math.sin(bp/0.12*Math.PI):0; ['lidL','lidR'].forEach(i=>$(i).setAttribute('height',lid));
  // eyes look direction
- const lx= si==3? 4 : si==1? -3:0; $('pL').setAttribute('cx',174+lx); $('pR').setAttribute('cx',230+lx);
+ const lx= si==4? 4 : si==1? -3:0; $('pL').setAttribute('cx',174+lx); $('pR').setAttribute('cx',230+lx);
  // brows
  const by= si==2? 6: si==1? -6:0; $('browL').setAttribute('transform',`translate(0 ${by}) rotate(${si==2?10:0} 172 114)`); $('browR').setAttribute('transform',`translate(0 ${by}) rotate(${si==2?-10:0} 228 114)`);
  // props
- const pq=pop(t,2.8,5.6); $('q').style.transform=`scale(${pq}) rotate(${Math.sin(t*4)*8}deg)`;
- const pe=pop(t,3.2,5.6); $('emo').style.transform=`scale(${pe})`;
- const px=pop(t,6.0,8.6); $('x').style.transform=`scale(${px}) rotate(${(1-cl((t-6)/.35))*-30}deg)`;
- const pl=pop(t,9.0,11.8); $('list').style.transform=`scale(${pl})`; $('list').style.transformOrigin='left center';
- [['i1',9.4],['i2',10.1],['i3',10.8]].forEach(([id,st])=>{const p=cl((t-st)/.25);$(id).style.opacity=p;$(id).style.transform=`translateX(${(1-p)*40}px)`;});
+ const pq=pop(t,2.8,5.2); $('q').style.transform=`scale(${pq}) rotate(${Math.sin(t*4)*8}deg)`;
+ const pe=pop(t,4.2,5.2); $('emo').style.transform=`scale(${pe})`;
+ const px=pop(t,5.85,7.15); $('x').style.transform=`scale(${px}) rotate(${(1-cl((t-5.85)/.35))*-30}deg)`;
+ const pl=pop(t,9.6,14.8); $('list').style.transform=`scale(${pl})`; $('list').style.transformOrigin='left center';
+ [['i1',10.4],['i2',11.7],['i3',12.8]].forEach(([id,st])=>{const p=cl((t-st)/.25);$(id).style.opacity=p;$(id).style.transform=`translateX(${(1-p)*40}px)`;});
  const pf=pop(t,12.2,14.6); $('follow').style.transform=`scale(${pf})`;
  // avatar slight shift when list visible
- $('av').style.left=(200+(si==3?lerp(0,-190,(t-8.8)/.4):0))+'px';
+ $('av').style.left=(200+(si==4?lerp(0,-190,(t-8.9)/.4):0))+'px';
 };
 render(0);
 </script></body></html>
