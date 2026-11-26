@@ -20,6 +20,7 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 13 | "Ho sbagliato": guidare, non giudicare | Carosello 8 slide (sfondo bianco) | [13-ho-sbagliato](13-ho-sbagliato) |
 | 14 | Alzate laterali: 3 dettagli | Reel con voce e sottotitoli | [14-alzate-laterali](14-alzate-laterali) |
 | 15 | Test video animato con avatar di Mattia | Reel animato (test) | [15-test-avatar-animato](15-test-avatar-animato) |
+| 16 | Trailer serie "Sentito dalla parrucchiera" | Reel animato | [16-trailer-sentito-dalla-parrucchiera](16-trailer-sentito-dalla-parrucchiera) |
 
 ---
 
@@ -281,3 +282,14 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 > Seguimi per la parte 2 📌
 >
 > #glutei #allenamentoglutei #crescitaglutei #squat #mitifitness #allenamentofemminile #personaltrainer #personaltrainerverona #mllab
+
+## 16 · Trailer serie "Sentito dalla parrucchiera"
+- `trailer-serie.mp4`: 21 s. Salone con la Parrucchiera (nuovo personaggio) e l'Amica che dicono 3 miti con timbro FALSO, poi palestra con Sofia e Mattia, titolo della serie e CTA. Voci femminili sintetiche, musica e effetti generati.
+
+> Quante volte l'hai sentito dalla parrucchiera? 💇‍♀️
+> "Con i pesi diventi grossa", "per la pancia fai gli addominali", "se smetti il muscolo diventa grasso"...
+> Da questa settimana parte SENTITO DALLA PARRUCCHIERA: ogni settimana prendo un mito che si sente in giro e ti dico se è VERO, FALSO o… DIPENDE.
+> 💬 Qual è il mito che hai sentito tu? Scrivilo nei commenti: potrebbe diventare il prossimo episodio!
+> 🔔 Seguimi per non perdere gli episodi.
+>
+> #mitifitness #sentitodallaparrucchiera #falsimiti #allenamentofemminile #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
