@@ -252,6 +252,7 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 - `team-ml-lab.mp4` / `team-ml-lab.png`: presentazione dei 3 personaggi (Mattia, Sofia, Giulia).
 - `chars.js`: generatore dei personaggi (colori, capelli, abbigliamento modificabili); `team.html` scena del team.
 - `dialogo-glutei.mp4`: dialogo a 3 (23,4 s). Voci di Sofia e Giulia sintetiche (Piper TTS, voce italiana femminile "paola"; Giulia con tono più alto), battute di Mattia dalla sua registrazione reale. Bocche sincronizzate al volume di ciascuna voce.
+- `dialogo-amica.mp4`: dialogo "la mia amica dice 100 squat al giorno" (23,7 s); il personaggio Giulia ora si chiama "Amica".
 - `a.html`: sorgente dell'animazione (avatar e scene modificabili per i prossimi episodi).
 
 > Perché i tuoi glutei non crescono? 🍑
@@ -271,3 +272,12 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 > Seguimi per la parte 2 📌
 >
 > #glutei #allenamentoglutei #crescitaglutei #squat #tecnicaesercizi #allenamentofemminile #personaltrainer #personaltrainerverona #mllab
+
+**Caption dialogo "la mia amica dice…"**
+> "La mia amica dice che per far crescere i glutei devo fare 100 squat al giorno!" 😅
+> Quante volte l'hai sentito? Il problema non è QUANTO ti alleni, ma COME.
+> Io guardo 3 cose: appoggio del piede, bacino stabile e un carico che cresce nel tempo.
+> Tagga l'amica che ti ha detto di fare 100 squat 👇
+> Seguimi per la parte 2 📌
+>
+> #glutei #allenamentoglutei #crescitaglutei #squat #mitifitness #allenamentofemminile #personaltrainer #personaltrainerverona #mllab
