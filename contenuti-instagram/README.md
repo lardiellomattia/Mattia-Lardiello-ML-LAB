@@ -18,6 +18,7 @@ Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e
 | 11 | Pancia gonfia e intestino pigro: il movimento (Roma V) | Carosello 8 slide | [11-intestino-movimento](11-intestino-movimento) |
 | 12 | Split squat: il bacino scivola a destra, prima/dopo 5' | Reel | [12-bacino-split-squat](12-bacino-split-squat) |
 | 13 | "Ho sbagliato": guidare, non giudicare | Carosello 8 slide (sfondo bianco) | [13-ho-sbagliato](13-ho-sbagliato) |
+| 14 | Alzate laterali: 3 dettagli | Reel con voce e sottotitoli | [14-alzate-laterali](14-alzate-laterali) |
 
 ---
 
@@ -231,3 +232,15 @@ Ricorda: consenso scritto della cliente prima di pubblicare.
 > 📍 ML LAB – Bovolone
 >
 > #allenamentofemminile #personaltrainer #tecnicaesercizi #iniziareadallenarsi #ansiadaprestazione #coaching #allenatoreportieri #personaltrainerverona #personaltrainerbovolone #mllab
+
+## 14 · Alzate laterali: 3 dettagli
+- `reel-alzate.mp4`: 20,2 s con la voce di Mattia (volume a -14 LUFS), sottotitoli parola per parola, titoli numerati 1-2-3 con frecce, schema "davanti alla linea della spalla", CTA "Salvalo" finale.
+
+> Alzate laterali: 3 dettagli che cambiano tutto 👇
+> 1️⃣ Spalle lontane dalle orecchie
+> 2️⃣ Mani verso l'esterno, ma sempre davanti alla linea della spalla
+> 3️⃣ Petto verso l'alto
+> Quale di questi 3 non facevi? Scrivimi 1, 2 o 3 nei commenti 👇
+> 📌 Salvalo per il prossimo allenamento spalle e mandalo a chi si allena con te.
+>
+> #alzatelaterali #spalle #allenamentospalle #tecnicaesercizi #allenamentofemminile #palestradonna #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
