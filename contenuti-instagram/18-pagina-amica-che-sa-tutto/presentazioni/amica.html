@@ -1,0 +1,71 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(anton.woff2)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1920px;overflow:hidden;font-family:Inter,"Noto Color Emoji",sans-serif}
+#st{position:relative;width:1080px;height:1920px;overflow:hidden;background:#0b0b0b}
+.abs{position:absolute}
+.name{left:50%;top:150px;transform:translateX(-50%);text-align:center;white-space:nowrap}
+.name .k{display:inline-block;background:#ffbf00;color:#0b0b0b;font-weight:800;font-size:30px;letter-spacing:6px;padding:8px 18px;border-radius:8px}
+.name .t{font-family:Anton;font-size:120px;line-height:1;color:#fff;text-transform:uppercase;margin-top:14px}
+.bub{left:60px;right:60px;top:330px;background:#fff;border:6px solid #0b0b0b;border-radius:34px;padding:28px 34px;box-shadow:0 12px 0 #0b0b0b;font-weight:900;font-size:58px;line-height:1.15;color:#0b0b0b;text-align:center}
+.bub .y{background:linear-gradient(180deg,transparent 55%,#ffbf00 55%)}
+.chip{background:#fff;border:5px solid #0b0b0b;border-radius:22px;padding:10px 20px;font-weight:900;font-size:38px;color:#0b0b0b;box-shadow:0 8px 0 #0b0b0b;white-space:nowrap}
+.stamp{left:50%;top:1080px;font-family:Anton;font-size:300px;color:#ff3b3b;background:#fff;border:18px solid #ff3b3b;border-radius:40px;padding:0 50px 20px;line-height:1.05}
+.end{inset:0;background:#0b0b0b;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff}
+</style></head><body><div id="st">
+ <svg class="abs" width="1080" height="1920" style="left:0;top:0">
+  <circle cx="540" cy="1180" r="460" fill="#1f2024"/><circle cx="540" cy="1180" r="460" fill="none" stroke="#ffbf00" stroke-width="10"/>
+  <rect x="0" y="1640" width="1080" height="280" fill="#ffbf00"/>
+  <ellipse cx="540" cy="1660" rx="230" ry="30" fill="#0005"/>
+ </svg>
+ <svg class="abs" id="cA" width="560" height="1120" viewBox="0 0 400 800" style="left:260px;top:580px;overflow:visible"></svg>
+ <div id="nm" class="abs name"><div class="k">TI PRESENTO</div><div class="t">L'amica<br>che sa tutto 🤓</div></div>
+ <div id="c1" class="abs chip" style="left:40px;top:780px">📘 Facebook</div>
+ <div id="c2" class="abs chip" style="left:720px;top:720px">📸 Instagram</div>
+ <div id="c3" class="abs chip" style="left:60px;top:1050px">📰 "Ho letto che…"</div>
+ <div id="c4" class="abs chip" style="left:700px;top:1000px">📱 TikTok</div>
+ <div id="bub" class="abs bub"></div>
+ <div id="stamp" class="abs stamp">?</div>
+ <div id="end" class="abs end" style="display:none">
+  <div style="font-size:160px">🤔</div>
+  <div style="font-family:Anton;font-size:120px;line-height:1.02;text-transform:uppercase;margin:10px 40px">Ma sarà<br><span style="color:#ffbf00">vero?</span></div>
+  <div style="font-weight:800;font-size:46px;margin-top:24px;color:#ddd">Lo scopri a breve…</div>
+  <div style="margin-top:60px;background:#ffbf00;color:#0b0b0b;font-family:Anton;font-size:56px;padding:14px 34px 20px;border-radius:18px">TAGGA LA TUA AMICA CHE SA TUTTO 👇</div>
+  <div style="margin-top:40px;font-weight:800;font-size:40px;color:#ffbf00">@lamicachesatutto</div>
+ </div>
+</div>
+<script src="chars.js"></script>
+<script>
+const AM=Object.assign({},CHARS.giulia,{topC:'#ffbf00',topLine:'#e0a800',pants:'#5c6170',glasses:'#0b0b0b',logo:false,phone:true});
+document.getElementById('cA').innerHTML=charSVG('a_',AM);
+const TL=__TL__;
+const $=id=>document.getElementById(id);
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const backOut=x=>{const c=1.70158;x=cl(x);return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const L=TL.lines;
+window.render=function(t){
+ const fi=Math.min(Math.round(t*30),TL.env.length-1); const mv=TL.env[fi]||0;
+ const endT=L[3][1]+1.4; $('end').style.display=t>=endT?'flex':'none';
+ if(t>=endT){ $('end').firstElementChild.style.transform=`scale(${cl(backOut((t-endT)/.35),0,1.1)}) rotate(${Math.sin(t*5)*8}deg)`; return; }
+ // name card
+ const nk=cl(backOut((t-0.15)/.4),0,1.08); $('nm').style.transform=`translateX(-50%) scale(${nk})`; $('nm').style.opacity=t<L[1][0]?1:Math.max(0,1-(t-L[1][0])/0.25);
+ // chips during line 2
+ [['c1',L[1][0]+0.2],['c2',L[1][0]+0.6],['c3',L[1][0]+1.2],['c4',L[1][0]+1.7]].forEach(([id,st],i)=>{const on=t>=st&&t<L[2][1];$(id).style.display=on?'':'none';if(on)$(id).style.transform=`scale(${cl(backOut((t-st)/.3),0,1.1)}) rotate(${Math.sin(t*3+i)*5}deg) translateY(${Math.sin(t*2+i)*8}px)`;});
+ // bubble
+ let txt=null, bs=0;
+ if(t>=L[2][0]-0.1&&t<L[3][0]-0.1){txt='Ti faccio un esempio? 😏';bs=L[2][0]-0.1;}
+ if(t>=L[3][0]-0.1){txt='"Allenarti con i <span class=y>pesi</span> ti fa venire le <span class=y>gambe grosse</span>!" Fidati! 💅';bs=L[3][0]-0.1;}
+ if(txt){$('bub').style.display='';if($('bub').dataset.t!=txt){$('bub').innerHTML=txt;$('bub').dataset.t=txt;}$('bub').style.transform=`scale(${cl(backOut((t-bs)/.3),0,1.06)})`;}else $('bub').style.display='none';
+ // stamp ?
+ const ss=L[3][1]+0.1; if(t>=ss){$('stamp').style.display='';const k=cl(1-(t-ss)/0.18,0,1);$('stamp').style.transform=`translateX(-50%) rotate(-10deg) scale(${1+k*1.4})`;$('stamp').style.opacity=1-k*0.6;} else $('stamp').style.display='none';
+ // pose
+ const bp=(t%3.2); const lid=bp<0.12?34*Math.sin(bp/0.12*Math.PI):0;
+ const o={uL:8,uR:-8,mouth:2.5+mv*12,lid,bob:Math.sin(t*2*Math.PI*1.1)*2.4,head:Math.sin(t*2.3)*3};
+ if(t<L[1][0]){o.uL=150;o.fL=25-Math.sin(t*14)*20;}                       // wave hi
+ else if(t<L[2][0]){o.uR=-20;o.fR=-110;o.head=-6;o.look=4;}               // phone up, reading
+ else if(t<L[3][0]){o.uL=30;o.fL=80;o.head=8;}                            // hand on hip-ish
+ else {o.uL=160;o.fL=-10+Math.sin(t*10)*6;o.uR=-20;o.fR=-110;o.head=-4;}   // finger up, phone
+ poseChar('a_',o);
+};
+render(0);
+</script></body></html>
