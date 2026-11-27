@@ -1473,6 +1473,20 @@
   .date-today { display: flex; gap: 6px; align-items: center; }
   .date-today input { flex: 1; }
   .today-btn { white-space: nowrap; }
+  .app-form { border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; background: var(--surface-2); display: flex; flex-direction: column; gap: 8px; }
+  .app-form-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .app-form-row input[type="date"], .app-head input[type="date"] { width: auto; padding: 5px 8px !important; font-size: 12.5px; }
+  .app-tipi, .app-filt { display: flex; gap: 6px; flex-wrap: wrap; }
+  .app-filt { margin-bottom: 10px; }
+  .app-tipo { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
+  .app-tipo.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .app-item { border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; }
+  .app-item.app-msg { border-left-color: #4C8DFF; } .app-item.app-step { border-left-color: var(--accent); } .app-item.app-nota { border-left-color: var(--neutral); }
+  .app-item.done { opacity: .6; }
+  .app-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; font-size: 12.5px; }
+  .app-badge { font-weight: 700; }
+  .app-txt { min-height: 54px; }
+  .note-pend { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; text-align: center; }
   .perc-sel { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; vertical-align: middle; }
   .perc-box { width: 36px; height: 36px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface); font-size: 19px; line-height: 1; cursor: pointer; filter: grayscale(1); opacity: .45; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
   .perc-box:hover { opacity: .8; }
@@ -11094,7 +11108,8 @@
       { key: 'check', label: c.sequenzaTipi.length === 1 && c.sequenzaTipi[0] === 'Visita' ? 'Visite' : 'Check' },
       { key: 'misure', label: '📏 Misure' },
       { key: 'pagamenti', label: 'Pagamenti' },
-      { key: 'anamnesi', label: 'Anamnesi' }
+      { key: 'anamnesi', label: 'Anamnesi' },
+      { key: 'note', label: '📝 Note' + ((c.appunti || []).filter(function (x) { return x.tipo === 'step' && !x.fatto; }).length ? ' <span class="note-pend">' + (c.appunti || []).filter(function (x) { return x.tipo === 'step' && !x.fatto; }).length + '</span>' : '') }
     ];
     var folderTabsHtml = '<div class="folder-tabs">' + FOLDER_TABS.map(function (t) {
       return '<button class="folder-tab-btn' + (ft === t.key ? ' active' : '') + '" data-ftab="' + t.key + '">' + t.label + '</button>';
@@ -11183,12 +11198,15 @@
 
       '<div class="folder-tab-panel' + (ft === 'anamnesi' ? ' active' : '') + '" data-fpanel="anamnesi">' +
         anamnesiHtml + checkDettagliatiHtml +
-      '</div>';
+      '</div>' +
+
+      '<div class="folder-tab-panel' + (ft === 'note' ? ' active' : '') + '" data-fpanel="note">' + appuntiHtml(c) + '</div>';
 
     wireFolderEvents(c);
   }
 
   function wireFolderEvents(c) {
+    appuntiWire(c);
     Array.prototype.forEach.call(folderModal.querySelectorAll('[data-perc]'), function (b) {
       b.addEventListener('click', function () {
         var pc = percorsoOf(c); pc[b.getAttribute('data-perc')] = !pc[b.getAttribute('data-perc')];
@@ -11606,6 +11624,44 @@
       });
     };
     draw(); ov.classList.add('open');
+  }
+  // ---- NOTE DEL CLIENTE: appunti datati (messaggio riferito, prossimo step, appunto libero)
+  var APP_TIPI = { msg: ['💬', 'Messaggio'], step: ['➡️', 'Prossimo step'], nota: ['📝', 'Appunto'] };
+  var appView = { filtro: '' };
+  function appuntiHtml(c) {
+    var L = (c.appunti || []).slice().sort(function (a, b) { return (b.data || '').localeCompare(a.data || '') || (b.creato || '').localeCompare(a.creato || ''); });
+    var vis = appView.filtro ? L.filter(function (x) { return x.tipo === appView.filtro; }) : L;
+    var tipoBtns = function (sel, attr) { return Object.keys(APP_TIPI).map(function (k) { return '<button type="button" class="app-tipo' + (k === sel ? ' on' : '') + '" ' + attr + '="' + k + '">' + APP_TIPI[k][0] + ' ' + APP_TIPI[k][1] + '</button>'; }).join(''); };
+    var form = '<div class="app-form"><div class="app-form-row"><input type="date" id="appData" value="' + toISO(todayMidnight()) + '"><div class="app-tipi" id="appTipi">' + tipoBtns('msg', 'data-apptipo') + '</div></div>' +
+      '<textarea id="appTesto" class="note-area" placeholder="Es. «Questa settimana ho avuto poca fame la sera» oppure: al prossimo check aumento i carboidrati del pre-allenamento"></textarea>' +
+      '<div style="display:flex;justify-content:flex-end;"><button class="btn small primary" id="appAdd">＋ Aggiungi nota</button></div></div>';
+    var filt = L.length ? '<div class="app-filt"><button type="button" class="app-tipo' + (!appView.filtro ? ' on' : '') + '" data-appfilt="">Tutte (' + L.length + ')</button>' + Object.keys(APP_TIPI).map(function (k) { var n = L.filter(function (x) { return x.tipo === k; }).length; return n ? '<button type="button" class="app-tipo' + (appView.filtro === k ? ' on' : '') + '" data-appfilt="' + k + '">' + APP_TIPI[k][0] + ' ' + APP_TIPI[k][1] + ' (' + n + ')</button>' : ''; }).join('') + '</div>' : '';
+    var items = vis.length ? vis.map(function (x) {
+      var t = APP_TIPI[x.tipo] || APP_TIPI.nota, id = escapeHtml(x.id);
+      return '<div class="app-item app-' + x.tipo + (x.fatto ? ' done' : '') + '"><div class="app-head"><span class="app-badge">' + t[0] + ' ' + t[1] + '</span><input type="date" data-appdata="' + id + '" value="' + escapeHtml(x.data || '') + '">' +
+        (x.tipo === 'step' ? '<label class="ap-check" style="margin:0;"><input type="checkbox" data-appfatto="' + id + '"' + (x.fatto ? ' checked' : '') + '> fatto' + (x.fatto && x.fattoIl ? ' il ' + formatItDataShort(x.fattoIl) : '') + '</label>' : '') +
+        '<span style="flex:1;"></span><button class="icon-btn" data-appdel="' + id + '" title="Elimina nota">🗑</button></div>' +
+        '<textarea class="note-area app-txt" data-apptxt="' + id + '">' + escapeHtml(x.testo || '') + '</textarea></div>';
+    }).join('') : '<div class="no-items">' + (L.length ? 'Nessuna nota di questo tipo.' : 'Nessuna nota ancora: annota qui i messaggi che ti manda e i prossimi passi che hai in mente.') + '</div>';
+    return '<div class="section-block"><h3>📝 Note</h3>' + form + filt + items + '</div>';
+  }
+  function appuntiWire(c) {
+    var root = document.querySelector('#folderOverlay [data-fpanel="note"]'); if (!root) return;
+    var tipo = 'msg';
+    root.querySelectorAll('[data-apptipo]').forEach(function (b) { b.addEventListener('click', function () { tipo = b.getAttribute('data-apptipo'); root.querySelectorAll('[data-apptipo]').forEach(function (x) { x.classList.toggle('on', x === b); }); }); });
+    var add = function () {
+      var txt = root.querySelector('#appTesto').value.trim(); if (!txt) { toast('Scrivi la nota'); root.querySelector('#appTesto').focus(); return; }
+      c.appunti = c.appunti || []; c.appunti.push({ id: uid(), data: root.querySelector('#appData').value || toISO(todayMidnight()), tipo: tipo, testo: txt, creato: new Date().toISOString() });
+      saveClients(); renderFolder(c.id); toast(APP_TIPI[tipo][0] + ' Nota aggiunta');
+    };
+    root.querySelector('#appAdd').addEventListener('click', add);
+    root.querySelector('#appTesto').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) add(); });
+    root.querySelectorAll('[data-appfilt]').forEach(function (b) { b.addEventListener('click', function () { appView.filtro = b.getAttribute('data-appfilt'); renderFolder(c.id); }); });
+    var find = function (id) { return (c.appunti || []).filter(function (x) { return x.id === id; })[0]; };
+    root.querySelectorAll('[data-apptxt]').forEach(function (t) { t.addEventListener('change', function () { var x = find(t.getAttribute('data-apptxt')); if (x) { x.testo = t.value; saveClients(); } }); });
+    root.querySelectorAll('[data-appdata]').forEach(function (i) { i.addEventListener('change', function () { var x = find(i.getAttribute('data-appdata')); if (x && i.value) { x.data = i.value; saveClients(); renderFolder(c.id); } }); });
+    root.querySelectorAll('[data-appfatto]').forEach(function (cb) { cb.addEventListener('change', function () { var x = find(cb.getAttribute('data-appfatto')); if (x) { x.fatto = cb.checked; x.fattoIl = cb.checked ? toISO(todayMidnight()) : null; saveClients(); renderFolder(c.id); } }); });
+    root.querySelectorAll('[data-appdel]').forEach(function (b) { b.addEventListener('click', function () { var x = find(b.getAttribute('data-appdel')); if (!x) return; showConfirm('Eliminare questa nota del ' + formatItDataShort(x.data) + '?', function () { c.appunti = c.appunti.filter(function (y) { return y !== x; }); saveClients(); renderFolder(c.id); }); }); });
   }
   function applyDateChange(client, chk, field, newValue, shiftFollowing) {
     var sorted = client.checks.slice().sort(function (a, b) { return a.numero - b.numero; });
