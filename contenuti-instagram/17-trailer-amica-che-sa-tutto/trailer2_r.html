@@ -1,0 +1,135 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(anton.woff2)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1920px;overflow:hidden;font-family:Inter,"Noto Color Emoji",sans-serif}
+#st{position:relative;width:1080px;height:1920px;overflow:hidden;background:#e4e7ee}
+.abs{position:absolute}
+.scene{position:absolute;inset:0}
+.cap{left:40px;right:40px;top:230px;text-align:center;font-weight:900;font-size:80px;line-height:1.1;color:#fff;-webkit-text-stroke:12px #0b0b0b;paint-order:stroke fill;word-spacing:8px}
+.y{color:#ffbf00}
+.bub{background:#fff;border:5px solid #0b0b0b;border-radius:30px;padding:24px 30px;box-shadow:0 10px 0 #0b0b0b;font-weight:900;font-size:52px;line-height:1.12;color:#0b0b0b;width:600px}
+.bub .y{color:#0b0b0b;background:linear-gradient(180deg,transparent 55%,#ffbf00 55%)}
+.bub .who{display:inline-block;font-family:Anton;font-size:30px;padding:2px 14px 6px;border-radius:8px;border:3px solid #0b0b0b;margin-bottom:8px}
+.stamp{left:50%;top:880px;font-family:Anton;font-size:250px;color:#ff3b3b;border:18px solid #ff3b3b;border-radius:30px;padding:0 40px 20px;background:#ffffffdd;letter-spacing:6px}
+.tag{background:#0b0b0b;color:#ffbf00;font-family:Anton;font-size:44px;padding:8px 24px 12px;border-radius:14px;transform:translateX(-50%);white-space:nowrap}
+.card{inset:0;background:#0b0b0b;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff}
+</style></head><body><div id="st">
+
+<!-- SALON -->
+<div id="salon" class="scene">
+ <svg class="abs" width="1080" height="1920" style="left:0;top:0">
+  <rect x="0" y="0" width="1080" height="1500" fill="#f1ebe3"/>
+  <rect x="0" y="0" width="1080" height="120" fill="#2b2d33"/>
+  <!-- shelves with bottles/cups -->
+  <rect x="80" y="420" width="420" height="14" rx="4" fill="#9a6b45"/><rect x="80" y="600" width="420" height="14" rx="4" fill="#9a6b45"/>
+  <g fill="#fff" stroke="#ccc" stroke-width="3"><rect x="110" y="370" width="44" height="50" rx="8"/><rect x="170" y="370" width="44" height="50" rx="8"/><rect x="230" y="370" width="44" height="50" rx="8"/></g>
+  <g><rect x="310" y="330" width="34" height="90" rx="10" fill="#7fb37f"/><rect x="360" y="345" width="34" height="75" rx="10" fill="#e9a35b"/><rect x="410" y="320" width="34" height="100" rx="10" fill="#c9566a"/></g>
+  <g><rect x="120" y="540" width="60" height="60" rx="10" fill="#ffbf00"/><rect x="200" y="545" width="60" height="55" rx="10" fill="#e4e7ee"/><rect x="280" y="540" width="60" height="60" rx="10" fill="#ffbf00"/></g>
+  <!-- menu board -->
+  <rect x="620" y="260" width="380" height="300" rx="16" fill="#2b2d33" stroke="#9a6b45" stroke-width="12"/>
+  <text x="810" y="330" text-anchor="middle" font-family="Anton" font-size="46" fill="#ffbf00">BAR</text>
+  <g font-family="Inter" font-weight="700" font-size="28" fill="#eee"><text x="660" y="390">Caffè ........ 1,20</text><text x="660" y="440">Cappuccino .. 1,60</text><text x="660" y="490">Spremuta ..... 3,00</text></g>
+  <!-- pendant lamps -->
+  <g><line x1="300" y1="120" x2="300" y2="200" stroke="#2b2d33" stroke-width="4"/><path d="M260 200 h80 l-14 40 h-52 z" fill="#ffbf00"/><line x1="780" y1="120" x2="780" y2="200" stroke="#2b2d33" stroke-width="4"/><path d="M740 200 h80 l-14 40 h-52 z" fill="#ffbf00"/></g>
+  <!-- bar counter (behind characters' legs) -->
+  <rect x="0" y="1500" width="1080" height="420" fill="#cdb79f"/><rect x="0" y="1490" width="1080" height="14" fill="#9a6b45"/>
+  <ellipse cx="250" cy="1745" rx="170" ry="24" fill="#0002"/><ellipse cx="830" cy="1745" rx="170" ry="24" fill="#0002"/>
+ </svg>
+ <svg class="abs" id="cB" width="430" height="860" viewBox="0 0 400 800" style="left:40px;top:900px;overflow:visible"></svg>
+ <svg class="abs" id="cG" width="430" height="860" viewBox="0 0 400 800" style="left:615px;top:900px;overflow:visible"></svg>
+ <svg class="abs" width="1080" height="400" style="left:0;top:1430px"><rect x="380" y="70" width="320" height="22" rx="10" fill="#9a6b45"/><rect x="530" y="92" width="20" height="230" fill="#6b4a30"/><ellipse cx="540" cy="325" rx="80" ry="14" fill="#6b4a30"/>
+ <g><rect x="440" y="30" width="44" height="40" rx="8" fill="#fff" stroke="#ccc" stroke-width="3"/><path d="M484 40 q16 0 16 14 q0 12 -16 12" fill="none" stroke="#ccc" stroke-width="5"/><rect x="590" y="30" width="44" height="40" rx="8" fill="#fff" stroke="#ccc" stroke-width="3"/><path d="M634 40 q16 0 16 14 q0 12 -16 12" fill="none" stroke="#ccc" stroke-width="5"/></g></svg>
+ <div id="tP" class="abs tag" style="left:255px;top:1790px">SOFIA</div>
+ <div id="tG" class="abs tag" style="left:800px;top:1790px;font-size:36px">L'AMICA CHE SA TUTTO</div>
+ <div id="cap1" class="abs cap" style="top:660px;font-size:96px">Quell'amica<br>che <span class="y">sa tutto</span> 🤓📱</div>
+ <div id="bub" class="abs bub" style="top:470px"><div id="bwho" class="who"></div><div id="btx"></div></div>
+ <div id="stamp" class="abs stamp">FALSO</div>
+</div>
+
+<!-- GYM -->
+<div id="gym" class="scene" style="display:none">
+ <svg class="abs" width="1080" height="1920" style="left:0;top:0">
+  <rect x="0" y="0" width="1080" height="1500" fill="#e4e7ee"/>
+  <rect x="0" y="1500" width="1080" height="420" fill="#3a3d46"/><rect x="0" y="1490" width="1080" height="16" fill="#2b2d33"/>
+  <rect x="700" y="140" width="380" height="520" fill="#f6f8fc" stroke="#fff" stroke-width="18"/>
+  <line x1="890" y1="140" x2="890" y2="660" stroke="#fff" stroke-width="14"/><line x1="700" y1="400" x2="1080" y2="400" stroke="#fff" stroke-width="14"/>
+  <rect x="40" y="420" width="34" height="1090" rx="8" fill="#555a66"/><rect x="230" y="420" width="34" height="1090" rx="8" fill="#555a66"/><rect x="40" y="420" width="224" height="26" fill="#555a66"/>
+  <rect x="20" y="900" width="270" height="14" rx="7" fill="#9aa0ab"/>
+  <ellipse cx="250" cy="1720" rx="150" ry="22" fill="#0003"/><ellipse cx="680" cy="1760" rx="190" ry="26" fill="#0003"/>
+ </svg>
+ <svg class="abs" id="cS" width="400" height="800" viewBox="0 0 400 800" style="left:50px;top:930px;overflow:visible"></svg>
+ <svg class="abs" id="cM" width="500" height="1000" viewBox="0 0 400 800" style="left:430px;top:780px;overflow:visible"></svg>
+ <div id="cap2" class="abs cap"></div>
+ <div id="chk" class="abs" style="left:70px;top:560px;display:flex;flex-direction:column;gap:14px"></div>
+</div>
+
+<!-- TITLE -->
+<div id="title" class="abs card" style="display:none">
+ <div style="font-family:Inter;font-weight:800;font-size:34px;letter-spacing:6px;color:#ffbf00">UNA NUOVA SERIE</div>
+ <div id="tt" style="font-family:Anton;font-size:150px;line-height:1;margin:24px 0;text-transform:uppercase">L'amica<br>che sa<br><span class="y">tutto</span></div>
+ <div style="font-size:120px">🤓📱</div>
+ <div style="font-weight:700;font-size:40px;margin-top:30px;color:#ddd">Ogni settimana smonto un mito<br>con <b style="color:#fff">@mattialardiello</b></div>
+</div>
+
+<!-- CTA -->
+<div id="cta" class="abs card" style="display:none;background:#ffbf00;color:#0b0b0b">
+ <div style="font-size:150px">💬</div>
+ <div style="font-family:Anton;font-size:110px;line-height:1.02;text-transform:uppercase;margin:20px 50px">Tagga l'amica<br>che sa tutto</div>
+ <div style="font-weight:800;font-size:44px;margin:20px 70px;line-height:1.3">e scrivimi il consiglio più assurdo che ti ha dato 👇<br>potrebbe diventare il prossimo episodio</div>
+ <div style="margin-top:30px;background:#0b0b0b;color:#ffbf00;font-family:Anton;font-size:46px;padding:12px 30px 16px;border-radius:16px">SEGUIMI PER NON PERDERLI</div>
+</div>
+</div>
+<script src="chars.js"></script>
+<script>
+document.getElementById('cB').innerHTML=charSVG('b_',CHARS.sofia);
+document.getElementById('cG').innerHTML=charSVG('g_',CHARS.giulia);
+document.getElementById('cS').innerHTML=charSVG('s_',CHARS.sofia);
+document.getElementById('cM').innerHTML=charSVG('m_',CHARS.mattia);
+const TL={"lines": [["g", 2.4, 4.49], ["g", 5.3, 6.99], ["g", 8.1, 10.69], ["s", 12.3, 13.24]], "env": {"g": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.742, 0.961, 0.994, 0.606, 0.939, 0.875, 0.624, 0.25, 0.391, 0.371, 0.148, 0.059, 0.024, 0.009, 0.004, 0.002, 0.001, 0.0, 0.0, 0.0, 0.598, 0.821, 0.753, 0.867, 0.591, 0.236, 0.796, 0.885, 0.712, 0.285, 0.114, 0.423, 0.522, 0.327, 0.497, 0.69, 0.522, 0.75, 0.663, 0.37, 0.148, 0.277, 0.597, 0.334, 0.785, 0.684, 0.619, 0.518, 0.207, 0.083, 0.033, 0.013, 0.135, 0.157, 0.063, 0.025, 0.01, 0.004, 0.002, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.327, 0.719, 0.287, 0.395, 0.81, 0.72, 0.288, 0.208, 0.608, 0.536, 0.33, 0.137, 0.055, 0.022, 0.044, 0.273, 0.109, 0.044, 0.017, 0.007, 0.525, 0.885, 0.982, 0.997, 0.795, 0.779, 0.848, 0.72, 0.453, 0.713, 0.676, 0.423, 0.349, 0.317, 0.166, 0.125, 0.13, 0.126, 0.152, 0.174, 0.256, 0.17, 0.068, 0.027, 0.011, 0.004, 0.002, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.369, 0.154, 0.062, 0.74, 0.886, 0.448, 0.179, 0.174, 0.407, 0.501, 0.417, 0.167, 0.067, 0.389, 0.533, 0.426, 0.771, 0.736, 0.628, 0.61, 0.678, 0.609, 0.38, 0.213, 0.214, 0.235, 0.278, 0.147, 0.059, 0.024, 0.009, 0.36, 0.18, 0.072, 0.029, 0.011, 0.257, 0.618, 0.602, 0.542, 0.567, 0.719, 0.509, 0.207, 0.083, 0.38, 0.907, 0.986, 0.967, 0.677, 0.677, 0.526, 0.691, 0.694, 0.421, 0.169, 0.399, 0.776, 0.638, 0.578, 0.596, 0.544, 0.425, 0.247, 0.099, 0.039, 0.016, 0.006, 0.259, 0.107, 0.043, 0.017, 0.007, 0.003, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "s": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.012, 0.777, 0.479, 0.192, 0.113, 0.867, 0.71, 0.931, 0.881, 0.53, 0.212, 0.698, 0.922, 0.864, 0.677, 0.599, 0.701, 0.429, 0.171, 0.069, 0.027, 0.011, 0.004, 0.002, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}};
+const $=id=>document.getElementById(id);
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const backOut=x=>{const c=1.70158;x=cl(x);return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const MY=[[2.25,4.65,5.25,'g','"Fidati! Con i pesi diventi <span class=y>grossa</span>!"'],[5.15,7.15,8.0,'g','"Per la pancia fai gli <span class=y>addominali</span>!"'],[7.95,10.85,12.05,'g','"E se smetti di allenarti il muscolo diventa <span class=y>grasso</span>!"']];
+const WHO={g:["L'AMICA CHE SA TUTTO",'#ffbf00','#0b0b0b',830]};
+function idle(p,t,ph,o){const bp=((t+ph)%3.3);o.lid=bp<0.12?34*Math.sin(bp/0.12*Math.PI):0;o.bob=Math.sin((t+ph)*2*Math.PI*1.1)*2.4;o.head=(o.head||0)+Math.sin((t+ph)*2.3)*3;poseChar(p,o);}
+window.render=function(t){
+ const fi=Math.round(t*30);
+ const sc= t<12.1?'salon': t<16.0?'gym': t<18.4?'title':'cta';
+ ['salon','gym','title','cta'].forEach(s=>$(s).style.display=s==sc?'':'none');
+ if(sc=='salon'){
+  $('cap1').style.opacity= t<2.3?1:0; $('cap1').style.transform=`scale(${0.6+0.4*Math.min(backOut(t/.35),1.08)})`;
+  let mi=MY.findIndex(m=>t>=m[0]&&t<m[2]);
+  if(mi>=0){const m=MY[mi];const w=WHO[m[3]];$('bub').style.display='';$('bwho').textContent=w[0];$('bwho').style.background=w[1];$('bwho').style.color=w[2];$('btx').innerHTML=m[4];
+    $('bub').style.left='420px';$('bub').style.transform=`scale(${cl(backOut((t-m[0])/.3),0,1.08)})`;$('bub').style.transformOrigin='80% 100%';
+    const sk=t>=m[1]? cl(1-(t-m[1])/0.18,0,1):-1; if(sk>=0){$('stamp').style.display='';$('stamp').style.transform=`translateX(-50%) rotate(-12deg) scale(${1+sk*1.4})`;$('stamp').style.opacity=1-sk*0.6;} else $('stamp').style.display='none';
+  } else {$('bub').style.display='none';$('stamp').style.display='none';}
+  const sp=mi>=0?MY[mi][3]:null;
+  for(const [k,p,ph] of [['b','b_',0],['g','g_',1.4]]){
+   const mv=(TL.env[k]||[])[fi]||0; const o={uL:8,uR:-8,mouth:2.5+mv*12,look: k=='b'?5:-5};
+   if(t<2.3){o.mouth=2.5+Math.max(0,Math.sin(t*16+(k=='b'?0:2)))*6*((Math.floor(t*1.6)+(k=='b'?0:1))%2);}
+   if(k=='g' && mi>=0 && t<MY[mi][1]){ if(mi==0){o.uR=-160;o.fR=-10;} if(mi==1){o.uR=-35;o.fR=-70;o.uL=40;o.fL=110;} if(mi==2){o.uR=-150;o.fR=-25+Math.sin(t*14)*20;o.uL=150;o.fL=25-Math.sin(t*14)*20;} }
+   if(k=='b' && mi>=0){ o.mouth=mi==2?9:2.5; if(mi>=1){o.uR=12;o.fR=160;o.head=-8;} }
+   if(mi>=0 && t>=MY[mi][1]){o.head=k=='b'? Math.sin(t*12)*8 : 6;}
+   idle(p,t,ph,o);
+  }
+  $('tP').style.transform=`translateX(-50%)`;$('tG').style.transform=`translateX(-50%) scale(${sp=='g'?1.1:1})`;
+  $('tG').style.background=sp=='g'?'#ffbf00':'#0b0b0b';$('tG').style.color=sp=='g'?'#0b0b0b':'#ffbf00';
+ }
+ if(sc=='gym'){
+  const lt=t-12.1; const c=$('cap2');
+  const txt= t<13.5?'Ma sarà <span class="y">vero</span>? 🤔':'Ogni settimana<br><span class="y">smonto un mito</span>';
+  if(c.dataset.v!=txt){c.innerHTML=txt;c.dataset.v=txt;c.dataset.t=t;}
+  c.style.transform=`scale(${0.6+0.4*Math.min(backOut((t-(+c.dataset.t))/.3),1.08)})`;
+  const smv=(TL.env.s||[])[fi]||0;
+  idle('s_',t,1.3,{uL:8,uR:t<13.5?12:-8,fR:t<13.5?160:0,mouth:2.5+smv*12,look:5,head:t<13.5?-8:0});
+  const mo={uL:8,uR:-8,mouth:3,look:-4};
+  if(t>=13.5){mo.uR=-140;mo.fR=-20+Math.sin(t*14)*18;mo.mouth=3+Math.max(0,Math.sin(t*15))*7;mo.look=0;}
+  idle('m_',t,0,mo);
+  const items=[['FALSO','#ff3b3b',13.9],['VERO','#2fae5a',14.4],['DIPENDE','#ffbf00',14.9]];
+  $('chk').innerHTML=items.filter(i=>t>=i[2]).map(i=>`<div style="font-family:Anton;font-size:64px;color:${i[1]};background:#fff;border:6px solid ${i[1]};border-radius:16px;padding:0 22px 6px;transform:rotate(-6deg) scale(${cl(backOut((t-i[2])/.3),0,1.1)})">${i[0]}</div>`).join('');
+ }
+ if(sc=='title'){const k=backOut((t-16.0)/.4);$('tt').style.transform=`scale(${0.5+0.5*Math.min(k,1.06)})`;}
+ if(sc=='cta'){$('cta').firstElementChild.style.transform=`scale(${cl(backOut((t-18.4)/.35),0,1.1)}) rotate(${Math.sin(t*6)*6}deg)`;}
+};
+render(0);
+</script></body></html>

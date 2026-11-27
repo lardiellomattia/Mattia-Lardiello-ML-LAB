@@ -1,0 +1,308 @@
+# Contenuti Instagram – ML LAB
+
+Archivio dei contenuti finali montati per @mattialardiello, con caption e hashtag pronti da copiare.
+Ogni contenuto è registrato anche nell'app **ML LAB Contenuti**, con lo stato e il link alla sua cartella.
+
+| # | Contenuto | Formato | File |
+|---|---|---|---|
+| 01 | Cosce gonfie | Reel 1080×1920 + animazione 1080×960 | [01-cosce-gonfie](01-cosce-gonfie) |
+| 02 | Split squat: sentirlo nei glutei | Reel + carosello 6 slide | [02-split-squat](02-split-squat) |
+| 03 | Vendita: consulenza nello studio (voice over) | Reel | [03-vendita-consulenza](03-vendita-consulenza) |
+| 04 | Irene – hip thrust: quiz e vendita | 2 reel | [04-irene-hip-thrust](04-irene-hip-thrust) |
+| 05 | Hip thrust: trova gli errori / tecnico | Caroselli 8 e 7 slide | [05-carosello-hip-thrust](05-carosello-hip-thrust) |
+| 06 | Copertine storie in evidenza | 3 immagini | [06-copertine-storie](06-copertine-storie) |
+| 07 | Hip thrust: "spingi col tallone" | Reel (3 versioni audio + grafiche HyperFrames) | [07-hip-thrust-tallone](07-hip-thrust-tallone) |
+| 08 | Affondo bulgaro: "il ginocchio non deve superare la punta" | Reel | [08-affondo-bulgaro](08-affondo-bulgaro) |
+| 09 | Prima e dopo: 3 clienti | Carosello 4 slide | [09-prima-dopo](09-prima-dopo) |
+| 10 | Lancio coaching esclusivo (5 posti) | Carosello 7 slide | [10-lancio-coaching-esclusivo](10-lancio-coaching-esclusivo) |
+| 11 | Pancia gonfia e intestino pigro: il movimento (Roma V) | Carosello 8 slide | [11-intestino-movimento](11-intestino-movimento) |
+| 12 | Split squat: il bacino scivola a destra, prima/dopo 5' | Reel | [12-bacino-split-squat](12-bacino-split-squat) |
+| 13 | "Ho sbagliato": guidare, non giudicare | Carosello 8 slide (sfondo bianco) | [13-ho-sbagliato](13-ho-sbagliato) |
+| 14 | Alzate laterali: 3 dettagli | Reel con voce e sottotitoli | [14-alzate-laterali](14-alzate-laterali) |
+| 15 | Test video animato con avatar di Mattia | Reel animato (test) | [15-test-avatar-animato](15-test-avatar-animato) |
+| 16 | Trailer serie "Sentito dalla parrucchiera" | Reel animato | [16-trailer-sentito-dalla-parrucchiera](16-trailer-sentito-dalla-parrucchiera) |
+| 17 | Trailer serie "L'amica che sa tutto" (scelto) | Reel animato | [17-trailer-amica-che-sa-tutto](17-trailer-amica-che-sa-tutto) |
+
+---
+
+## 01 · Cosce gonfie
+- `reel-cosce-gonfie.mp4`: reel finale con tagli dinamici e musica.
+- `animazione-1080x960.mp4`: solo l'illustrazione animata, senza sottotitoli.
+
+> **Gambe gonfie dopo ogni allenamento? Non è "tonificazione".** 🦵🔥
+> Allenarle tutti i giorni senza analizzare postura, muscoli deboli e struttura significa solo accumulare infiammazione, senza risultati.
+> La scheda giusta parte da TE, non da un modello uguale per tutte.
+> 👇 Scrivi **"GAMBE"** nei commenti e ti spiego da dove partire.
+> 📌 Salva il video per la prossima volta che prepari la scheda.
+>
+> #allenamentofemminile #gambegonfie #ritenzioneidrica #personaltrainer #schedaallenamento #posturacorretta #glutei #allenamentogambe #fitnessdonna #personaltraineronline #mllab #allenamentopersonalizzato
+
+## 02 · Split squat bulgaro
+- `reel-split-squat-glutei.mp4`: tutorial a punti (14 s).
+- `carosello-1.png` … `carosello-6.png`: guida in 6 slide (1080×1350).
+
+**Caption reel**
+> **Lo split squat lo senti solo nelle cosce?** 🍑
+> 1️⃣ Il ginocchio comanda: peso sul piede avanti, non sul busto
+> 2️⃣ 2 passi e mezzo dalla panca: stessa posizione a ogni serie
+> 3️⃣ Spingi su tutto il piede, anche sulla punta: è il motore del movimento
+> 📌 Salvalo per il prossimo leg day
+> 👇 Scrivi **GLUTEI** e ti mando la scheda
+>
+> #splitsquat #bulgariansplitsquat #allenamentoglutei #glutei #allenamentogambe #allenamentofemminile #personaltrainerverona #mllab
+
+**Caption carosello**
+> Salvala per il prossimo leg day 📌 Quale di questi 3 dettagli non conoscevi? Scrivimi 1, 2 o 3 👇
+>
+> #splitsquat #bulgariansplitsquat #allenamentoglutei #allenamentogambe #tecnicaesercizi #personaltrainer #mllab
+
+Nota dalle statistiche: il reel ha avuto 0 condivisioni e 0 follow. Per una v2: hook prima/dopo, niente fermo immagine all'inizio, doppia CTA ("Mandalo a chi si allena con te" + "Seguimi per tutta la serie"), pubblicazione come reel di prova.
+
+## 03 · Vendita: consulenza nello studio
+- `reel-vendita-voiceover.mp4`: con la voce di Mattia (20,5 s).
+
+> Ogni ripetizione conta, per questo non lascio niente al caso. 📍 Bovolone (VR)
+> Posizione misurata, correzioni in tempo reale, progressi segnati a ogni seduta.
+>
+> Il primo passo è una **consulenza** (a pagamento) nel mio studio: anamnesi, misure, foto e il percorso costruito su di te.
+> 👇 Scrivi **CONSULENZA** in DM e ti mando il modulo per prenotarla.
+>
+> #personaltrainerverona #personaltrainerbovolone #allenamentofemminile #personaltrainer #allenamentopersonalizzato #mllab
+
+## 04 · Irene – hip thrust
+- `reel-quiz-quanti-kg.mp4`: quiz "Quanti kg sta spingendo?" (9,4 s).
+- `reel-vendita-non-si-fa-da-solo.mp4`: vendita "Il carico pesante non si fa da solo" (11 s).
+
+**Caption quiz**
+> Quanti kg sta spingendo? 🤔 Scrivi il tuo numero, rispondo a tutti con il carico vero 👇
+>
+> #hipthrust #glutei #allenamentoglutei #palestra #allenamentofemminile #personaltrainer #mllab
+
+**Caption vendita**
+> Il carico pesante non si fa da solo 💪 📍 Bovolone (VR)
+> Ti seguo su ogni ripetizione: posizione, carico giusto e sicurezza.
+> Il primo passo è una consulenza (a pagamento): anamnesi, misure e foto.
+> 👇 Scrivi **CONSULENZA** in DM e ti mando il modulo.
+>
+> #personaltrainerverona #personaltrainerbovolone #hipthrust #glutei #allenamentopersonalizzato #mllab
+
+Ricorda: consenso scritto di Irene prima di pubblicare.
+
+## 05 · Caroselli hip thrust
+- `errori-1.png` … `errori-8.png`: "Trova gli errori" v2 (versione scelta): errori, prima / con le correzioni, il lavoro del personal trainer, CTA "mandami il video".
+- `tecnico-1.png` … `tecnico-7.png`: versione tecnica (bozza alternativa).
+
+**Caption "Trova gli errori"**
+> Trova gli errori 👀 Quanti ne vedi in questo hip thrust?
+> All'inizio sembra un esercizio fatto bene. Poi guardi i dettagli: talloni sollevati, perno sbagliato.
+> È questo il lavoro del personal trainer: vedere quello che da sola non riesci a vedere e guidarti a migliorare.
+> Hai dubbi su un esercizio? 👇 Inviami il video in DM e lo correggiamo insieme.
+> 📌 Salvalo e controlla il tuo hip thrust prima del prossimo leg day.
+>
+> #hipthrust #allenamentoglutei #glutei #erroriinpalestra #tecnicaesercizi #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
+
+## 06 · Copertine storie in evidenza
+- `copertina-come-lavoro.png`, `copertina-risultati.png`, `copertina-studio.png`.
+
+## 07 · Hip thrust: "spingi col tallone"
+- `reel-musica-phonk.mp4`: musica stile phonk, a tempo con i tagli.
+- `reel-musica-ritmata.mp4`: musica elettronica a tempo con i tagli.
+- `reel-solo-voce.mp4`: senza musica, per aggiungere un audio di tendenza da Instagram (volume brano 10–15%).
+- `reel-grafiche-hyperframes.mp4`: stesse immagini e audio phonk, grafiche animate rifatte con HyperFrames.
+
+> "Spingi col tallone" è uno dei consigli più diffusi sull'hip thrust… ed è un errore.
+> I glutei lavorano quando spingi bene TUTTO il piede a terra: tallone e anche la punta.
+> ✅ Tibia verticale
+> ✅ Piede piantato
+> ✅ Spinta su tutto il piede
+> Salvalo per il prossimo allenamento e mandalo a chi spinge ancora solo col tallone 👇
+> 📍 ML LAB – Bovolone
+>
+> #hipthrust #glutei #allenamentoglutei #tecnicaesercizi #allenamentodonna #personaltrainerverona #bovolone #glutetraining #mitifitness #mllab
+
+## 08 · Affondo bulgaro: "il ginocchio non deve superare la punta"
+- `reel-affondo-bulgaro.mp4`: reel finale (20,3 s), solo voce, clip dell'affondo al rallentatore con frecce su tallone e punta.
+
+> L'errore che ti hanno insegnato sull'affondo bulgaro: "il ginocchio non deve superare la punta del piede" 🤔
+> Se blocchi il ginocchio sposti il peso indietro, inclini il busto e lavora la schiena, non i glutei.
+> ✅ Il ginocchio comanda
+> ✅ Peso sul piede avanti
+> ✅ Spinta su tutto il piede, tallone e punta
+> Salvalo per il prossimo leg day e mandalo a chi si allena con te 👇
+> 📍 ML LAB – Bovolone
+>
+> #affondobulgaro #bulgariansplitsquat #splitsquat #glutei #allenamentoglutei #tecnicaesercizi #mitifitness #personaltrainerverona #mllab
+
+## 09 · Prima e dopo: 3 clienti
+- `prima-dopo-1.png` … `prima-dopo-4.png`: solo i 4 confronti prima/dopo, senza scritte (1080×1350).
+
+> 3 clienti. 3 punti di partenza diversi. Nessuna scheda uguale. 👇
+> Non esiste il programma "giusto" in generale: esiste quello costruito sul tuo corpo, sulla tua storia e sui tuoi obiettivi.
+> Dietro ognuna di queste foto ci sono costanza, allenamenti seguiti in studio e un percorso adattato passo dopo passo.
+> Vuoi iniziare il tuo? Scrivimi **CONSULENZA** in DM: ti mando il modulo e, se c'è disponibilità, fissiamo la consulenza in studio (a pagamento) con anamnesi, misure e foto.
+> 📍 ML LAB – Bovolone (VR)
+> _I risultati sono individuali e dipendono da costanza, alimentazione e punto di partenza. Foto pubblicate con il consenso delle clienti._
+>
+> #primaedopo #trasformazionefisica #allenamentofemminile #glutei #personaltrainerverona #personaltrainerbovolone #allenamentopersonalizzato #ricomposizionecorporea #mllab
+
+Ricorda: consenso scritto di ogni cliente prima di pubblicare.
+Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima della prenotazione.
+
+## 10 · Lancio coaching esclusivo (5 posti)
+- `lancio-1.png` … `lancio-7.png`: copertina "3 clienti. 3 percorsi. Ora apro 5 posti.", 4 prima/dopo, il coaching (ibrido: studio + online), "Cerco 5 persone" con CTA a commento e invito a condividere.
+
+> Quale di queste trasformazioni ti colpisce di più? Scrivimi il numero della slide 👇 (2, 3, 4 o 5)
+>
+> 3 clienti. 3 percorsi. Nessuna scheda uguale.
+> Ed è per questo che apro il mio nuovo **coaching esclusivo: solo 5 posti.** 🔒
+> Pochi posti per una ragione: seguirti davvero, una persona alla volta. Personal di monitoraggio nel mio studio a Bovolone, supporto anche online e un percorso costruito su di te.
+>
+> **Cerco 5 persone che vogliono realmente mettersi in gioco e cambiare.**
+> 1️⃣ Commenta **RIPARTO** qui sotto: ti scrivo io in DM con il modulo
+> 2️⃣ Consulenza in studio: anamnesi, misure e foto
+> 3️⃣ Se il percorso fa per te, entri. Fino a esaurimento dei 5 posti.
+>
+> 👯‍♀️ Conosci qualcuna che deve ripartire? Mandale questo post: ripartire in due è più facile.
+> 📍 ML LAB – Bovolone (VR)
+> _I risultati sono individuali e dipendono da costanza, alimentazione e punto di partenza. Foto pubblicate con il consenso delle clienti._
+>
+> #coachingesclusivo #ripartenza #personaltrainerverona #personaltrainerbovolone #allenamentofemminile #primaedopo #trasformazionefisica #allenamentopersonalizzato #coachingibrido #mllab
+
+**Commento da fissare in alto:** "📌 I posti sono 5. Commenta RIPARTO e ti scrivo in DM, rispondo a tutte 💛"
+
+Ricorda: consenso scritto di ogni cliente prima di pubblicare.
+Nei DM / nel modulo indicare chiaramente che la consulenza è a pagamento, prima della prenotazione.
+
+## 11 · Pancia gonfia e intestino pigro: il movimento (Roma V)
+- `intestino-1.png` … `intestino-8.png`: carosello divulgativo (1080×1350), con schema illustrativo della dissinergia addomino-frenica.
+
+> Pancia gonfia anche con esami perfetti? Non è "solo stress" 🤯
+> Le nuove linee guida Roma V (2026) parlano di disturbi dell'interazione intestino-cervello: un problema reale, che si può gestire. E il movimento fa parte della strategia.
+> Nel carosello trovi cosa dice la ricerca, quanto muoverti secondo l'OMS e gli errori da evitare 👉
+>
+> 📲 Vuoi approfondire? Nel mio **canale broadcast** trovi il link all'articolo che ho scritto su questo tema. Lo trovi nel mio profilo, sotto la bio.
+>
+> Quante delle 4 indicazioni della slide 6 rispetti già? Scrivimi un numero da 0 a 4 nei commenti 👇
+> 🔖 Salvalo e mandalo a chi ha sempre la pancia gonfia.
+>
+> _Contenuto divulgativo di un personal trainer: non sostituisce il parere del medico. Fonti: Corsetti M. et al., Rome V – Bowel Disorders, Gastroenterology 2026; WHO guidelines on physical activity and sedentary behaviour, 2020._
+>
+> #panciagonfia #gonfiore #intestinopigro #stitichezza #colonirritabile #ibs #asseintestinocervello #benessereintestinale #allenamentofemminile #movimento #personaltrainerverona #mllab
+
+## 12 · Split squat: il bacino scivola a destra (prima/dopo 5')
+- `reel-bacino.mp4`: reel 18,7 s senza musica (aggiungere audio di tendenza da Instagram). Hook, PRIMA con fermo immagine sul bacino e zoom sui leggins (linea che scende a destra vs orizzontale), "5 minuti di esercizi correttivi", DOPO, card "bacino centrato = glutei che crescono", confronto finale e CTA.
+
+> Così i tuoi glutei lavorano meno 👀 Osserva il bacino.
+> PRIMA: in basso il bacino scivola verso destra. Guarda la linea dei leggins: è storta.
+> Abbiamo fatto 5 minuti di esercizi correttivi e ripetuto l'esercizio.
+> DOPO: bacino più centrato e la linea dei leggins non scende più verso destra ✓
+> 🍑 Perché conta? Se il bacino resta centrato, il carico resta sul gluteo della gamba che lavora: più stimolo = glutei che crescono.
+> Non serve sempre cambiare esercizio: a volte serve capire cosa non funziona e correggerlo.
+> Ti sei mai chiesta cosa fa il tuo bacino quando alleni i glutei? 🤔 Mandami il video in DM e lo scopriamo insieme 👇
+> 📌 Salvalo e controlla il tuo split squat al prossimo leg day.
+>
+> #splitsquat #bulgariansplitsquat #glutei #allenamentoglutei #crescitaglutei #bacino #esercizicorrettivi #tecnicaesercizi #allenamentofemminile #personaltrainerverona #personaltrainerbovolone #mllab
+
+**Versione virale (consigliata come reel principale)**
+- `reel-bacino-virale.mp4`: 8,6 s in loop, prima e dopo affiancati e sincronizzati, fermo sulla linea dei leggins.
+
+> Così i tuoi glutei lavorano meno 👀
+> Guarda la linea dei leggins: prima scende a destra, dopo 5 minuti di correttivi no.
+> Bacino centrato = più lavoro sul gluteo = glutei che crescono 🍑
+> Tu sai cosa fa il tuo bacino quando ti alleni? Scrivi "BACINO" e ti dico come controllarlo 👇
+>
+> #splitsquat #glutei #allenamentoglutei #crescitaglutei #bacino #esercizicorrettivi #allenamentofemminile #personaltrainerverona #mllab
+
+Ricorda: consenso scritto della cliente prima di pubblicare.
+
+## 13 · "Ho sbagliato": guidare, non giudicare
+- `ho-sbagliato-1.png` … `ho-sbagliato-8.png`: carosello 1080×1350 su sfondo bianco, colori del brand.
+
+> "Ho sbagliato l'esercizio."
+> È la frase che sento più spesso nel mio studio, soprattutto da chi ha appena iniziato. Spesso ancora prima che io dica qualcosa.
+>
+> Molte volte l'esercizio è corretto: ha solo bisogno di essere perfezionato. Ed è una cosa molto diversa da "sbagliato".
+>
+> E allora mi chiedo: perché una persona sente di sbagliare ancora prima di iniziare?
+>
+> Nel mio settore è diffuso un metodo commerciale: far notare a qualcuno che sta sbagliando per proporgli una correzione a pagamento. Mi chiedo spesso quanta ansia da prestazione possa creare in chi si allena solo per stare bene.
+>
+> Alleno anche due portieri di 13 anni. Il portiere è un ruolo particolare, l'ho vissuto e lo vivo in prima persona: puoi parare per tutta la partita, ma se prendi gol vieni giudicato solo per quello. Come allenatore non mi interessa dire al mio portiere che ha sbagliato: mi interessa che capisca dove possiamo migliorare. Analizziamo l'errore insieme, per farci trovare pronti alla prossima partita.
+>
+> Nel mio studio vale lo stesso: gli esercizi si correggono e si ottimizzano, un dettaglio alla volta. Mi piace lavorare da coach: guidarti a migliorare, non giudicarti.
+>
+> Hai mai percepito in palestra di essere giudicata e di non poter sbagliare?
+> 📍 ML LAB – Bovolone
+>
+> #allenamentofemminile #personaltrainer #tecnicaesercizi #iniziareadallenarsi #ansiadaprestazione #coaching #allenatoreportieri #personaltrainerverona #personaltrainerbovolone #mllab
+
+## 14 · Alzate laterali: 3 dettagli
+- `reel-alzate.mp4`: 20,2 s con la voce di Mattia (volume a -14 LUFS), sottotitoli parola per parola, titoli numerati 1-2-3 con frecce, schema "davanti alla linea della spalla", CTA "Salvalo" finale.
+
+> Alzate laterali: 3 dettagli che cambiano tutto 👇
+> 1️⃣ Spalle lontane dalle orecchie
+> 2️⃣ Mani verso l'esterno, ma sempre davanti alla linea della spalla
+> 3️⃣ Petto verso l'alto
+> Quale di questi 3 non facevi? Scrivimi 1, 2 o 3 nei commenti 👇
+> 📌 Salvalo per il prossimo allenamento spalle e mandalo a chi si allena con te.
+>
+> #alzatelaterali #spalle #allenamentospalle #tecnicaesercizi #allenamentofemminile #palestradonna #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
+
+## 15 · Test video animato con avatar di Mattia
+- `test-animato.mp4`: test 14,5 s, avatar originale di Mattia (ricci, senza barba, fisico muscoloso, t-shirt ML LAB) in palestra disegnata, testi animati, emoji e effetti "pop". Tema: "Perché i tuoi glutei non crescono?".
+- `episodio-1.mp4`: episodio 1 con la voce di Mattia (17,6 s, registrazione dal video 1126), scene e bocca sincronizzate al parlato.
+- `team-ml-lab.mp4` / `team-ml-lab.png`: presentazione dei 3 personaggi (Mattia, Sofia, Giulia).
+- `chars.js`: generatore dei personaggi (colori, capelli, abbigliamento modificabili); `team.html` scena del team.
+- `dialogo-glutei.mp4`: dialogo a 3 (23,4 s). Voci di Sofia e Giulia sintetiche (Piper TTS, voce italiana femminile "paola"; Giulia con tono più alto), battute di Mattia dalla sua registrazione reale. Bocche sincronizzate al volume di ciascuna voce.
+- `dialogo-amica.mp4`: dialogo "la mia amica dice 100 squat al giorno" (23,7 s); il personaggio Giulia ora si chiama "Amica".
+- `a.html`: sorgente dell'animazione (avatar e scene modificabili per i prossimi episodi).
+
+> Perché i tuoi glutei non crescono? 🍑
+> Puoi fare 100 squat a settimana, ma il problema non è QUANTO ti alleni: è COME.
+> Io guardo 3 cose: l'appoggio del piede, il bacino stabile e un carico che cresce nel tempo.
+> Ogni corpo è diverso: l'esercizio si adatta a te.
+> Quale di questi 3 punti curi già? Scrivimelo nei commenti 👇
+> Seguimi per la parte 2 📌
+>
+> #glutei #allenamentoglutei #crescitaglutei #squat #tecnicaesercizi #allenamentofemminile #personaltrainer #personaltrainerverona #mllab
+
+**Caption dialogo**
+> "Faccio 100 squat a settimana… ma i miei glutei non crescono!" 😩
+> Ti suona familiare? Il problema non è QUANTO ti alleni, ma COME.
+> Io guardo 3 cose: appoggio del piede, bacino stabile e un carico che cresce nel tempo.
+> Tu sei più Sofia o più Giulia? Scrivimelo nei commenti 👇
+> Seguimi per la parte 2 📌
+>
+> #glutei #allenamentoglutei #crescitaglutei #squat #tecnicaesercizi #allenamentofemminile #personaltrainer #personaltrainerverona #mllab
+
+**Caption dialogo "la mia amica dice…"**
+> "La mia amica dice che per far crescere i glutei devo fare 100 squat al giorno!" 😅
+> Quante volte l'hai sentito? Il problema non è QUANTO ti alleni, ma COME.
+> Io guardo 3 cose: appoggio del piede, bacino stabile e un carico che cresce nel tempo.
+> Tagga l'amica che ti ha detto di fare 100 squat 👇
+> Seguimi per la parte 2 📌
+>
+> #glutei #allenamentoglutei #crescitaglutei #squat #mitifitness #allenamentofemminile #personaltrainer #personaltrainerverona #mllab
+
+## 16 · Trailer serie "Sentito dalla parrucchiera"
+- `trailer-serie.mp4`: 21 s. Salone con la Parrucchiera (nuovo personaggio) e l'Amica che dicono 3 miti con timbro FALSO, poi palestra con Sofia e Mattia, titolo della serie e CTA. Voci femminili sintetiche, musica e effetti generati.
+
+> Quante volte l'hai sentito dalla parrucchiera? 💇‍♀️
+> "Con i pesi diventi grossa", "per la pancia fai gli addominali", "se smetti il muscolo diventa grasso"...
+> Da questa settimana parte SENTITO DALLA PARRUCCHIERA: ogni settimana prendo un mito che si sente in giro e ti dico se è VERO, FALSO o… DIPENDE.
+> 💬 Qual è il mito che hai sentito tu? Scrivilo nei commenti: potrebbe diventare il prossimo episodio!
+> 🔔 Seguimi per non perdere gli episodi.
+>
+> #mitifitness #sentitodallaparrucchiera #falsimiti #allenamentofemminile #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab
+
+## 17 · Trailer serie "L'amica che sa tutto" (versione scelta)
+- `trailer-amica.mp4`: 21 s. Al bar: l'Amica che sa tutto dice 3 miti sempre più convinta, Sofia perplessa, timbri FALSO; poi palestra con Sofia ("Ma sarà vero?") e Mattia, titolo della serie e CTA "Tagga l'amica che sa tutto".
+- `trailer-amica-senza-musica.mp4`: stessa versione senza base musicale (solo voci ed effetti), per aggiungere un audio di tendenza su Instagram.
+
+> Ce l'abbiamo tutte: quell'amica che sa tutto 🤓📱
+> "Fidati, con i pesi diventi grossa!" "Per la pancia fai gli addominali!" "Se smetti, il muscolo diventa grasso!"
+> Da questa settimana parte L'AMICA CHE SA TUTTO: ogni settimana prendo uno dei suoi consigli e ti dico se è VERO, FALSO o… DIPENDE.
+> 👇 Tagga l'amica che sa tutto e scrivimi il consiglio più assurdo che ti ha dato: potrebbe diventare il prossimo episodio!
+> 🔔 Seguimi per non perdere gli episodi.
+>
+> #lamicachesatutto #mitifitness #falsimiti #allenamentofemminile #personaltrainer #personaltrainerverona #personaltrainerbovolone #mllab

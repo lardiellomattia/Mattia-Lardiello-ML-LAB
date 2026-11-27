@@ -1,0 +1,58 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(anton.woff2)}
+:root{--pink:#ffbf00;--pink2:#ffd666;--violet:#0b0b0b;--cream:#ffffff;--ink:#0b0b0b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,"Noto Color Emoji",sans-serif;background:#999}
+.x{position:relative;overflow:hidden;margin-bottom:10px}
+.logo{font-family:Anton;text-transform:uppercase;line-height:.95;color:var(--ink)}
+.logo .v{background:linear-gradient(180deg,transparent 52%,#ffbf00 52%,#ffbf00 92%,transparent 92%);padding:0 6px}
+.hl{width:1080px;height:1920px;background:var(--cream);display:flex;align-items:center;justify-content:center}
+.hc{width:760px;height:760px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;position:relative}
+.hc .em{font-size:300px;line-height:1}
+.hc .lb{font-family:Anton;font-size:84px;color:#fff;margin-top:10px;letter-spacing:1px}
+</style></head><body>
+
+<!-- PROFILE 1080x1080 -->
+<div id="pf" class="x" style="width:1080px;height:1080px;background:radial-gradient(circle at 50% 45%,#2b2d33 0,#0b0b0b 75%)">
+  <div style="position:absolute;inset:40px;border-radius:50%;border:22px solid #ffbf00"></div>
+  <svg id="pfA" style="position:absolute;left:115px;top:150px;overflow:visible" width="850" height="980" viewBox="80 30 240 277"></svg>
+  <div style="position:absolute;right:150px;top:150px;background:#ffbf00;border:8px solid #fff;border-radius:40px;padding:14px 30px 20px;font-family:Anton;font-size:92px;color:var(--ink);transform:rotate(8deg)">FIDATI!</div>
+</div>
+
+<!-- HIGHLIGHTS -->
+<div id="h1" class="x hl"><div class="hc" style="background:var(--violet)"><div class="em">🎬</div><div class="lb">EPISODI</div></div></div>
+<div id="h2" class="x hl"><div class="hc" style="background:#ffbf00"><div class="em" style="font-size:230px">✅❌</div><div class="lb" style="color:#0b0b0b">VERO O FALSO</div></div></div>
+<div id="h3" class="x hl"><div class="hc" style="background:var(--ink)"><div class="em">💬</div><div class="lb" style="color:#ffbf00">IL TUO MITO</div></div></div>
+<div id="h4" class="x hl"><div class="hc" style="background:#0b0b0b"><svg id="hA" style="position:absolute;left:30px;top:40px;overflow:visible" width="700" height="806" viewBox="80 30 240 277"></svg></div></div>
+<div id="h5" class="x hl"><div class="hc" style="background:#ffbf00"><svg id="hM" style="position:absolute;left:30px;top:40px;overflow:visible" width="700" height="806" viewBox="80 30 240 277"></svg></div></div>
+
+<!-- BRAND SHEET 1080x1350 -->
+<div id="bs" class="x" style="width:1080px;height:1350px;background:#f4f4f4">
+  <div style="position:absolute;left:60px;top:60px;font-weight:800;font-size:24px;letter-spacing:5px;color:#0b0b0b;background:#ffbf00;padding:6px 12px;border-radius:6px">IDENTITÀ DELLA PAGINA</div>
+  <div class="logo" style="position:absolute;left:60px;top:110px;font-size:120px">L'amica<br>che sa <span class="v">tutto</span> 🤓</div>
+  <div style="position:absolute;left:60px;top:370px;font-size:34px;font-weight:700;color:var(--ink)">@lamicachesatutto</div>
+  <div style="position:absolute;left:60px;top:440px;display:flex;gap:18px">
+    <div style="text-align:center;font-size:20px;font-weight:700"><div style="width:130px;height:130px;border-radius:24px;background:#ffbf00"></div>Giallo<br>#FFBF00</div>
+    <div style="text-align:center;font-size:20px;font-weight:700"><div style="width:130px;height:130px;border-radius:24px;background:#0b0b0b"></div>Nero<br>#0B0B0B</div>
+    <div style="text-align:center;font-size:20px;font-weight:700"><div style="width:130px;height:130px;border-radius:24px;background:#ffffff;border:3px solid #ddd"></div>Bianco<br>#FFFFFF</div>
+    <div style="text-align:center;font-size:20px;font-weight:700"><div style="width:130px;height:130px;border-radius:24px;background:#ff3b3b"></div>Rosso (FALSO)<br>#FF3B3B</div>
+  </div>
+  <div style="position:absolute;left:720px;top:440px;width:300px;font-size:22px;line-height:1.4;color:#444"><b style="font-family:Anton;font-size:40px;color:var(--ink);font-weight:400">ANTON</b><br>titoli<br><b style="font-size:34px;color:var(--ink)">Inter</b><br>testi e fumetti</div>
+  <svg id="bsS" style="position:absolute;left:20px;top:690px;overflow:visible" width="300" height="600" viewBox="0 0 400 800"></svg>
+  <svg id="bsA" style="position:absolute;left:370px;top:660px;overflow:visible" width="320" height="640" viewBox="0 0 400 800"></svg>
+  <svg id="bsM" style="position:absolute;left:700px;top:620px;overflow:visible" width="340" height="680" viewBox="0 0 400 800"></svg>
+  <div style="position:absolute;left:0;right:0;top:1290px;display:flex;justify-content:space-around;font-family:Anton;font-size:30px;color:var(--ink)"><span>SOFIA</span><span style="background:#ffbf00;padding:0 8px">L'AMICA CHE SA TUTTO</span><span>MATTIA</span></div>
+</div>
+<script src="chars.js"></script>
+<script>
+const AM=Object.assign({},CHARS.giulia,{topC:'#ffbf00',topLine:'#e0a800',pants:'#1d1f24',glasses:'#0b0b0b',logo:false});
+const MA=Object.assign({},CHARS.mattia,{logo:false});
+const SO=Object.assign({},CHARS.sofia);
+const put=(id,p,c,o)=>{document.getElementById(id).innerHTML=charSVG(p,c);poseChar(p,Object.assign({uL:8,uR:-8,mouth:5},o||{}));};
+put('pfA','a1_',AM,{mouth:9});
+put('hA','a2_',AM,{mouth:6});
+put('hM','m2_',MA,{mouth:4});
+put('bsS','s3_',SO,{});
+put('bsA','a3_',AM,{uR:-160,fR:-10,mouth:9});
+put('bsM','m3_',MA,{uR:-20,fR:-60,uL:20,fL:60});
+</script></body></html>
