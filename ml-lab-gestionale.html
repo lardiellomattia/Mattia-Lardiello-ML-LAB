@@ -6328,9 +6328,9 @@
         var rate = (c.pacchetto && c.pacchetto.rate) || [];
         var r = inp.numero ? rate.filter(function (x) { return x.numero === parseInt(inp.numero, 10); })[0] : (inp.azione === 'non_pagata' ? rate.filter(function (x) { return x.pagato; }).slice(-1)[0] : nextUnpaidRata(c.pacchetto));
         if (!r) throw new Error('rata non trovata per ' + c.cliente);
-        if (inp.azione === 'pagata') r.pagato = true;
+        if (inp.azione === 'pagata') { r.pagato = true; payReqVerified(r); }
         else if (inp.azione === 'non_pagata') r.pagato = false;
-        else r.richiestaInviata = toISO(todayMidnight());
+        else { r.richiestaInviata = toISO(todayMidnight()); payReqPromemoria(c, r, true, r); }
         saveClients(); asMark(); asAfterWrite();
         return c.cliente + ': rata ' + r.numero + ' ' + (inp.azione === 'pagata' ? 'segnata pagata' : inp.azione === 'non_pagata' ? 'segnata non pagata' : 'con richiesta inviata oggi');
       } },
@@ -10486,7 +10486,7 @@
         var cl = getClient(id); if (!cl) return;
         var on = quickReqBtn.getAttribute('data-on') === '1';
         setPayRequest(cl, on);
-        toast(on ? '📨 ' + cl.cliente + ': richiesta di pagamento segnata come inviata' : cl.cliente + ': richiesta annullata');
+        toast(on ? '📨 ' + cl.cliente + ': richiesta inviata · promemoria per ' + formatItDataShort(toISO(nextFriday(todayMidnight()))) : cl.cliente + ': richiesta annullata · promemoria tolti');
         render();
       });
       var quickPayBtn = rowEl.querySelector('.quick-pay-btn');
@@ -10495,7 +10495,7 @@
         var cl = getClient(id);
         var nr = cl && nextUnpaidRata(cl.pacchetto);
         if (!nr) return;
-        nr.pagato = true;
+        nr.pagato = true; payReqVerified(nr);
         saveClients();
         toast('Rata #' + nr.numero + ' di ' + cl.cliente + ' segnata come pagata');
         render();
@@ -11461,9 +11461,14 @@
           r.importo = parseFloat(e.target.value) || ''; if (r.auto && !isFirst()) r.auto = false;
           if (isFirst()) rateGenera(p); saveClients(); renderFolder(c.id); render();
         });
-        rowEl.querySelector('.rata-pagato').addEventListener('change', function (e) { r.pagato = e.target.checked; saveClients(); renderFolder(c.id); render(); });
+        rowEl.querySelector('.rata-pagato').addEventListener('change', function (e) { r.pagato = e.target.checked; if (r.pagato && payReqVerified(r)) toast('✓ Promemoria "Verificare pagamento" segnato fatto · resta "Fattura pagamento"'); saveClients(); renderFolder(c.id); render(); });
         var reqB = rowEl.querySelector('.rata-req');
-        if (reqB) reqB.addEventListener('click', function () { r.richiestaInviata = r.richiestaInviata ? null : toISO(todayMidnight()); saveClients(); toast(r.richiestaInviata ? '📨 Richiesta di pagamento segnata come inviata' : 'Richiesta annullata'); renderFolder(c.id); render(); });
+        if (reqB) reqB.addEventListener('click', function () {
+          r.richiestaInviata = r.richiestaInviata ? null : toISO(todayMidnight());
+          var pmDay = payReqPromemoria(c, r, !!r.richiestaInviata, r); saveClients();
+          toast(r.richiestaInviata ? '📨 Richiesta inviata' + (pmDay ? ' · promemoria "Verificare pagamento" e "Fattura pagamento" per ' + formatItDataShort(pmDay) : '') : 'Richiesta annullata · promemoria tolti');
+          renderFolder(c.id); render();
+        });
         rowEl.querySelector('.rata-delete').addEventListener('click', function () {
           p.rate = p.rate.filter(function (x) { return x.id !== rataId; });
           saveClients(); renderFolder(c.id); render();
@@ -12127,7 +12132,33 @@
   function setPayRequest(c, on) {
     var nr = nextUnpaidRata(c.pacchetto), v = on ? toISO(todayMidnight()) : null;
     if (nr) nr.richiestaInviata = v; else c.richiestaPagamento = v;
+    payReqPromemoria(c, nr || c, !!on, nr);
     saveClients();
+  }
+  // richiesta di pagamento inviata → due promemoria al venerdì successivo (verificare il pagamento, fare la fattura).
+  // Gli id restano sulla rata: annullando la richiesta tolgo quelli non ancora fatti.
+  // rata pagata: il promemoria "Verificare pagamento" collegato si spunta da solo (la fattura resta da fare)
+  function payReqVerified(holder) {
+    var id = holder && holder.reqPm && holder.reqPm[0], p = id && (state.promemoria || []).filter(function (x) { return x.id === id; })[0];
+    if (p && !p.fatto) { p.fatto = true; p.fattoIl = new Date().toISOString(); savePromemoria(); return true; }
+    return false;
+  }
+  function nextFriday(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); while (x.getDay() !== 5) x.setDate(x.getDate() + 1); return x; }
+  function payReqPromemoria(c, holder, on, rata) {
+    state.promemoria = state.promemoria || [];
+    var mine = function () { return (holder.reqPm || []).map(function (id) { return state.promemoria.filter(function (p) { return p.id === id; })[0]; }).filter(Boolean); };
+    if (on) {
+      if (mine().some(function (p) { return !p.fatto; })) return 0;
+      var day = toISO(nextFriday(todayMidnight())), nota = rata ? 'Rata n.' + rata.numero + (rata.importo ? ' · € ' + rata.importo : '') + (rata.scadenza ? ' · scadenza ' + formatItDataShort(rata.scadenza) : '') : 'Richiesta di pagamento inviata il ' + formatItDataShort(toISO(todayMidnight()));
+      var mk = function (t) { return { id: uid(), testo: t + ' ' + c.cliente, data: day, nota: nota, prioritario: false, fatto: false, creato: new Date().toISOString(), clientId: c.id }; };
+      var a = mk('Verificare pagamento'), b = mk('Fattura pagamento');
+      state.promemoria.push(a, b); holder.reqPm = [a.id, b.id];
+      savePromemoria(); return day;
+    }
+    var del = mine().filter(function (p) { return !p.fatto; }).map(function (p) { return p.id; });
+    if (del.length) { state.promemoria = state.promemoria.filter(function (p) { return del.indexOf(p.id) === -1; }); savePromemoria(); }
+    holder.reqPm = [];
+    return 0;
   }
   function attentionDetails() {
     var details = {};
