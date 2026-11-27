@@ -41,3 +41,4 @@ Ruolo: intrattenimento educativo con personaggi animati, per farsi scoprire.
 - Presentazione: "Ciao, sono Mattia, personal trainer. Il mio lavoro qui? Ascoltare i consigli dell'amica che sa tutto… e dirvi se sono veri, falsi o… dipende. Il primo mito arriva giovedì!"
 
 - `presentazioni/presentazione-amica.mp4`: 14 s, voce sintetica.
+- `presentazioni/presentazione-sofia.mp4`: 14 s, voce sintetica. CTA "Anche tu sei un po' Sofia?".
