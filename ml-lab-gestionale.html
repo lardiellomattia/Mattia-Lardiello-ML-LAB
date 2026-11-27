@@ -1473,6 +1473,12 @@
   .date-today { display: flex; gap: 6px; align-items: center; }
   .date-today input { flex: 1; }
   .today-btn { white-space: nowrap; }
+  .perc-sel { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; vertical-align: middle; }
+  .perc-box { width: 36px; height: 36px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface); font-size: 19px; line-height: 1; cursor: pointer; filter: grayscale(1); opacity: .45; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+  .perc-box:hover { opacity: .8; }
+  .perc-box.on { filter: none; opacity: 1; border-color: var(--accent); background: var(--accent-soft); }
+  .perc-lbl { font-size: 11px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .perc-ic { margin-left: 6px; font-size: 14px; letter-spacing: 1px; }
   .pre-box { margin-top: 10px; border: 1px dashed var(--border); border-radius: 14px; padding: 8px 12px; font-size: 13px; }
   .pre-box summary { cursor: pointer; font-weight: 700; }
   .pre-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 8px 0 6px; }
@@ -2709,6 +2715,10 @@
   // pausa temporanea (es. un mese di stop): attiva se oggi è tra "dal" e "al"
   function clientPausa(c) { var p = c && c.pausa; if (!p || !p.dal || !p.al) return null; var t = toISO(todayMidnight()); return t >= p.dal && t <= p.al ? p : null; }
   function clientPausaFutura(c) { var p = c && c.pausa; return p && p.dal && p.al && toISO(todayMidnight()) < p.dal ? p : null; }
+  // percorso del cliente: 🏋🏻 allenamento / 🍏 nutrizione, salvato nel campo "servizio" (Training · Consulenza · 360°)
+  function percorsoOf(c) { var s = c && c.servizio; return { tr: s === 'Training' || s === '360°', nu: s === 'Consulenza' || s === '360°' }; }
+  function servizioFrom(tr, nu) { return tr && nu ? '360°' : (tr ? 'Training' : (nu ? 'Consulenza' : '')); }
+  function percorsoIcons(c) { var p = percorsoOf(c); return (p.tr || p.nu) ? '<span class="perc-ic" title="' + escapeHtml(c.servizio) + '">' + (p.tr ? '🏋🏻' : '') + (p.nu ? '🍏' : '') + '</span>' : ''; }
   function tabClients() {
     return state.clients.filter(function (c) { return clientTab(c) === state.activeTab; });
   }
@@ -10423,7 +10433,7 @@
       }
       return (
         '<div class="row ' + (clientInattivo(c) ? 'ok row-off' : u.level) + '" data-id="' + c.id + '">' +
-          '<div class="name">' + escapeHtml(c.cliente) + (clientInattivo(c) ? '<span class="tag tag-off">⏸ Non viene più</span>' : '') + (u.pausa ? '<span class="tag tag-pausa">⏸ In pausa fino al ' + formatItDataShort(u.pausa.al) + '</span>' : (clientPausaFutura(c) ? '<span class="tag tag-pausa">⏸ Pausa dal ' + formatItDataShort(c.pausa.dal) + '</span>' : '')) + (u.next ? '<span class="tag">' + escapeHtml(u.next.tipoCheck) + '</span>' : '') +
+          '<div class="name">' + escapeHtml(c.cliente) + percorsoIcons(c) + (clientInattivo(c) ? '<span class="tag tag-off">⏸ Non viene più</span>' : '') + (u.pausa ? '<span class="tag tag-pausa">⏸ In pausa fino al ' + formatItDataShort(u.pausa.al) + '</span>' : (clientPausaFutura(c) ? '<span class="tag tag-pausa">⏸ Pausa dal ' + formatItDataShort(c.pausa.dal) + '</span>' : '')) + (u.next ? '<span class="tag">' + escapeHtml(u.next.tipoCheck) + '</span>' : '') +
             '<div class="meta">' + (c.noteGenerali ? '"' + escapeHtml(c.noteGenerali) + '"' : 'dal ' + formatItDataShort(c.dataInizioPercorso)) + contattoTag + '</div>' +
           '</div>' +
           '<div class="c-check">' +
@@ -11092,7 +11102,8 @@
 
     folderModal.innerHTML =
       '<div class="folder-header">' +
-        '<div><div class="name"><span class="folder-name-txt" id="folderNameTxt" title="Clicca per modificare il nome">' + escapeHtml(c.cliente) + '</span><button class="folder-name-edit" id="folderNameEdit" title="Modifica nome">✎</button>' + (c.servizio ? '<span class="tag">' + escapeHtml(c.servizio) + '</span>' : '') + '</div>' +
+        '<div><div class="name"><span class="folder-name-txt" id="folderNameTxt" title="Clicca per modificare il nome">' + escapeHtml(c.cliente) + '</span><button class="folder-name-edit" id="folderNameEdit" title="Modifica nome">✎</button>' +
+          (function () { var pc = percorsoOf(c); return '<span class="perc-sel"><button type="button" class="perc-box' + (pc.tr ? ' on' : '') + '" data-perc="tr" title="Allenamento">🏋🏻</button><button type="button" class="perc-box' + (pc.nu ? ' on' : '') + '" data-perc="nu" title="Nutrizione">🍏</button>' + (c.servizio ? '<span class="perc-lbl">' + escapeHtml(c.servizio) + '</span>' : '') + '</span>'; })() + '</div>' +
           '<div class="path-meta">Percorso dal ' + formatItData(c.dataInizioPercorso) + ' · cadenza check ogni ' + c.cadenzaSettimane + ' settimane' +
           (c.pacchetto && c.pacchetto.tipoPagamento === 'A visita' ? '' : (c.dataRinnovo ? ' · rinnovo il ' + formatItData(c.dataRinnovo) + ' (' + renewLabel(u.renewDue) + ')' : ' · nessuna data di rinnovo impostata')) +
           (c.dataUltimoContatto ? ' · ultimo contatto ' + formatItData(c.dataUltimoContatto) : '') +
@@ -11178,6 +11189,13 @@
   }
 
   function wireFolderEvents(c) {
+    Array.prototype.forEach.call(folderModal.querySelectorAll('[data-perc]'), function (b) {
+      b.addEventListener('click', function () {
+        var pc = percorsoOf(c); pc[b.getAttribute('data-perc')] = !pc[b.getAttribute('data-perc')];
+        c.servizio = servizioFrom(pc.tr, pc.nu); saveClients(); renderFolder(c.id); render();
+        toast(c.servizio ? 'Percorso: ' + (pc.tr ? '🏋🏻 allenamento' : '') + (pc.tr && pc.nu ? ' + ' : '') + (pc.nu ? '🍏 nutrizione' : '') + ' (' + c.servizio + ')' : 'Percorso non impostato');
+      });
+    });
     var pzb = document.getElementById('pausaBtn'); if (pzb) pzb.addEventListener('click', function () { openPausa(c); });
     var pzr = document.getElementById('pausaRiprendi'); if (pzr) pzr.addEventListener('click', function () { pausaRiprendi(c); });
     var pze = document.getElementById('pausaModifica'); if (pze) pze.addEventListener('click', function () { openPausa(c, true); });
